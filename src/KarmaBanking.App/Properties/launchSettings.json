@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "KarmaBanking.App (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "KarmaBanking.App (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
