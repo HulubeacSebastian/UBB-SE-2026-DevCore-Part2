@@ -79,7 +79,7 @@
                         <TextBlock Grid.Column="2" Text="{Binding FormattedBalance}"/>
                         <TextBlock Grid.Column="3" Text="{Binding FormattedAccruedInterest}"/>
                         <Border Grid.Column="4" CornerRadius="8" Padding="8,4"
-                                Background="{Binding Status, Converter={StaticResource StatusToColorConverter}}">
+                                Background="LightGray">
                             <TextBlock Text="{Binding Status}"/>
                         </Border>
                     </Grid>
