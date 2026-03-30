@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories.Interfaces;
@@ -82,6 +81,24 @@ namespace KarmaBanking.App.Repositories
             }
 
             return savingsAccounts;
+        }
+
+        public async Task<bool> UpdateSavingsAccountBalanceAsync(int savingsAccountId, decimal amountToAdd)
+        {
+            const string updateSavingsAccountBalanceQuery = @"
+                UPDATE SavingsAccount
+                SET balance = balance + @AmountToAdd
+                WHERE id = @SavingsAccountId";
+
+            using SqlConnection openDatabaseConnection = DatabaseConfig.GetDatabaseConnection();
+            await openDatabaseConnection.OpenAsync();
+
+            using SqlCommand updateSavingsAccountBalanceCommand = new SqlCommand(updateSavingsAccountBalanceQuery, openDatabaseConnection);
+            updateSavingsAccountBalanceCommand.Parameters.AddWithValue("@SavingsAccountId", savingsAccountId);
+            updateSavingsAccountBalanceCommand.Parameters.AddWithValue("@AmountToAdd", amountToAdd);
+
+            int numberOfRowsAffectedByUpdate = await updateSavingsAccountBalanceCommand.ExecuteNonQueryAsync();
+            return numberOfRowsAffectedByUpdate > 0;
         }
     }
 }
