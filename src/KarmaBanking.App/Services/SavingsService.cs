@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories.Interfaces;
@@ -15,12 +16,14 @@ namespace KarmaBanking.App.Services
             this.savingsRepository = savingsRepository;
         }
 
+        public async Task<List<SavingsAccount>> GetSavingsAccountsByUserIdAsync(int userId)
+        {
+            return await savingsRepository.GetSavingsAccountsByUserIdAsync(userId);
+        }
+
         public async Task<bool> CreateSavingsAccountAsync(SavingsAccount savingsAccount)
         {
             if (savingsAccount.Balance <= 0)
-                return false;
-
-            if (savingsAccount.FundingAccountId == null || savingsAccount.FundingAccountId <= 0)
                 return false;
 
             savingsAccount.CreatedAt = DateTime.Now;
@@ -28,6 +31,14 @@ namespace KarmaBanking.App.Services
             savingsAccount.AccruedInterest = 0;
 
             return await savingsRepository.AddSavingsAccountAsync(savingsAccount);
+        }
+
+        public async Task<bool> DepositAsync(int savingsAccountId, decimal depositAmount)
+        {
+            if (depositAmount <= 0)
+                return false;
+
+            return await savingsRepository.UpdateSavingsAccountBalanceAsync(savingsAccountId, depositAmount);
         }
     }
 }
