@@ -5,17 +5,16 @@ using System.Linq;
 
 public class LoanRepository : ILoanRepository
 {
-    public List<Loan> getAll(int userId)
+    public List<Loan> getAllLoans()
     {
         List<Loan> loans = new List<Loan>();
         using (SqlConnection connection = new SqlConnection(DatabaseConfig.connectionString))
         {
             connection.Open();
 
-            string query = "SELECT * FROM Loan WHERE userId = @userId";
+            string query = "SELECT * FROM Loans";
 
             SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@userId", userId);
             SqlDataReader reader = command.ExecuteReader();
 
             while (reader.Read())

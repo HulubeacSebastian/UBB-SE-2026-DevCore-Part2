@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 public interface ILoanRepository
 {
-    List<Loan> getAll(int userId);
+    List<Loan> getAllLoans();
     Loan getById(int id);
     List<Loan> getByUser(int userID);
     void SaveAmortization(List<AmortizationRow> rows);
