@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -57,9 +59,20 @@ namespace KarmaBanking.App.ViewModels
             set { accountsListVisibility = value; OnPropertyChanged(); }
         }
 
+        public string LoadErrorMessage { get; private set; } = string.Empty;
+
         public async Task LoadSavingsAccountsAsync(int userId)
         {
-            var accounts = await savingsService.GetSavingsAccountsByUserIdAsync(userId);
+            List<SavingsAccount> accounts;
+            try
+            {
+                accounts = await savingsService.GetSavingsAccountsByUserIdAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                LoadErrorMessage = ex.Message;
+                return;
+            }
 
             SavingsAccounts.Clear();
             foreach (var account in accounts)

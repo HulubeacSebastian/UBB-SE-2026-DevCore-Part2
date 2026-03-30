@@ -26,9 +26,6 @@ namespace KarmaBanking.App.Services
             if (savingsAccount.Balance <= 0)
                 return false;
 
-            if (savingsAccount.FundingAccountId == null || savingsAccount.FundingAccountId <= 0)
-                return false;
-
             savingsAccount.CreatedAt = DateTime.Now;
             savingsAccount.AccountStatus = "Active";
             savingsAccount.AccruedInterest = 0;
