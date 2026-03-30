@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories.Interfaces;
@@ -13,6 +14,11 @@ namespace KarmaBanking.App.Services
         public SavingsService(ISavingsRepository savingsRepository)
         {
             this.savingsRepository = savingsRepository;
+        }
+
+        public async Task<List<SavingsAccount>> GetSavingsAccountsByUserIdAsync(int userId)
+        {
+            return await savingsRepository.GetSavingsAccountsByUserIdAsync(userId);
         }
 
         public async Task<bool> CreateSavingsAccountAsync(SavingsAccount savingsAccount)

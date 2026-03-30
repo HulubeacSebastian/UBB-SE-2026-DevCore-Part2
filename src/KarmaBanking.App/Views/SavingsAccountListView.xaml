@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Page
         x:Class="KarmaBanking.App.Views.SavingsAccountListView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -25,12 +25,12 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="32" Margin="0,0,0,16">
             <StackPanel>
                 <TextBlock Text="TOTAL SAVED" FontSize="12" Foreground="Gray"/>
-                <TextBlock x:Name="TotalSavedAmountText" Text="$0.00" FontSize="20" FontWeight="Bold"/>
-                <TextBlock x:Name="NumberOfAccountsText" Text="across 0 accounts" FontSize="12" Foreground="Gray"/>
+                <TextBlock Text="{Binding TotalSavedAmount}" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Text="{Binding NumberOfAccountsText}" FontSize="12" Foreground="Gray"/>
             </StackPanel>
             <StackPanel>
                 <TextBlock Text="BEST RATE" FontSize="12" Foreground="Gray"/>
-                <TextBlock x:Name="BestInterestRateText" Text="0.00%" FontSize="20" FontWeight="Bold"/>
+                <TextBlock Text="{Binding BestInterestRate}" FontSize="20" FontWeight="Bold"/>
                 <TextBlock Text="Fixed Deposit" FontSize="12" Foreground="Gray"/>
             </StackPanel>
         </StackPanel>
@@ -44,8 +44,16 @@
             </NavigationView.MenuItems>
         </NavigationView>
 
+        <!-- Empty state -->
+        <StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Visibility="{Binding EmptyStateVisibility}">
+            <TextBlock Text="No savings accounts yet." FontSize="16" Foreground="Gray" HorizontalAlignment="Center"/>
+            <TextBlock Text="Open a new account to get started." FontSize="14" Foreground="Gray" HorizontalAlignment="Center"/>
+        </StackPanel>
+
         <!-- Accounts Table -->
-        <ListView Grid.Row="3" x:Name="SavingsAccountsListView">
+        <ListView Grid.Row="3" ItemsSource="{Binding SavingsAccounts}"
+                  Visibility="{Binding AccountsListVisibility}">
             <ListView.HeaderTemplate>
                 <DataTemplate>
                     <Grid>
@@ -76,11 +84,10 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding AccountName}"/>
                         <TextBlock Grid.Column="1" Text="{Binding SavingsType}"/>
-                        <TextBlock Grid.Column="2" Text="{Binding FormattedBalance}"/>
-                        <TextBlock Grid.Column="3" Text="{Binding FormattedAccruedInterest}"/>
-                        <Border Grid.Column="4" CornerRadius="8" Padding="8,4"
-                                Background="LightGray">
-                            <TextBlock Text="{Binding Status}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Balance}"/>
+                        <TextBlock Grid.Column="3" Text="{Binding AccruedInterest}"/>
+                        <Border Grid.Column="4" CornerRadius="8" Padding="8,4" Background="LightGray">
+                            <TextBlock Text="{Binding AccountStatus}"/>
                         </Border>
                     </Grid>
                 </DataTemplate>
