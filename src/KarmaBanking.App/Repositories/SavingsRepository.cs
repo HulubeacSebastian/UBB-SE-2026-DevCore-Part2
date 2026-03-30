@@ -9,13 +9,6 @@ namespace KarmaBanking.App.Repositories
 {
     public class SavingsRepository : ISavingsRepository
     {
-        private readonly DatabaseConnection _databaseConnection;
-
-        public SavingsRepository(DatabaseConnection databaseConnection)
-        {
-            _databaseConnection = databaseConnection;
-        }
-
         public async Task<bool> AddSavingsAccountAsync(SavingsAccount newSavingsAccount)
         {
             const string insertSavingsAccountQuery = @"
@@ -28,7 +21,7 @@ namespace KarmaBanking.App.Repositories
                      @MaturityDate, @AccountStatus, @CreatedAt,
                      @AccountName, @FundingAccountId, @TargetAmount, @TargetDate)";
 
-            using SqlConnection openDatabaseConnection = _databaseConnection.GetDatabaseConnection();
+            using SqlConnection openDatabaseConnection = DatabaseConfig.GetDatabaseConnection();
             await openDatabaseConnection.OpenAsync();
 
             using SqlCommand insertSavingsAccountCommand = new SqlCommand(insertSavingsAccountQuery, openDatabaseConnection);
