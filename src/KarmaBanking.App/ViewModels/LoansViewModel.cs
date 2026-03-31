@@ -9,6 +9,13 @@ public class LoansViewModel
     private readonly AmortizationCalculator _amortizationCalculator;
 
     public IEnumerable<Loan> loans { get; set; }
+
+    public void loadLoans()
+    {
+        isLoading = true;
+        loans = _loanService.GetAllLoans();
+        isLoading = false;
+    }
     public LoanEstimate currentEstimate { get; set; }
     public bool isLoading { get; set; }
 
@@ -24,13 +31,13 @@ public class LoansViewModel
 
     public void LoadAmortization(int loanId)
     {
-        // 1. Load rows from repository (OK să rămână aici)
+
         var rows = _loanRepository.GetAmortization(loanId);
 
-        // 2. Dacă nu există → generăm și salvăm
+
         if (rows == null || rows.Count == 0)
         {
-            // folosim Service pentru Loan
+
             var loan = _loanService.GetLoanById(loanId);
 
             if (loan != null)
@@ -38,12 +45,12 @@ public class LoansViewModel
                 var generatedRows = _amortizationCalculator.generate(loan);
                 _loanRepository.SaveAmortization(generatedRows);
 
-                // reload din DB
+
                 rows = _loanRepository.GetAmortization(loanId);
             }
         }
 
-        // 3. Populate ObservableCollection
+
         AmortizationRows.Clear();
 
         if (rows != null)
