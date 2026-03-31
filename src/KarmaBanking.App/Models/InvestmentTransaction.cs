@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KarmaBanking.App.Models
 {
-    internal class InvesmentTransaction
+    internal class InvestmentTransaction
     {
         public int Id { get; set; }
         public int HoldingId { get; set; }
