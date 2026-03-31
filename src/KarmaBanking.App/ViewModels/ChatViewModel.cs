@@ -11,6 +11,7 @@ namespace KarmaBanking.App.ViewModels
     {
         private IssueCategory? selectedCategory;
         private string statusMessage = "Please select a category to continue.";
+        private SelectedAttachment? selectedAttachment;
 
         public IssueCategory? SelectedCategory
         {
@@ -26,6 +27,22 @@ namespace KarmaBanking.App.ViewModels
                 }
             }
         }
+
+        public SelectedAttachment? SelectedAttachment
+        {
+            get => selectedAttachment;
+            set
+            {
+                if (selectedAttachment != value)
+                {
+                    selectedAttachment = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasAttachmentPreview));
+                }
+            }
+        }
+
+        public bool HasAttachmentPreview => SelectedAttachment != null;
 
         public bool CanContinue => SelectedCategory != null;
 
@@ -43,12 +60,14 @@ namespace KarmaBanking.App.ViewModels
         }
 
         public RelayCommand ContinueCommand { get; }
+        public RelayCommand RemoveAttachmentCommand { get; }
 
         public event Action<string>? ContinueRequested;
 
         public ChatViewModel()
         {
             ContinueCommand = new RelayCommand(OnContinueAsync, () => CanContinue);
+            RemoveAttachmentCommand = new RelayCommand(OnRemoveAttachmentAsync);
         }
 
         private Task OnContinueAsync()
@@ -61,6 +80,13 @@ namespace KarmaBanking.App.ViewModels
 
             ContinueRequested?.Invoke(categoryDisplayName);
 
+            return Task.CompletedTask;
+        }
+
+        private Task OnRemoveAttachmentAsync()
+        {
+            SelectedAttachment = null;
+            StatusMessage = "Attachment removed.";
             return Task.CompletedTask;
         }
 
