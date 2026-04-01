@@ -11,4 +11,12 @@ public interface ILoanService
 
     List<Loan> GetLoansByType(LoanType loanType);
 
+    double CalculateRepaymentProgress(Loan loan);
+
+    void ApplyForLoan(LoanApplicationRequest request);
+
+    LoanEstimate GetLoanEstimate(LoanApplicationRequest request);
+
+    void PayInstallment(int loanId);
+
 }

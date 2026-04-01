@@ -1,12 +1,18 @@
 using System;
-using System.Data.SqlClient;
 using System.Collections.Generic;
 using System.Data;
+using Microsoft.Data.SqlClient;
 
 public class LoanRepository : ILoanRepository
 {
     public List<Loan> GetAllLoans()
+
+
     {
+
+        System.Diagnostics.Debug.WriteLine("User: " + System.Security.Principal.WindowsIdentity.GetCurrent().Name);
+        System.Diagnostics.Debug.WriteLine("ConnStr: " + DatabaseConfig.ConnectionString);
+
         List<Loan> loans = new List<Loan>();
 
         using (SqlConnection connection = new SqlConnection(DatabaseConfig.ConnectionString))
@@ -258,4 +264,76 @@ public class LoanRepository : ILoanRepository
             loanStatus = reader["loanStatus"].ToString()
         };
     }
+    public void CreateLoanApplication(LoanApplication app)
+{
+    using (SqlConnection connection = new SqlConnection(DatabaseConfig.ConnectionString))
+    {
+        connection.Open();
+
+        string query = @"INSERT INTO LoanApplication
+            (loanType, desiredAmount, preferredTermMonths, purpose, applicationStatus, rejectionReason)
+            VALUES
+            (@loanType, @amount, @term, @purpose, @status, @reason)";
+
+        using (SqlCommand cmd = new SqlCommand(query, connection))
+        {
+            cmd.Parameters.AddWithValue("@loanType", app.loanType.ToString());
+            cmd.Parameters.AddWithValue("@amount", app.desiredAmount);
+            cmd.Parameters.AddWithValue("@term", app.preferredTermMonths);
+            cmd.Parameters.AddWithValue("@purpose", app.purpose);
+            cmd.Parameters.AddWithValue("@status", app.applicationStatus.ToString());
+            cmd.Parameters.AddWithValue("@reason", (object?)app.rejectionReason ?? DBNull.Value);
+
+            cmd.ExecuteNonQuery();
+        }
+    }
+}
+
+    public Loan pay(int id, decimal amount)
+    {
+        Loan loan = GetById(id);
+
+        if (loan == null)
+        {
+            throw new InvalidOperationException("Loan not found.");
+        }
+
+        loan.outstandingBalance -= amount;
+        loan.remainingMonths = Math.Max(0, loan.remainingMonths - 1);
+
+        if (loan.outstandingBalance <= 0)
+        {
+            loan.outstandingBalance = 0;
+            loan.loanStatus = LoanStatus.Passed.ToString();
+        }
+
+        using (SqlConnection connection = new SqlConnection(DatabaseConfig.ConnectionString))
+        {
+            connection.Open();
+
+            string query = @"UPDATE Loan
+                             SET outstandingBalance = @outstandingBalance,
+                                 remainingMonths = @remainingMonths,
+                                 loanStatus = @loanStatus
+                             WHERE id = @id";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.Add("@outstandingBalance", SqlDbType.Decimal).Value = loan.outstandingBalance;
+                command.Parameters.Add("@remainingMonths", SqlDbType.Int).Value = loan.remainingMonths;
+                command.Parameters.Add("@loanStatus", SqlDbType.NVarChar, 50).Value = loan.loanStatus;
+                command.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        return loan;
+    }
+
+    public void MakePayment(int loanId, decimal amount)
+    {
+        pay(loanId, amount);
+    }
+
 }
