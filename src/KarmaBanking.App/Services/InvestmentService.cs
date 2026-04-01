@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KarmaBanking.App.Services.Interfaces
+namespace KarmaBanking.App.Services
 {
     internal class InvestmentService : IInvestmentService
     {
