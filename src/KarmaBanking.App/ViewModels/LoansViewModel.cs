@@ -96,10 +96,20 @@ public class LoansViewModel : INotifyPropertyChanged
         return _loanService.CalculateRepaymentProgress(loan);
     }
 
+    public void makePayment(int loanId, decimal amount)
+    {
+        Debug.WriteLine($"Stub payment for loan {loanId} with amount {amount}.");
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged([CallerMemberName] string name = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
+
+
+    public List<LoanType> LoanTypes =>
+    Enum.GetValues(typeof(LoanType)).Cast<LoanType>().ToList();
 }
+
