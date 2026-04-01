@@ -13,4 +13,6 @@ public interface ILoanService
 
     double CalculateRepaymentProgress(Loan loan);
 
+    void ApplyForLoan(LoanApplicationRequest request);
+
 }

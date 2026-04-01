@@ -5,10 +5,12 @@ using Windows.System;
 public class LoanService : ILoanService
 {
     private readonly ILoanRepository _loanRepository;
+    private readonly LoanApplicationValidator _validator;
 
     public LoanService(ILoanRepository loanRepository)
     {
         _loanRepository = loanRepository;
+        _validator = new LoanApplicationValidator();
     }
 
     public List<Loan> GetAllLoans()
@@ -53,5 +55,23 @@ public class LoanService : ILoanService
         if (progress > 100) return 100;
 
         return Math.Round(progress, 2);
+    }
+
+    public void ApplyForLoan(LoanApplicationRequest request)
+    {
+
+        _validator.Validate(request);
+        var application = new LoanApplication
+        {
+            loanType = request.loanType,
+            desiredAmount = request.desiredAmount,
+            preferredTermMonths = request.preferredTermMonths,
+            purpose = request.purpose,
+
+            applicationStatus = LoanApplicationStatus.Pending,
+            rejectionReason = null
+        };
+
+        _loanRepository.CreateLoanApplication(application);
     }
 }
