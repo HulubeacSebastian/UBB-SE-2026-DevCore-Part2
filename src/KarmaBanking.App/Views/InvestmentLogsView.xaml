@@ -22,32 +22,34 @@
 
         <TextBlock Grid.Row="0" Text="Transaction Logs" FontSize="28" FontWeight="Bold" Margin="0,0,0,24" />
 
-        <Border Grid.Row="1" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,24">
-            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Bottom">
+		<Border Grid.Row="1" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,24">
+			<StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Bottom">
 
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Asset" FontWeight="SemiBold"/>
-                    <ComboBox SelectedItem="{Binding SelectedTicker, Mode=TwoWay}" Width="120">
-                        <x:String>All</x:String>
-                        <x:String>BTC</x:String>
-                        <x:String>ETH</x:String>
-                        <x:String>SOL</x:String>
-                    </ComboBox>
-                </StackPanel>
+				<StackPanel Spacing="4">
+					<TextBlock Text="Asset" FontWeight="SemiBold"/>
+					<ComboBox SelectedItem="{Binding SelectedTicker, Mode=TwoWay}" Width="120">
+						<x:String>All</x:String>
+						<x:String>BTC</x:String>
+						<x:String>ETH</x:String>
+						<x:String>SOL</x:String>
+					</ComboBox>
+				</StackPanel>
 
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Start Date" FontWeight="SemiBold"/>
-                    <CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" PlaceholderText="Select date"/>
-                </StackPanel>
+				<StackPanel Spacing="4">
+					<TextBlock Text="Start Date" FontWeight="SemiBold"/>
+					<CalendarDatePicker Date="{Binding StartDate, Mode=TwoWay}" PlaceholderText="Select date"/>
+				</StackPanel>
 
-                <StackPanel Spacing="4">
-                    <TextBlock Text="End Date" FontWeight="SemiBold"/>
-                    <CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" PlaceholderText="Select date"/>
-                </StackPanel>
+				<StackPanel Spacing="4">
+					<TextBlock Text="End Date" FontWeight="SemiBold"/>
+					<CalendarDatePicker Date="{Binding EndDate, Mode=TwoWay}" PlaceholderText="Select date"/>
+				</StackPanel>
 
-                <Button Content="Apply Filters" Command="{Binding ApplyFiltersCommand}" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Bottom" Height="32"/>
-            </StackPanel>
-        </Border>
+				<Button Content="Apply Filters" Command="{Binding ApplyFiltersCommand}" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Bottom" Height="32"/>
+
+				<Button Content="Export CSV" Command="{Binding ExportCsvCommand}" VerticalAlignment="Bottom" Height="32" Margin="16,0,0,0"/>
+			</StackPanel>
+		</Border>
 
         <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Logs.Count, Converter={StaticResource BoolToVisibility}, ConverterParameter=Inverse}">
             <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" Margin="0,0,0,12"/>
