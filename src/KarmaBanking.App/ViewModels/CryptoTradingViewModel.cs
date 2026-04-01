@@ -69,8 +69,7 @@ namespace KarmaBanking.App.ViewModels
 
             try
             {
-                // Note: Hardcoding PortfolioId (1) and a mock price for demonstration.
-                // In a complete app, price should be fetched live from an API.
+                // Hardcoding PortfolioId (1) and a mock price for demonstration.
                 decimal mockPrice = SelectedTicker == "BTC" ? 65000m : 3000m;
 
                 await _investmentService.ExecuteCryptoTradeAsync(1, SelectedTicker, ActionType, quantity, mockPrice);

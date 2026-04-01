@@ -14,10 +14,7 @@
 	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>
-    <Page Remove="views\CryptoTradingView.xaml" />
-  </ItemGroup>
-
+	
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
@@ -47,9 +44,9 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Views\CryptoTradingView.xaml">
+    <Page Update="Views\CryptoTradingView.xaml">
       <Generator>MSBuild:Compile</Generator>
-    </None>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\LoansView.xaml">
@@ -71,8 +68,13 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\CreateSavingsAccountView.xaml">
+	  <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
 
-  <!--
+	<!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
     Explorer "Package and Publish" context menu entry to be enabled for this project even if
     the Windows App SDK Nuget package has not yet been restored.
