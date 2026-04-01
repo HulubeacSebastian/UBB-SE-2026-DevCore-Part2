@@ -13,16 +13,11 @@ public class ApplyLoanViewModel : INotifyPropertyChanged
         _loanService = loanService;
 
         _selectedLoanType = LoanType.Personal;
-<<<<<<< HEAD
+
         _desiredAmount = 1000;
 
         _preferredTermMonths = AvailableTerms.First();
 
-=======
-        _preferredTermMonths = 12;
-        _desiredAmount = 1000;
-
->>>>>>> 7253ac183dd1f623eaa2b0b8514a85a86c4b23ae
         OnPropertyChanged(nameof(selectedLoanType));
         OnPropertyChanged(nameof(preferredTermMonths));
         OnPropertyChanged(nameof(desiredAmount));
@@ -60,13 +55,8 @@ public class ApplyLoanViewModel : INotifyPropertyChanged
         }
     }
 
-<<<<<<< HEAD
-    private double _desiredAmount;
-    public double desiredAmount
-=======
     private decimal _desiredAmount;
     public decimal desiredAmount
->>>>>>> 7253ac183dd1f623eaa2b0b8514a85a86c4b23ae
     {
         get => _desiredAmount;
         set
@@ -136,11 +126,7 @@ public class ApplyLoanViewModel : INotifyPropertyChanged
             var request = new LoanApplicationRequest
             {
                 loanType = selectedLoanType,
-<<<<<<< HEAD
-                desiredAmount = (decimal)desiredAmount,
-=======
                 desiredAmount = desiredAmount,
->>>>>>> 7253ac183dd1f623eaa2b0b8514a85a86c4b23ae
                 preferredTermMonths = preferredTermMonths,
                 purpose = purpose
             };
@@ -167,11 +153,8 @@ public class ApplyLoanViewModel : INotifyPropertyChanged
             var request = new LoanApplicationRequest
             {
                 loanType = selectedLoanType,
-<<<<<<< HEAD
-                desiredAmount = (decimal)desiredAmount,
-=======
                 desiredAmount = desiredAmount,
->>>>>>> 7253ac183dd1f623eaa2b0b8514a85a86c4b23ae
+
                 preferredTermMonths = preferredTermMonths,
                 purpose = purpose
             };

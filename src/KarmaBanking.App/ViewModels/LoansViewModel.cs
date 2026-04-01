@@ -103,8 +103,7 @@ public class LoansViewModel : INotifyPropertyChanged
         return _loanService.CalculateRepaymentProgress(loan);
     }
 
-<<<<<<< HEAD
-=======
+
     public void makePayment(int loanId, decimal amount)
     {
         if (amount <= 0)
@@ -141,15 +140,7 @@ public class LoansViewModel : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
-
-    private string _statusMessage;
-    public string statusMessage
-    {
-        get => _statusMessage;
-        set { _statusMessage = value; OnPropertyChanged(); }
-    }
-
->>>>>>> 7110a52bf5c8a134755d55e09e95f19f310db9e8
+    
     public void PayLoan(int loanId)
     {
         try
@@ -164,16 +155,7 @@ public class LoansViewModel : INotifyPropertyChanged
         }
     }
 
-<<<<<<< HEAD
-    public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-}
-=======
     public List<LoanType> LoanTypes =>
     Enum.GetValues(typeof(LoanType)).Cast<LoanType>().ToList();
 }
->>>>>>> 7110a52bf5c8a134755d55e09e95f19f310db9e8
