@@ -7,16 +7,22 @@
     mc:Ignorable="d">
 
     <StackPanel Padding="24" Spacing="16">
-        <TextBlock Text="Chat Routing"
+        <TextBlock Text="Chat Completed"
                    FontSize="28"
                    FontWeight="Bold"/>
 
         <TextBlock x:Name="CategoryTextBlock"
-                   Text="Selected category:"
                    FontSize="18"
                    TextWrapping="Wrap"/>
 
-        <TextBlock Text="This is the next page in the support chat flow."
+        <TextBlock Text="Your support chat has ended."
+                   TextWrapping="Wrap"/>
+
+        <Button Content="Rate Chat"
+                Click="OpenRatingDialog_Click"
+                Width="140"/>
+
+        <TextBlock x:Name="StatusText"
                    TextWrapping="Wrap"/>
 
         <Button Content="Back"

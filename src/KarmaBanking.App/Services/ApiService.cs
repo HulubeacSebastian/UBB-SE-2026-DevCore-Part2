@@ -1,5 +1,6 @@
 ﻿using KarmaBanking.App.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -10,8 +11,8 @@ namespace KarmaBanking.App.Services
 {
     public class ApiService
     {
-        private readonly string baseUrl = "https://localhost:5001"; 
-        private readonly string authToken = ""; 
+        private readonly string baseUrl = "https://localhost:5001";
+        private readonly string authToken = "";
 
         public async Task<AttachmentUploadResponse?> UploadAttachmentAsync(int messageId, string filePath)
         {
@@ -59,6 +60,12 @@ namespace KarmaBanking.App.Services
             );
         }
 
+        public void SubmitFeedback(int sessionId, int rating, string feedback)
+        {
+            ChatSessionRepository repo = new ChatSessionRepository();
+            repo.SaveSessionRatingAndFeedback(sessionId, rating, feedback);
+        }
+
         private string GetContentType(string filePath)
         {
             string ext = Path.GetExtension(filePath).ToLowerInvariant();
@@ -71,6 +78,42 @@ namespace KarmaBanking.App.Services
                 ".jpeg" => "image/jpeg",
                 _ => "application/octet-stream"
             };
+        }
+
+        public void EmailSessionTranscript(int sessionId, string recipientEmail)
+        {
+            EmailTranscriptService emailService = new EmailTranscriptService();
+            emailService.SendSessionTranscript(sessionId, recipientEmail);
+        }
+
+        public virtual async Task<List<ChatMessage>?> GetChatHistoryAsync(int sessionId)
+        {
+            using var client = new HttpClient
+            {
+                BaseAddress = new Uri(baseUrl)
+            };
+
+            if (!string.IsNullOrWhiteSpace(authToken))
+            {
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", authToken);
+            }
+
+            HttpResponseMessage response =
+                await client.GetAsync($"/chat/{sessionId}/history");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to load chat history: {response.StatusCode} - {error}");
+            }
+
+            string json = await response.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<List<ChatMessage>>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
         }
     }
 }
