@@ -119,5 +119,51 @@ namespace KarmaBanking.App.Repositories
             int numberOfRowsAffected = await closeSavingsAccountCommand.ExecuteNonQueryAsync();
             return numberOfRowsAffected > 0;
         }
+
+        public async Task<List<(int AccountId, decimal Amount)>> GetAllSchedulesAsync()
+        {
+            const string query = @"
+        SELECT savingsAccountId, amount
+        FROM AutoSaveSchedule";
+
+            var result = new List<(int, decimal)>();
+
+            using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
+            await connection.OpenAsync();
+
+            using SqlCommand command = new SqlCommand(query, connection);
+            using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                int accountId = reader.GetInt32(0);
+                decimal amount = reader.GetDecimal(1);
+
+                result.Add((accountId, amount));
+            }
+
+            return result;
+        }
+        public async Task<bool> CreateScheduleAsync(int savingsAccountId, decimal amount, string frequency)
+        {
+            const string query = @"
+            INSERT INTO AutoSaveSchedule 
+            (savingsAccountId, frequency, amount, isActive, nextRunDate)
+            VALUES 
+            (@SavingsAccountId, @Frequency, @Amount, 1, GETDATE())";
+
+            using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
+            await connection.OpenAsync();
+
+            using SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@SavingsAccountId", savingsAccountId);
+            command.Parameters.AddWithValue("@Amount", amount);
+            command.Parameters.AddWithValue("@Frequency", frequency);
+
+            int rows = await command.ExecuteNonQueryAsync();
+            return rows > 0;
+        }
+
+
     }
 }

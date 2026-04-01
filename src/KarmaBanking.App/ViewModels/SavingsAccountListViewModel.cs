@@ -87,11 +87,71 @@ namespace KarmaBanking.App.ViewModels
             BestInterestRate = $"{highestApy:F2}%";
         }
 
+        public async Task CloseSavingsAccountAsync(int accountId)
+        {
+            try
+            {
+                bool success = await savingsService.CloseSavingsAccountAsync(accountId);
+
+                if (!success)
+                {
+                    LoadErrorMessage = "Failed to close account.";
+                    return;
+                }
+
+                await LoadSavingsAccountsAsync(userId: 1);
+            }
+            catch (Exception ex)
+            {
+                LoadErrorMessage = ex.Message;
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public async Task DepositAsync(int accountId, decimal amount)
+        {
+            try
+            {
+                await savingsService.UpdateSavingsAccountBalanceAsync(accountId, amount);
+
+                // Refresh accounts after deposit
+                await LoadSavingsAccountsAsync(userId: 1);
+            }
+            catch (Exception ex)
+            {
+                LoadErrorMessage = ex.Message;
+            }
+        }
+
+        public async Task ProcessSchedulesAsync()
+        {
+            try
+            {
+                await savingsService.ProcessSchedulesAsync();
+                await LoadSavingsAccountsAsync(1);
+            }
+            catch (Exception ex)
+            {
+                LoadErrorMessage = ex.Message;
+            }
+        }
+
+        public async Task CreateScheduleAsync(int accountId, decimal amount, string frequency)
+        {
+            try
+            {
+                await savingsService.CreateScheduleAsync(accountId, amount, frequency);
+            }
+            catch (Exception ex)
+            {
+                LoadErrorMessage = ex.Message;
+            }
         }
     }
 }
