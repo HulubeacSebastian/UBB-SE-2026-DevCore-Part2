@@ -13,8 +13,10 @@ public class ApplyLoanViewModel : INotifyPropertyChanged
         _loanService = loanService;
 
         _selectedLoanType = LoanType.Personal;
-        _preferredTermMonths = 12;
+
         _desiredAmount = 1000;
+
+        _preferredTermMonths = AvailableTerms.First();
 
         OnPropertyChanged(nameof(selectedLoanType));
         OnPropertyChanged(nameof(preferredTermMonths));
@@ -152,6 +154,7 @@ public class ApplyLoanViewModel : INotifyPropertyChanged
             {
                 loanType = selectedLoanType,
                 desiredAmount = desiredAmount,
+
                 preferredTermMonths = preferredTermMonths,
                 purpose = purpose
             };

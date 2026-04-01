@@ -1,9 +1,9 @@
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Globalization;
 using System.Linq;
+using System.Globalization;
+using Microsoft.UI.Text;
 
 namespace KarmaBanking.App.Views
 {
@@ -36,6 +36,7 @@ namespace KarmaBanking.App.Views
         {
             var button = sender as Button;
             int loanId = (int)button.Tag;
+
             var loan = _viewModel.loans?.FirstOrDefault(currentLoan => currentLoan.id == loanId);
             if (loan == null)
             {

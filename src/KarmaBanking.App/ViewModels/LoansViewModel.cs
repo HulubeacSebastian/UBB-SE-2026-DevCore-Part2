@@ -37,6 +37,13 @@ public class LoansViewModel : INotifyPropertyChanged
         set { _isLoading = value; OnPropertyChanged(); }
     }
 
+    private string _statusMessage;
+    public string statusMessage
+    {
+        get => _statusMessage;
+        set { _statusMessage = value; OnPropertyChanged(); }
+    }
+
     public void loadLoans()
     {
         isLoading = true;
@@ -96,6 +103,7 @@ public class LoansViewModel : INotifyPropertyChanged
         return _loanService.CalculateRepaymentProgress(loan);
     }
 
+
     public void makePayment(int loanId, decimal amount)
     {
         if (amount <= 0)
@@ -132,14 +140,7 @@ public class LoansViewModel : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
-
-    private string _statusMessage;
-    public string statusMessage
-    {
-        get => _statusMessage;
-        set { _statusMessage = value; OnPropertyChanged(); }
-    }
-
+    
     public void PayLoan(int loanId)
     {
         try
@@ -153,6 +154,7 @@ public class LoansViewModel : INotifyPropertyChanged
             statusMessage = ex.Message;
         }
     }
+
 
     public List<LoanType> LoanTypes =>
     Enum.GetValues(typeof(LoanType)).Cast<LoanType>().ToList();
