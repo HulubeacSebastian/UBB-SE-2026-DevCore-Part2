@@ -148,16 +148,13 @@ namespace KarmaBanking.App.Views
             previewGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             previewGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            TextBlock balanceAfterLabel = new TextBlock { Text = "Outstanding balance after" };
+            TextBlock balanceAfterLabel = new TextBlock { Text = "- Outstanding balance" };
             TextBlock balanceAfterValue = new TextBlock();
             Grid.SetColumn(balanceAfterValue, 1);
 
-            TextBlock termAfterLabel = new TextBlock { Text = "Remaining term preview" };
+            TextBlock termAfterLabel = new TextBlock { Text = "- Remaining term" };
             Grid.SetRow(termAfterLabel, 1);
-            TextBlock termAfterValue = new TextBlock
-            {
-                Text = $"{loan.remainingMonths} months remaining"
-            };
+            TextBlock termAfterValue = new TextBlock();
             Grid.SetRow(termAfterValue, 1);
             Grid.SetColumn(termAfterValue, 1);
 
@@ -179,7 +176,16 @@ namespace KarmaBanking.App.Views
                 }
 
                 decimal balanceAfterPayment = loan.outstandingBalance - selectedAmount;
+                if (balanceAfterPayment < 0)
+                {
+                    balanceAfterPayment = 0;
+                }
+
                 balanceAfterValue.Text = balanceAfterPayment.ToString("C", CultureInfo.CurrentCulture);
+                int remainingTermPreview = balanceAfterPayment == 0
+                    ? 0
+                    : Math.Max(0, loan.remainingMonths - 1);
+                termAfterValue.Text = $"{remainingTermPreview} mo";
             }
 
             minimumInstallmentRadio.Checked += (dialogSender, args) =>
@@ -214,8 +220,24 @@ namespace KarmaBanking.App.Views
             dialogContent.Children.Add(minimumInstallmentRadio);
             dialogContent.Children.Add(customAmountRadio);
             dialogContent.Children.Add(amountTextBox);
-            dialogContent.Children.Add(previewTitle);
-            dialogContent.Children.Add(previewGrid);
+            Border previewBorder = new Border
+            {
+                BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.LightGray),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(12),
+                Child = new StackPanel
+                {
+                    Spacing = 10,
+                    Children =
+                    {
+                        previewTitle,
+                        previewGrid
+                    }
+                }
+            };
+
+            dialogContent.Children.Add(previewBorder);
 
             ContentDialog paymentDialog = new ContentDialog
             {
@@ -248,6 +270,11 @@ namespace KarmaBanking.App.Views
             };
 
             await successDialog.ShowAsync();
+        }
+
+        private void ApplyLoan_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(ApplyLoanView));
         }
     }
 }
