@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 namespace KarmaBanking.App.Repositories
 {
     public class InvestmentRepository : IInvestmentRepository
-    internal class InvestmentRepository : IInvestmentRepository
     {
         public async Task RecordCryptoTradeAsync(int portfolioId, string ticker, string actionType, decimal quantity, decimal pricePerUnit, decimal fees) 
         {
