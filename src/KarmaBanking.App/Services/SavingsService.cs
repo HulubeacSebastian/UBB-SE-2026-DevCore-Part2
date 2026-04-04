@@ -1,9 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories.Interfaces;
 using KarmaBanking.App.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace KarmaBanking.App.Services
 {
@@ -38,6 +39,12 @@ namespace KarmaBanking.App.Services
             if (depositAmount <= 0)
                 return false;
 
+            var accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(1);
+            var account = accounts.FirstOrDefault(a => a.Id == savingsAccountId);
+
+            if (account == null || account.AccountStatus == "Closed")
+                return false;
+
             return await savingsRepository.UpdateSavingsAccountBalanceAsync(savingsAccountId, depositAmount);
         }
 
@@ -54,9 +61,15 @@ namespace KarmaBanking.App.Services
         public async Task ProcessSchedulesAsync()
         {
             var schedules = await savingsRepository.GetAllSchedulesAsync();
+            var accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(1);
 
             foreach (var schedule in schedules)
             {
+                var account = accounts.FirstOrDefault(a => a.Id == schedule.AccountId);
+
+                if (account == null || account.AccountStatus == "Closed")
+                    continue;
+
                 await savingsRepository.UpdateSavingsAccountBalanceAsync(
                     schedule.AccountId,
                     schedule.Amount);
@@ -65,6 +78,12 @@ namespace KarmaBanking.App.Services
 
         public async Task<bool> CreateScheduleAsync(int savingsAccountId, decimal amount, string frequency)
         {
+            var accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(1);
+            var account = accounts.FirstOrDefault(a => a.Id == savingsAccountId);
+
+            if (account == null || account.AccountStatus == "Closed")
+                return false;
+
             return await savingsRepository.CreateScheduleAsync(savingsAccountId, amount, frequency);
         }
 

@@ -111,9 +111,9 @@
                 Orientation="Horizontal"
                 Spacing="8"
                 Visibility="Collapsed">
-                    <Button Content="Details"/>
+                    <!-- <Button Content="Details"/> -->
                     <Button Content="Deposit" Click="Deposit_Click"/>
-                    <Button Content="Withdraw"/>
+                    <!-- <Button Content="Withdraw"/> -->
                     <Button Content="Close Account" Click="CloseAccount_Click"/>
                 </StackPanel>
 

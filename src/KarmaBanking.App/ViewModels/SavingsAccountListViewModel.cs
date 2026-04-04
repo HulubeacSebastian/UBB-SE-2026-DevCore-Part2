@@ -118,7 +118,7 @@ namespace KarmaBanking.App.ViewModels
         {
             try
             {
-                await savingsService.UpdateSavingsAccountBalanceAsync(accountId, amount);
+                await savingsService.DepositAsync(accountId, amount);
 
                 // Refresh accounts after deposit
                 await LoadSavingsAccountsAsync(userId: 1);
