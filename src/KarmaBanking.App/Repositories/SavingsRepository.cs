@@ -50,12 +50,12 @@ namespace KarmaBanking.App.Repositories
 
             const string query = @"
                 INSERT INTO SavingsAccount
-                    (userId, savingsType, balance, accruedInterest, apy,
+                    (userId, savingsType, balance, accruedInterest, apy, maturityDate,
                      accountStatus, createdAt, accountName,
                      fundingAccountId, targetAmount, targetDate)
                 OUTPUT INSERTED.id
                 VALUES
-                    (@UserId, @SavingsType, @Balance, 0, @Apy,
+                    (@UserId, @SavingsType, @Balance, 0, @Apy, @MaturityDate,
                      'Active', @CreatedAt, @AccountName,
                      @FundingAccountId, @TargetAmount, @TargetDate)";
 
@@ -67,11 +67,13 @@ namespace KarmaBanking.App.Repositories
             cmd.Parameters.AddWithValue("@SavingsType", dto.SavingsType);
             cmd.Parameters.AddWithValue("@Balance", dto.InitialDeposit);
             cmd.Parameters.AddWithValue("@Apy", apy);
+            cmd.Parameters.AddWithValue("@MaturityDate", (object?)dto.MaturityDate ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
             cmd.Parameters.AddWithValue("@AccountName", (object?)dto.AccountName ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@FundingAccountId", dto.FundingAccountId == 0 ? (object)DBNull.Value : dto.FundingAccountId);
             cmd.Parameters.AddWithValue("@TargetAmount", (object?)dto.TargetAmount ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@TargetDate", (object?)dto.TargetDate ?? DBNull.Value);
+            
 
             int newId = (int)await cmd.ExecuteScalarAsync();
 
@@ -154,7 +156,7 @@ namespace KarmaBanking.App.Repositories
             }
         }
 
-        public async Task<bool> CloseAsync(int accountId, int destinationAccountId)
+        public async Task<ClosureResult> CloseAsync(int accountId, int destinationAccountId)
         {
             using var conn = DatabaseConfig.GetDatabaseConnection();
             await conn.OpenAsync();
@@ -167,17 +169,18 @@ namespace KarmaBanking.App.Repositories
                 string accountType;
                 DateTime? maturityDate;
 
-                // 1. Get account details
-                using (var cmd = new SqlCommand(
-                    "SELECT balance, savingsType, maturityDate, accountStatus FROM SavingsAccount WHERE id = @Id",
-                    conn, transaction))
+                // 1. LOCK + FETCH ACCOUNT
+                using (var cmd = new SqlCommand(@"
+            SELECT balance, savingsType, maturityDate, accountStatus
+            FROM SavingsAccount WITH (UPDLOCK, ROWLOCK)
+            WHERE id = @Id", conn, transaction))
                 {
                     cmd.Parameters.AddWithValue("@Id", accountId);
 
                     using var reader = await cmd.ExecuteReaderAsync();
 
                     if (!await reader.ReadAsync())
-                        return false;
+                        throw new InvalidOperationException("Account not found.");
 
                     if (reader["accountStatus"].ToString() == "Closed")
                         throw new InvalidOperationException("Account already closed.");
@@ -187,7 +190,21 @@ namespace KarmaBanking.App.Repositories
                     maturityDate = reader["maturityDate"] as DateTime?;
                 }
 
-                // 2. Calculate penalty
+                // 2. VALIDATE DESTINATION ACCOUNT
+                using (var cmd = new SqlCommand(@"
+            SELECT COUNT(1)
+            FROM SavingsAccount
+            WHERE id = @DestId", conn, transaction))
+                {
+                    cmd.Parameters.AddWithValue("@DestId", destinationAccountId);
+
+                    int exists = (int)await cmd.ExecuteScalarAsync();
+
+                    if (exists == 0)
+                        throw new InvalidOperationException("Destination account not found.");
+                }
+
+                // 3. CALCULATE PENALTY
                 decimal penalty = 0;
 
                 if (accountType == "FixedDeposit" &&
@@ -199,10 +216,11 @@ namespace KarmaBanking.App.Repositories
 
                 decimal transferAmount = balance - penalty;
 
-                // 3. Transfer to destination (simplified: just add to balance)
-                using (var cmd = new SqlCommand(
-                    "UPDATE SavingsAccount SET balance = balance + @Amount WHERE id = @DestId",
-                    conn, transaction))
+                // 4. TRANSFER TO DESTINATION
+                using (var cmd = new SqlCommand(@"
+            UPDATE SavingsAccount
+            SET balance = balance + @Amount
+            WHERE id = @DestId", conn, transaction))
                 {
                     cmd.Parameters.AddWithValue("@Amount", transferAmount);
                     cmd.Parameters.AddWithValue("@DestId", destinationAccountId);
@@ -210,39 +228,55 @@ namespace KarmaBanking.App.Repositories
                     await cmd.ExecuteNonQueryAsync();
                 }
 
-                // 4. Close original account
-                using (var cmd = new SqlCommand(
-                    "UPDATE SavingsAccount SET balance = 0, accountStatus = 'Closed', updatedAt = GETUTCDATE() WHERE id = @Id",
-                    conn, transaction))
+                // 5. CLOSE ACCOUNT
+                using (var cmd = new SqlCommand(@"
+            UPDATE SavingsAccount
+            SET balance = 0,
+                accountStatus = 'Closed',
+                updatedAt = GETUTCDATE()
+            WHERE id = @Id", conn, transaction))
                 {
                     cmd.Parameters.AddWithValue("@Id", accountId);
                     await cmd.ExecuteNonQueryAsync();
                 }
 
-                // 5. Insert closure transaction
+                // 6. INSERT CLOSURE TRANSACTION
                 using (var cmd = new SqlCommand(@"
-                INSERT INTO SavingsTransaction
-                (accountId, transactionType, amount, balanceAfter, source, description, createdAt)
-                VALUES
-                (@AccountId, @Type, @Amount, 0, @Source, @Description, GETUTCDATE())",
-                conn, transaction))
+            INSERT INTO SavingsTransaction
+            (accountId, transactionType, amount, balanceAfter, source, description, createdAt)
+            VALUES
+            (@AccountId, 'Closure', @Amount, 0, 'Closure', 'Account closed', GETUTCDATE())",
+                    conn, transaction))
                 {
                     cmd.Parameters.AddWithValue("@AccountId", accountId);
-                    cmd.Parameters.AddWithValue("@Type", "Closure");
                     cmd.Parameters.AddWithValue("@Amount", transferAmount);
-                    cmd.Parameters.AddWithValue("@Source", "Closure");
-                    cmd.Parameters.AddWithValue("@Description", "Account closed");
 
                     await cmd.ExecuteNonQueryAsync();
                 }
 
                 await transaction.CommitAsync();
-                return true;
+
+                return new ClosureResult
+                {
+                    Success = true,
+                    TransferredAmount = transferAmount,
+                    PenaltyApplied = penalty,
+                    Message = "Account closed successfully.",
+                    ClosedAt = DateTime.UtcNow
+                };
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw;
+
+                return new ClosureResult
+                {
+                    Success = false,
+                    TransferredAmount = 0,
+                    PenaltyApplied = 0,
+                    Message = ex.Message,
+                    ClosedAt = DateTime.UtcNow
+                };
             }
         }
 

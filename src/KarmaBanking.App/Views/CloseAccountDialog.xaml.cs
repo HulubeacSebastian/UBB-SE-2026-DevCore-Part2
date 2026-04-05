@@ -13,7 +13,7 @@ namespace KarmaBanking.App.Views
         private readonly CloseAccountViewModel viewModel;
 
         public CloseAccountDialog(object parameter)
-{
+        {
             this.InitializeComponent();
 
             var account = (SavingsAccount)parameter;
@@ -24,8 +24,11 @@ namespace KarmaBanking.App.Views
 
             this.DataContext = viewModel;
 
-            _ = viewModel.LoadAccountsAsync();
-}
+            Loaded += async (_, __) =>
+            {
+                await viewModel.LoadAccountsAsync();
+            };
+        }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
@@ -34,7 +37,8 @@ namespace KarmaBanking.App.Views
 
         private async void Confirm_Click(object sender, RoutedEventArgs e)
         {
-            bool success = await viewModel.CloseAsync();
+            var result = await viewModel.CloseAsync();
+            bool success = result.Success;
 
             var dialog = new ContentDialog
             {

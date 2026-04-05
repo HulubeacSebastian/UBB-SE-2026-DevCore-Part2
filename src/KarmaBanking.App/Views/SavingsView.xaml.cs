@@ -7,6 +7,7 @@ using KarmaBanking.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using KarmaBanking.App.Models.DTOs;
 
 namespace KarmaBanking.App.Views
 {
@@ -66,9 +67,16 @@ namespace KarmaBanking.App.Views
             if (SavingsTypeRadioButtons.SelectedItem is RadioButton rb)
             {
                 viewModel.SelectedSavingsType = rb.Tag?.ToString() ?? string.Empty;
-                GoalSavingsPanel.Visibility = viewModel.IsGoalSavings
-                    ? Visibility.Visible : Visibility.Collapsed;
+
+                GoalSavingsPanel.Visibility =
+                    viewModel.SelectedSavingsType == "GoalSavings"
+                        ? Visibility.Visible : Visibility.Collapsed;
+
+                FixedDepositPanel.Visibility =
+                    viewModel.SelectedSavingsType == "FixedDeposit"
+                        ? Visibility.Visible : Visibility.Collapsed;
             }
+
         }
 
         private async void OnOpenAccountClicked(object sender, RoutedEventArgs e)
@@ -88,6 +96,11 @@ namespace KarmaBanking.App.Views
                 viewModel.TargetDate = TargetDatePicker.Date;
             }
 
+            if (viewModel.SelectedSavingsType == "FixedDeposit")
+            {
+                viewModel.MaturityDate = MaturityDatePicker.Date;
+            }
+
             await viewModel.CreateAccountCommand.ExecuteAsync(null);
 
             if (viewModel.FieldErrors.TryGetValue("SavingsType", out string? te))
@@ -102,6 +115,7 @@ namespace KarmaBanking.App.Views
                 ShowError(TargetAmountError, tae);
             if (viewModel.FieldErrors.TryGetValue("TargetDate", out string? tde))
                 ShowError(TargetDateError, tde);
+
 
             if (viewModel.HasError)
             {

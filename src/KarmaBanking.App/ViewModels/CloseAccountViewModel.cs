@@ -1,13 +1,18 @@
 ﻿using KarmaBanking.App.Models;
+using KarmaBanking.App.Models.DTOs;
+using KarmaBanking.App.Services;
 using KarmaBanking.App.Services.Interfaces;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Data;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.System;
 
 namespace KarmaBanking.App.ViewModels
 {
-    public class CloseAccountViewModel
+    public class CloseAccountViewModel : BaseViewModel
     {
         private readonly ISavingsService _service;
         private const int CurrentUserId = 1;
@@ -24,6 +29,8 @@ namespace KarmaBanking.App.ViewModels
         {
             _service = service;
             Account = account;
+
+            OnPropertyChanged(nameof(HasPenalty));
         }
 
         public async Task LoadAccountsAsync()
@@ -32,7 +39,9 @@ namespace KarmaBanking.App.ViewModels
 
             DestinationAccounts.Clear();
 
-            foreach (var acc in accounts.Where(a => a.Id != Account.Id))
+            foreach (var acc in accounts.Where(a =>
+            a.Id != Account.Id &&
+            a.AccountStatus != "Closed"))
             {
                 DestinationAccounts.Add(acc);
             }
@@ -42,18 +51,31 @@ namespace KarmaBanking.App.ViewModels
                 SelectedDestinationAccountId = DestinationAccounts[0].Id;
         }
 
-        public async Task<bool> CloseAsync()
+        public async Task<ClosureResult> CloseAsync()
         {
             if (!UserConfirmed)
-                return false;
+            {
+                return new ClosureResult
+                {
+                    Success = false,
+                    Message = "Please confirm account closure."
+                };
+            }
 
             if (SelectedDestinationAccountId == 0)
-                return false;
+            {
+                return new ClosureResult
+                {
+                    Success = false,
+                    Message = "Please select a destination account."
+                };
+            }
 
             return await _service.CloseAccountAsync(
                 Account.Id,
                 SelectedDestinationAccountId,
-                CurrentUserId);
+                CurrentUserId
+            );
         }
 
         public decimal EstimatedPenalty =>
@@ -64,5 +86,6 @@ namespace KarmaBanking.App.ViewModels
             : 0;
 
         public decimal EstimatedTransfer => Account.Balance - EstimatedPenalty;
+        public bool HasPenalty => EstimatedPenalty > 0;
     }
 }

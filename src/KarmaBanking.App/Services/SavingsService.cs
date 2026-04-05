@@ -67,7 +67,7 @@ namespace KarmaBanking.App.Services
             return await savingsRepository.DepositAsync(accountId, amount, source);
         }
 
-        public async Task<bool> CloseAccountAsync(int accountId, int destinationAccountId, int userId)
+        public async Task<ClosureResult> CloseAccountAsync(int accountId, int destinationAccountId, int userId)
         {
             var accounts = await savingsRepository.GetByUserIdAsync(userId, includesClosed: true);
 

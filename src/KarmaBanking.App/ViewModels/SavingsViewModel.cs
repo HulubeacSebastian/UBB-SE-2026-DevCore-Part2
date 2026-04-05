@@ -114,7 +114,8 @@ namespace KarmaBanking.App.ViewModels
             ErrorMessage = string.Empty;
             try
             {
-                bool ok = await savingsService.CloseAccountAsync(account.Id, CurrentUserId, 1);
+                var result = await savingsService.CloseAccountAsync(account.Id, CurrentUserId, 1);
+                bool ok = result.Success;
                 if (!ok) { ErrorMessage = "Failed to close account."; return; }
                 await LoadAccountsAsync();
             }
@@ -176,7 +177,8 @@ namespace KarmaBanking.App.ViewModels
                     InitialDeposit = deposit,
                     FundingAccountId = SelectedFundingSource!.Id,
                     TargetAmount = IsGoalSavings ? TargetAmount : null,
-                    TargetDate = IsGoalSavings ? TargetDate?.DateTime : null
+                    TargetDate = IsGoalSavings ? TargetDate?.DateTime : null,
+                    MaturityDate = MaturityDate?.DateTime
                 };
                 await savingsService.CreateAccountAsync(dto);
                 ShowCreateConfirmation = true;
@@ -290,5 +292,7 @@ namespace KarmaBanking.App.ViewModels
             currentPage = 1;
             await LoadTransactionsAsync(accountId);
         }
+
+        public DateTimeOffset? MaturityDate { get; set; }
     }
 }
