@@ -25,4 +25,6 @@ public interface ILoanService
     Task<List<AmortizationRow>> GetAmortizationAsync(int loanId);
 
     Task SaveAmortizationAsync(List<AmortizationRow> rows);
+
+    Task GenerateAmortizationAsync(int loanId);
 }

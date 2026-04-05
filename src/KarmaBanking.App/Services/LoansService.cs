@@ -154,10 +154,18 @@ public class LoanService : ILoanService
         if (loan.LoanStatus == LoanStatus.Passed)
             throw new Exception("Loan closed");
 
+        decimal payment = customAmount ?? loan.MonthlyInstallment;
+        decimal newBalance;
 
-        decimal newBalance = customAmount.HasValue ? loan.OutstandingBalance - customAmount.Value : loan.OutstandingBalance - loan.MonthlyInstallment;
+        if (payment > loan.OutstandingBalance)
+        {
+            newBalance = 0;
+        }
+
+        else newBalance = loan.OutstandingBalance - payment;
+
         int monthsPaid = customAmount.HasValue
-            ? (int)Math.Floor(customAmount.Value / loan.MonthlyInstallment) : 1;
+             ? (int)Math.Floor(customAmount.Value / loan.MonthlyInstallment) : 1;
 
         int newRemainingMonths = Math.Max(0, loan.RemainingMonths - monthsPaid);
 
@@ -172,6 +180,13 @@ public class LoanService : ILoanService
     public async Task<List<AmortizationRow>> GetAmortizationAsync(int loanId)
     {
         var rows = await _loanRepository.GetAmortizationAsync(loanId);
+
+        if (rows == null || rows.Count == 0)
+        {
+            await GenerateAmortizationAsync(loanId);
+            rows = await _loanRepository.GetAmortizationAsync(loanId);
+
+        }
 
         bool isCurrentSet = false;
         foreach (var row in rows)
@@ -192,6 +207,15 @@ public class LoanService : ILoanService
 
     public async Task SaveAmortizationAsync(List<AmortizationRow> rows)
     {
-       await _loanRepository.SaveAmortizationAsync(rows);
+        await _loanRepository.SaveAmortizationAsync(rows);
+    }
+
+    public async Task GenerateAmortizationAsync(int loanId)
+    {
+
+        var loan = await _loanRepository.GetLoanByIdAsync(loanId);
+        var rows = _calculator.generate(loan);
+        await _loanRepository.SaveAmortizationAsync(rows);
+
     }
 }

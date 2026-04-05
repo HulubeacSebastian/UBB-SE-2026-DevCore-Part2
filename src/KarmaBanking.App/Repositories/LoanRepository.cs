@@ -36,13 +36,13 @@ public class LoanRepository : ILoanRepository
         {
             Id = (int)reader["id"],
             UserId = (int)reader["userId"],
-            LoanType = Enum.Parse<LoanType>(reader["loanType"].ToString()),
+            LoanType = Enum.Parse<LoanType>(reader["loanType"].ToString(), ignoreCase:true),
             Principal = (decimal)reader["principal"],
             OutstandingBalance = (decimal)reader["outstandingBalance"],
             InterestRate = (decimal)reader["interestRate"],
             MonthlyInstallment = (decimal)reader["monthlyInstallment"],
             RemainingMonths = (int)reader["remainingMonths"],
-            LoanStatus = Enum.Parse<LoanStatus>(reader["loanStatus"].ToString()),
+            LoanStatus = Enum.Parse<LoanStatus>(reader["loanStatus"].ToString(), ignoreCase:true),
             TermInMonths = (int)reader["termInMonths"],
             StartDate = (DateTime)reader["startDate"]
         };
@@ -278,13 +278,13 @@ public class LoanRepository : ILoanRepository
         await connection.OpenAsync();
 
         string query = @"UPDATE LoanApplication
-                             SET rejectionReason = @reason,
+                             SET rejectionReason = @rejectionReason,
                                  applicationStatus = @loanApplicationStatus
                              WHERE id = @id";
 
         using SqlCommand command = new SqlCommand(query, connection);
         command.Parameters.Add("@id", SqlDbType.Int).Value = id;
-        command.Parameters.Add("@loanStatus", SqlDbType.NVarChar, 50).Value = loanApplicationStatus.ToString();
+        command.Parameters.Add("@loanApplicationStatus", SqlDbType.NVarChar, 50).Value = loanApplicationStatus.ToString();
         command.Parameters.Add("@rejectionReason", SqlDbType.NVarChar, 255).Value = reason != null ? reason.ToString() : DBNull.Value;
 
         await command.ExecuteNonQueryAsync();

@@ -1,3 +1,4 @@
+using KarmaBanking.App.ViewModels;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -16,9 +17,7 @@ namespace KarmaBanking.App.Views
         {
             InitializeComponent();
 
-            ViewModel = new LoansViewModel(
-                new LoanService(new LoanRepository()),
-                new LoanRepository());
+            ViewModel = new LoansViewModel();
 
             DataContext = ViewModel;
 
@@ -26,7 +25,7 @@ namespace KarmaBanking.App.Views
             AmortizationListView.ContainerContentChanging += OnRowContainerContentChanging;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
@@ -34,7 +33,9 @@ namespace KarmaBanking.App.Views
             {
                 _loan = loan;
                 PopulateStaticLabels(loan);
-                ViewModel.LoadAmortization(loan.Id);
+
+                ViewModel.SelectedLoan = new LoanViewModel(loan);
+                await ViewModel.LoadAmortizationAsync();
             }
         }
 
@@ -69,11 +70,11 @@ namespace KarmaBanking.App.Views
             }
         }
 
-        private void OnDownloadPdfClicked(object sender, RoutedEventArgs e)
+        private async void OnDownloadPdfClicked(object sender, RoutedEventArgs e)
         {
             if (_loan != null)
             {
-                ViewModel.downloadSchedulePdf(_loan.Id);
+               await ViewModel.DownloadSchedulePdfAsync();
             }
         }
     }
