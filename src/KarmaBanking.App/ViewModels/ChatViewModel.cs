@@ -13,7 +13,7 @@ namespace KarmaBanking.App.ViewModels
     {
         public static ChatViewModel Instance { get; } = new ChatViewModel();
 
-        private readonly ApiService _apiService = new ApiService();
+        private readonly ApiService _apiService = new MockApiService();
         private List<ChatMessage> messages = new List<ChatMessage>();
 
         public List<ChatMessage> Messages

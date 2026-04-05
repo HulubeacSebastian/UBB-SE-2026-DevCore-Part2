@@ -25,7 +25,8 @@
                     <DataTemplate>
                         <StackPanel Margin="4">
                             <TextBlock Text="{Binding SenderType}" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding SentAt}"/>
+                            <TextBlock Text="{Binding SentAt}" FontSize="10" FontStyle="Italic"/>
+                            <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Margin="0,2,0,0"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
