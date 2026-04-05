@@ -11,6 +11,31 @@ namespace KarmaBanking.App.Services
     // _apiService = new MockApiService();
     public class MockApiService : ApiService
     {
+        public override Task<List<string>> GetChatbotPresetQuestionsAsync()
+        {
+            return Task.FromResult(new List<string>(DefaultChatbotResponses.Keys));
+        }
+
+        public override Task<string> GetChatbotPresetAnswerAsync(string question)
+        {
+            if (DefaultChatbotResponses.TryGetValue(question, out string? response))
+            {
+                return Task.FromResult(response);
+            }
+
+            return Task.FromResult("Please contact the team for more help with this topic.");
+        }
+
+        public override Task<bool> SendChatToSupportAsync(string transcript, string customerMessage, SelectedAttachment? attachment)
+        {
+            bool hasPayload =
+                !string.IsNullOrWhiteSpace(transcript) ||
+                !string.IsNullOrWhiteSpace(customerMessage) ||
+                attachment != null;
+
+            return Task.FromResult(hasPayload);
+        }
+
         public override Task<List<ChatMessage>?> GetChatHistoryAsync(int sessionId)
         {
             var messages = new List<ChatMessage>
