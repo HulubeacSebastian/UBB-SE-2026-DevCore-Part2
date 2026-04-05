@@ -19,5 +19,9 @@ public interface ILoanRepository
 
     Task<int> CreateLoanApplicationAsync(LoanApplicationRequest request);
 
+    Task UpdateLoanApplicationStatusAsync(int id, LoanApplicationStatus loanApplicationStatus, string? reason);
+
+    Task<int> CreateLoanAsync(Loan loan);
+
     Task UpdateLoanAfterPaymentAsync(int id, decimal newBalance, int newRemainingMonths, LoanStatus newStatus);
 }

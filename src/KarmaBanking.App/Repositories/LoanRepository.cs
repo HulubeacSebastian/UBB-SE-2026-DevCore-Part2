@@ -283,7 +283,59 @@ public class LoanRepository : ILoanRepository
 
     }
 
-    public async Task UpdateLoanAfterPaymentAsync(int id,decimal newBalance, int newRemainingMonths, LoanStatus newStatus)
+
+   public async Task UpdateLoanApplicationStatusAsync(int id, LoanApplicationStatus loanApplicationStatus, string? reason)
+    {
+
+
+        using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
+
+        await connection.OpenAsync();
+
+        string query = @"UPDATE LoanApplication
+                             SET rejectionReason = @reason,
+                                 applicationStatus = @loanApplicationStatus
+                             WHERE id = @id";
+
+        using SqlCommand command = new SqlCommand(query, connection);
+        command.Parameters.Add("@id", SqlDbType.Int).Value = id;
+        command.Parameters.Add("@loanStatus", SqlDbType.NVarChar, 50).Value = loanApplicationStatus.ToString();
+        command.Parameters.Add("@rejectionReason", SqlDbType.NVarChar, 255).Value = reason != null ? reason.ToString() : DBNull.Value;
+
+        await command.ExecuteNonQueryAsync();
+
+    }
+
+    public async Task<int> CreateLoanAsync(Loan loan)
+    {
+        using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
+
+        await connection.OpenAsync();
+
+        string query = @"INSERT INTO Loan
+            (userId, loanType, principal, outstandingBalance, interestRate, monthlyInstallment, remainingMonths, loanStatus, termInMonths ,startDate)
+            OUTPUT INSERTED.id
+            VALUES
+            (@userId, @loanType, @principal, @outstandingBalance, @interestRate, @monthlyInstallment, @remainingMonths, @loanStatus, @termInMonths , @startDate)";
+
+        using SqlCommand command = new SqlCommand(query, connection);
+
+        command.Parameters.Add("@userId", SqlDbType.Int).Value = loan.UserId;
+        command.Parameters.AddWithValue("@loanType", loan.LoanType.ToString());
+        command.Parameters.AddWithValue("@principal", loan.Principal);
+        command.Parameters.AddWithValue("@outstandingBalance", loan.OutstandingBalance);
+        command.Parameters.AddWithValue("@interestRate", loan.InterestRate);
+        command.Parameters.AddWithValue("@monthlyInstallment", loan.MonthlyInstallment);
+        command.Parameters.AddWithValue("@remainingMonths", loan.RemainingMonths);
+        command.Parameters.AddWithValue("@loanStatus", loan.LoanStatus.ToString());
+        command.Parameters.AddWithValue("@termInMonths", loan.TermInMonths);
+        command.Parameters.AddWithValue("@startDate", loan.StartDate);
+
+        int newId = (int)await command.ExecuteScalarAsync();
+        return newId;
+    }
+
+    public async Task UpdateLoanAfterPaymentAsync(int id, decimal newBalance, int newRemainingMonths, LoanStatus newStatus)
     {
 
 
