@@ -237,21 +237,6 @@ public class LoanRepository : ILoanRepository
             }
         }
 
-        //bool isCurrentSet = false;
-
-        //foreach (var row in rows)
-        //{
-        //    if (!isCurrentSet && row.DueDate.Date >= DateTime.Today)
-        //    {
-        //        row.IsCurrent = true;
-        //        isCurrentSet = true;
-        //    }
-        //    else
-        //    {
-        //        row.IsCurrent = false;
-        //    }
-        //}
-
         return rows;
     }
 

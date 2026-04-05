@@ -12,9 +12,7 @@ public interface ILoanService
 
     Task<List<Loan>> GetLoansByTypeAsync(LoanType loanType);
 
-    Task ProcessApplicationStatus(LoanApplication application);
-
-    decimal GetInterestRateForType(LoanType loanType);
+    Task ProcessApplicationStatusAsync(LoanApplication application);
 
     Task<LoanApplication> ApplyForLoanAsync(LoanApplicationRequest request);
 
