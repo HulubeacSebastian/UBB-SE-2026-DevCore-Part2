@@ -1,10 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
 using KarmaBanking.App.Repositories.Interfaces;
 using KarmaBanking.App.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace KarmaBanking.App.Services
 {
@@ -66,14 +67,41 @@ namespace KarmaBanking.App.Services
             return await savingsRepository.DepositAsync(accountId, amount, source);
         }
 
-        public Task<bool> CloseAccountAsync(int accountId)
+        public async Task<ClosureResult> CloseAccountAsync(int accountId, int destinationAccountId, int userId)
         {
-            return savingsRepository.CloseAsync(accountId);
+            var accounts = await savingsRepository.GetByUserIdAsync(userId, includesClosed: true);
+
+            var account = accounts.FirstOrDefault(a => a.Id == accountId)
+                ?? throw new InvalidOperationException("Account not found.");
+
+            if (account.AccountStatus == "Closed")
+                throw new InvalidOperationException("Account already closed.");
+
+            return await savingsRepository.CloseAsync(accountId, destinationAccountId);
         }
 
         public Task<List<FundingSourceOption>> GetFundingSourcesAsync(int userId)
         {
             return savingsRepository.GetFundingSourcesAsync(userId);
+        }
+
+        public async Task<(List<SavingsTransaction> Items, int TotalCount)> GetTransactionsAsync(
+        int accountId,
+        string filter,
+        int page,
+        int pageSize)
+        {
+            if (page <= 0)
+                throw new ArgumentException("Page must be >= 1");
+
+            if (pageSize <= 0 || pageSize > 100)
+                pageSize = 20;
+
+            return await savingsRepository.GetTransactionsPagedAsync(
+                accountId,
+                filter,
+                page,
+                pageSize);
         }
     }
 }

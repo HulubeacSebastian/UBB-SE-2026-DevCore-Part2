@@ -1,3 +1,8 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using KarmaBanking.App.Models;
+using KarmaBanking.App.Models.DTOs;
+using KarmaBanking.App.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -5,11 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using KarmaBanking.App.Models;
-using KarmaBanking.App.Models.DTOs;
-using KarmaBanking.App.Services.Interfaces;
+using System.Transactions;
 
 namespace KarmaBanking.App.ViewModels
 {
@@ -113,7 +114,8 @@ namespace KarmaBanking.App.ViewModels
             ErrorMessage = string.Empty;
             try
             {
-                bool ok = await savingsService.CloseAccountAsync(account.Id);
+                var result = await savingsService.CloseAccountAsync(account.Id, CurrentUserId, 1);
+                bool ok = result.Success;
                 if (!ok) { ErrorMessage = "Failed to close account."; return; }
                 await LoadAccountsAsync();
             }
@@ -175,7 +177,8 @@ namespace KarmaBanking.App.ViewModels
                     InitialDeposit = deposit,
                     FundingAccountId = SelectedFundingSource!.Id,
                     TargetAmount = IsGoalSavings ? TargetAmount : null,
-                    TargetDate = IsGoalSavings ? TargetDate?.DateTime : null
+                    TargetDate = IsGoalSavings ? TargetDate?.DateTime : null,
+                    MaturityDate = MaturityDate?.DateTime
                 };
                 await savingsService.CreateAccountAsync(dto);
                 ShowCreateConfirmation = true;
@@ -233,5 +236,63 @@ namespace KarmaBanking.App.ViewModels
         }
 
         public void CancelDeposit() => depositCts?.Cancel();
+
+        [ObservableProperty]
+        private ObservableCollection<SavingsTransaction> transactions = new();
+
+        [ObservableProperty]
+        private int currentPage = 1;
+
+        [ObservableProperty]
+        private int totalPages;
+
+        [ObservableProperty]
+        private string selectedFilter = "All";
+
+        public async Task LoadTransactionsAsync(int accountId)
+        {
+            try
+            {
+                var result = await savingsService.GetTransactionsAsync(
+                    accountId,
+                    selectedFilter,
+                    currentPage,
+                    10);
+
+                transactions.Clear();
+
+                foreach (var tx in result.Items)
+                    transactions.Add(tx);
+
+                totalPages = (int)Math.Ceiling((double)result.TotalCount / 10);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+        }
+        public async Task NextPage(int accountId)
+        {
+            if (currentPage >= totalPages) return;
+
+            currentPage++;
+            await LoadTransactionsAsync(accountId);
+        }
+
+        public async Task PreviousPage(int accountId)
+        {
+            if (currentPage <= 1) return;
+
+            currentPage--;
+            await LoadTransactionsAsync(accountId);
+        }
+        public async Task ChangeFilter(int accountId, string filter)
+        {
+            selectedFilter = filter;
+            currentPage = 1;
+            await LoadTransactionsAsync(accountId);
+        }
+
+        public DateTimeOffset? MaturityDate { get; set; }
     }
 }

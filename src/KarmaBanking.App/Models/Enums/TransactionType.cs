@@ -4,6 +4,8 @@ namespace KarmaBanking.App.Models.Enums
     {
         Deposit,
         Withdrawal,
-        Interest
+        Interest,
+        Transfer,
+        Closure
     }
 }
