@@ -16,10 +16,21 @@ namespace KarmaBanking.App.Services
     {
         private readonly string baseUrl = "https://localhost:5001";
         private readonly string authToken = "";
+        protected static readonly Dictionary<string, string> DefaultChatbotResponses = new Dictionary<string, string>
+        {
+            ["How do I reset my password?"] =
+                "You can reset your password from the login screen by choosing Forgot password and following the verification steps.",
+            ["Why was my card declined?"] =
+                "A card can be declined because of insufficient funds, an expired card, a blocked card, or a merchant validation issue. Please check the card status in the app first.",
+            ["How long does a transfer take?"] =
+                "Internal transfers are usually immediate, while interbank transfers can take up to one business day depending on the destination bank.",
+            ["How do I upload documents for support?"] =
+                "Use the Attach File button in this chat after contacting the team. Your selected file will be included with the support request summary.",
+            ["I found a technical problem in the app."] =
+                "Please contact the team from this chat and include a short description of what happened. Screenshots or PDFs can help the team investigate faster."
+        };
 
-        // ── Savings API ──────────────────────────────────────────────────────
-
-        // GET /api/savings?userId={userId}&includesClosed={includesClosed}
+      
         public async Task<List<SavingsAccount>> GetSavingsAccountsAsync(int userId, bool includesClosed = false)
         {
             using var client = BuildClient();
@@ -31,7 +42,7 @@ namespace KarmaBanking.App.Services
                    ?? new List<SavingsAccount>();
         }
 
-        // POST /api/savings
+      
         public async Task<SavingsAccount> CreateSavingsAccountAsync(CreateSavingsAccountDto dto)
         {
             using var client = BuildClient();
@@ -44,7 +55,7 @@ namespace KarmaBanking.App.Services
             return JsonSerializer.Deserialize<SavingsAccount>(json, JsonOptions)!;
         }
 
-        // POST /api/savings/{id}/deposit
+
         public async Task<DepositResponseDto> DepositAsync(int accountId, decimal amount, string source)
         {
             using var client = BuildClient();
@@ -58,7 +69,7 @@ namespace KarmaBanking.App.Services
             return JsonSerializer.Deserialize<DepositResponseDto>(json, JsonOptions)!;
         }
 
-        // POST /api/savings/{id}/close 
+        // POST /api/savings/{id}/close
         public async Task<ClosureResult> CloseAccountAsync(int accountId, int destinationAccountId)
         {
             using var client = BuildClient();
@@ -86,8 +97,6 @@ namespace KarmaBanking.App.Services
 
             return JsonSerializer.Deserialize<ClosureResult>(json, JsonOptions)!;
         }
-
-        // ── Chat / Attachment ────────────────────────────────────────────────
 
         public async Task<AttachmentUploadResponse?> UploadAttachmentAsync(int messageId, string filePath)
         {
@@ -140,6 +149,27 @@ namespace KarmaBanking.App.Services
         {
             EmailTranscriptService emailService = new EmailTranscriptService();
             emailService.SendSessionTranscript(sessionId, recipientEmail);
+        }
+
+        public virtual Task<List<string>> GetChatbotPresetQuestionsAsync()
+        {
+            return Task.FromResult(new List<string>(DefaultChatbotResponses.Keys));
+        }
+
+        public virtual Task<string> GetChatbotPresetAnswerAsync(string question)
+        {
+            if (DefaultChatbotResponses.TryGetValue(question, out string? response))
+            {
+                return Task.FromResult(response);
+            }
+
+            return Task.FromResult("Please contact the team for more help with this topic.");
+        }
+
+        public virtual async Task<bool> SendChatToSupportAsync(string transcript, string customerMessage, SelectedAttachment? attachment)
+        {
+            await Task.CompletedTask;
+            return !string.IsNullOrWhiteSpace(transcript) || !string.IsNullOrWhiteSpace(customerMessage) || attachment != null;
         }
 
         public virtual async Task<List<ChatMessage>?> GetChatHistoryAsync(int sessionId)
