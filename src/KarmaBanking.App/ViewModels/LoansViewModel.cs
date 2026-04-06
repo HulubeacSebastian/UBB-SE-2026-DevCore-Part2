@@ -6,6 +6,8 @@ using KarmaBanking.App.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -198,7 +200,18 @@ public partial class LoansViewModel : ObservableObject
         try
         {
             var rows = await _apiService.GetAmortizationAsync(SelectedLoan.Loan.Id);
-            _pdfExporter.exportTransactions(rows);
+            byte[] pdfBytes = _pdfExporter.exportAmortization(rows);
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            string fileName = $"amortization_schedule_{SelectedLoan.Loan.Id}.pdf";
+            string filePath = Path.Combine(desktopPath, fileName);
+
+            await File.WriteAllBytesAsync(filePath, pdfBytes);
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = filePath,
+                UseShellExecute = true
+            });
         }
         catch (Exception e)
         {
