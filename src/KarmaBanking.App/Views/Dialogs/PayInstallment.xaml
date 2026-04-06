@@ -41,13 +41,10 @@
                         Visibility="Collapsed"
                         Spacing="4">
                 <TextBlock Text="Custom Amount ($)" FontSize="11" Foreground="Gray"/>
-                <NumberBox Value="{Binding CustomAmount, Mode=TwoWay}"
-                           Minimum="0"
-                           Maximum="1000000"
-                           SmallChange="100"
-                           LargeChange="1000"
-                           PlaceholderText="0.00"
-                           SpinButtonPlacementMode="Compact"/>
+                <TextBox x:Name="CustomAmountBox"
+                         TextChanged="OnCustomAmountTextChanged"
+                         LostFocus="OnCustomAmountLostFocus"
+                         PlaceholderText="0.00"/>
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="#FF6B6B"
                            FontSize="12"
@@ -55,6 +52,36 @@
                 <TextBlock Text="Must be at least the minimum installment" 
                            FontSize="11" Foreground="Gray"/>
             </StackPanel>
+
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="12"
+                    Margin="0,4,0,0">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Data after payment" FontWeight="SemiBold"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Outstanding balance"/>
+                        <TextBlock x:Name="BalanceAfterPaymentText"
+                                   Grid.Column="1"/>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Remaining term"/>
+                        <TextBlock x:Name="RemainingTermAfterPaymentText"
+                                   Grid.Column="1"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
 
         </StackPanel>
     </ScrollViewer>
