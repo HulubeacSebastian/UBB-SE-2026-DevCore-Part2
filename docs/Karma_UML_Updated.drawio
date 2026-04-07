@@ -1,0 +1,1396 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="karma-uml-updated" name="UML-banking-updated">
+    <mxGraphModel dx="3008" dy="1668" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="2339" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bg-view" parent="1" style="text;fontStyle=1;fontSize=13;fillColor=#fce4ec;strokeColor=#f48fb1;verticalAlign=top;spacingTop=6;opacity=50;" value="VIEW LAYER" vertex="1">
+          <mxGeometry height="420" width="1630" x="10" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="bg-vm" parent="1" style="text;fontStyle=1;fontSize=13;fillColor=#e8eaf6;strokeColor=#7986cb;verticalAlign=top;spacingTop=6;opacity=50;" value="VIEWMODEL LAYER" vertex="1">
+          <mxGeometry height="430" width="1630" x="10" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="bg-svc" parent="1" style="text;fontStyle=1;fontSize=13;fillColor=#e8f5e9;strokeColor=#66bb6a;verticalAlign=top;spacingTop=6;opacity=50;" value="SERVICE LAYER" vertex="1">
+          <mxGeometry height="370" width="1630" x="10" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="bg-repo" parent="1" style="text;fontStyle=1;fontSize=13;fillColor=#fff8e1;strokeColor=#ffca28;verticalAlign=top;spacingTop=6;opacity=50;" value="REPOSITORY LAYER" vertex="1">
+          <mxGeometry height="340" width="1630" x="10" y="1290" as="geometry" />
+        </mxCell>
+        <mxCell id="bg-model" parent="1" style="text;fontStyle=1;fontSize=13;fillColor=#f3e5f5;strokeColor=#ab47bc;verticalAlign=top;spacingTop=6;opacity=50;" value="MODEL LAYER" vertex="1">
+          <mxGeometry height="660" width="1630" x="10" y="1650" as="geometry" />
+        </mxCell>
+        <mxCell id="v-main" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=11;" value="MainWindow" vertex="1">
+          <mxGeometry height="90" width="200" x="30" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v-main-f1" parent="v-main" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-navView: NavigationView" vertex="1">
+          <mxGeometry height="18" width="200" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v-main-sep" parent="v-main" style="line;strokeColor=#e91e63;" value="" vertex="1">
+          <mxGeometry height="3" width="200" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="v-main-m1" parent="v-main" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+NavigationView_SelectionChanged()" vertex="1">
+          <mxGeometry height="18" width="200" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="v-main-m2" parent="v-main" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+MainWindow_Closed()" vertex="1">
+          <mxGeometry height="18" width="200" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="v-sav" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=11;" value="SavingsView" vertex="1">
+          <mxGeometry height="168" width="210" x="250" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v-sav-f1" parent="v-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-viewModel: SavingsViewModel" vertex="1">
+          <mxGeometry height="18" width="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v-sav-sep" parent="v-sav" style="line;strokeColor=#e91e63;" value="" vertex="1">
+          <mxGeometry height="3" width="210" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="v-sav-m1" parent="v-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+OnNavigatedTo()" vertex="1">
+          <mxGeometry height="18" width="210" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="v-sav-m2" parent="v-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DepositButton_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="v-sav-m3" parent="v-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+WithdrawButton_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v-sav-m4" parent="v-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CloseButton_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="v-sav-m5" parent="v-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+AutoDepositToggle_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="v-sav-m6" parent="v-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+FilterCombo_Changed()" vertex="1">
+          <mxGeometry height="18" width="210" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="v-csav" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=11;" value="CreateSavingsAccountView" vertex="1">
+          <mxGeometry height="108" width="210" x="480" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v-csav-f1" parent="v-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-viewModel: CreateSavingsAccountViewModel" vertex="1">
+          <mxGeometry height="18" width="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v-csav-sep" parent="v-csav" style="line;strokeColor=#e91e63;" value="" vertex="1">
+          <mxGeometry height="3" width="210" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="v-csav-m1" parent="v-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SubmitButton_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="v-csav-m2" parent="v-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+TypeCombo_Changed()" vertex="1">
+          <mxGeometry height="18" width="210" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="v-csav-m3" parent="v-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+OnNavigatedTo()" vertex="1">
+          <mxGeometry height="18" width="210" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v-loan" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=11;" value="LoansView" vertex="1">
+          <mxGeometry height="126" width="210" x="710" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v-loan-f1" parent="v-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-viewModel: LoansViewModel" vertex="1">
+          <mxGeometry height="18" width="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v-loan-sep" parent="v-loan" style="line;strokeColor=#e91e63;" value="" vertex="1">
+          <mxGeometry height="3" width="210" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="v-loan-m1" parent="v-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+OnNavigatedTo()" vertex="1">
+          <mxGeometry height="18" width="210" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="v-loan-m2" parent="v-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ApplyButton_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="v-loan-m3" parent="v-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+PayInstallment_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v-loan-m4" parent="v-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ExportPdf_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="v-inv" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=11;" value="InvestmentsView" vertex="1">
+          <mxGeometry height="108" width="210" x="940" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v-inv-f1" parent="v-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-viewModel: InvestmentsViewModel" vertex="1">
+          <mxGeometry height="18" width="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v-inv-sep" parent="v-inv" style="line;strokeColor=#e91e63;" value="" vertex="1">
+          <mxGeometry height="3" width="210" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="v-inv-m1" parent="v-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+OnNavigatedTo()" vertex="1">
+          <mxGeometry height="18" width="210" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="v-inv-m2" parent="v-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+TradeButton_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="v-inv-m3" parent="v-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ViewLogs_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v-chat" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=11;" value="ChatView" vertex="1">
+          <mxGeometry height="144" width="210" x="1170" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v-chat-f1" parent="v-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-viewModel: ChatViewModel" vertex="1">
+          <mxGeometry height="18" width="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v-chat-sep" parent="v-chat" style="line;strokeColor=#e91e63;" value="" vertex="1">
+          <mxGeometry height="3" width="210" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="v-chat-m1" parent="v-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SendMessage_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="v-chat-m2" parent="v-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+EscalateToTeam_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="v-chat-m3" parent="v-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+AttachFile_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v-chat-m4" parent="v-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+NewSession_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="v-chat-m5" parent="v-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SendTranscript_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="v-logs" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=11;" value="InvestmentLogsView" vertex="1">
+          <mxGeometry height="108" width="210" x="1400" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="v-logs-f1" parent="v-logs" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-viewModel: InvestmentLogsViewModel" vertex="1">
+          <mxGeometry height="18" width="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v-logs-sep" parent="v-logs" style="line;strokeColor=#e91e63;" value="" vertex="1">
+          <mxGeometry height="3" width="210" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="v-logs-m1" parent="v-logs" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ApplyFilters_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="v-logs-m2" parent="v-logs" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ExportCsv_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="v-logs-m3" parent="v-logs" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+OnNavigatedTo()" vertex="1">
+          <mxGeometry height="18" width="210" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v-crypto" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#fce4ec;strokeColor=#e91e63;fontSize=11;" value="CryptoTradingView" vertex="1">
+          <mxGeometry height="108" width="210" x="940" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="v-crypto-f1" parent="v-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-viewModel: CryptoTradingViewModel" vertex="1">
+          <mxGeometry height="18" width="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v-crypto-sep" parent="v-crypto" style="line;strokeColor=#e91e63;" value="" vertex="1">
+          <mxGeometry height="3" width="210" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="v-crypto-m1" parent="v-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SubmitTrade_Click()" vertex="1">
+          <mxGeometry height="18" width="210" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="v-crypto-m2" parent="v-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+TickerCombo_Changed()" vertex="1">
+          <mxGeometry height="18" width="210" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="v-crypto-m3" parent="v-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ActionType_Changed()" vertex="1">
+          <mxGeometry height="18" width="210" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-base" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="&lt;&lt;abstract&gt;&gt; BaseViewModel" vertex="1">
+          <mxGeometry height="90" width="220" x="30" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-base-f1" parent="vm-base" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="#isLoading: bool" vertex="1">
+          <mxGeometry height="18" width="220" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-base-f2" parent="vm-base" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="#errorMessage: string" vertex="1">
+          <mxGeometry height="18" width="220" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-base-sep" parent="vm-base" style="line;strokeColor=#3949ab;" value="" vertex="1">
+          <mxGeometry height="3" width="220" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-base-m1" parent="vm-base" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+HasError: bool" vertex="1">
+          <mxGeometry height="18" width="220" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="SavingsViewModel" vertex="1">
+          <mxGeometry height="360" width="230" x="270" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-f1" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-savingsService: ISavingsService" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-f2" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-savingsAccounts: ObservableCollection" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-f3" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-selectedAccount: SavingsAccount" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-f4" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-totalSavedAmount: string" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-f5" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-transactions: ObservableCollection" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-sep" parent="vm-sav" style="line;strokeColor=#3949ab;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m1" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoadAccountsAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m2" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DepositAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m3" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+WithdrawAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m4" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CloseAccountAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m5" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SaveAutoDepositAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m6" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoadTransactionsAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m7" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetFundingSourcesAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="234" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m8" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoadMoreTransactionsCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="252" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m9" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DepositCommand: IRelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m10" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+WithdrawCommand: IRelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m11" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CloseAccountCommand: IRelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m12" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+IsEmpty: bool" vertex="1">
+          <mxGeometry height="18" width="230" y="324" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-sav-m13" parent="vm-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ShowAccountsList: bool" vertex="1">
+          <mxGeometry height="18" width="230" y="342" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="CreateSavingsAccountViewModel" vertex="1">
+          <mxGeometry height="216" width="230" x="520" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-f1" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-savingsService: ISavingsService" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-f2" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-selectedSavingsType: string" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-f3" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-accountNickname: string" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-f4" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-initialDepositAmountText: string" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-f5" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-selectedFundingAccountId: int?" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-sep" parent="vm-csav" style="line;strokeColor=#3949ab;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-m1" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CreateAccountCommand: ICommand" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-m2" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoadFundingSourcesAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-m3" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SubmitCreateAccountFormAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-m4" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CanSubmitCreateAccountForm(): bool" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-csav-m5" parent="vm-csav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+IsGoalSavings: bool" vertex="1">
+          <mxGeometry height="18" width="230" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="LoansViewModel" vertex="1">
+          <mxGeometry height="252" width="230" x="770" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-f1" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-apiService: ApiService" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-f2" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-loans: ObservableCollection&lt;LoanViewModel&gt;" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-f3" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-amortizationRows: ObservableCollection" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-f4" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-selectedLoan: LoanViewModel" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-f5" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-filterType: LoanType?" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-sep" parent="vm-loan" style="line;strokeColor=#3949ab;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-m1" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoadLoansCommand: IRelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-m2" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ApplyForLoanCommand: IRelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-m3" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+PayInstallmentCommand: IRelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-m4" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ExportPdfCommand: IRelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-m5" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+FilteredLoans: IEnumerable&lt;LoanViewModel&gt;" vertex="1">
+          <mxGeometry height="18" width="230" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-m6" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoadLoansAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loan-m7" parent="vm-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GenerateAmortizationAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="234" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="InvestmentsViewModel" vertex="1">
+          <mxGeometry height="180" width="230" x="1020" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv-f1" parent="vm-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-repo: IInvestmentRepository" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv-f2" parent="vm-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-marketData: MarketDataService" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv-f3" parent="vm-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-portfolio: Portfolio" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv-sep" parent="vm-inv" style="line;strokeColor=#3949ab;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="86" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv-m1" parent="vm-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoadPortfolio(userId: int)" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv-m2" parent="vm-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+refreshPrices()" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv-m3" parent="vm-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+StartMarketDataPolling()" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv-m4" parent="vm-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Portfolio: Portfolio" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-inv-m5" parent="vm-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+IsLoading: bool" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="CryptoTradingViewModel" vertex="1">
+          <mxGeometry height="200" width="230" x="1020" y="665" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-f1" parent="vm-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-investmentService: IInvestmentService" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-f2" parent="vm-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-selectedTicker: string" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-f3" parent="vm-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-actionType: string (BUY/SELL)" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-f4" parent="vm-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-currentBalance: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-f5" parent="vm-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-estimatedFee: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-sep" parent="vm-crypto" style="line;strokeColor=#3949ab;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-m1" parent="vm-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SubmitTradeCommand: RelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-m2" parent="vm-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ExecuteTradeAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-m3" parent="vm-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CanExecuteTrade(): bool" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-crypto-m4" parent="vm-crypto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SyncPortfolioBalance()" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="ChatViewModel" vertex="1">
+          <mxGeometry height="252" width="230" x="1270" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-f1" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-apiService: ApiService" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-f2" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-sessions: ObservableCollection&lt;ChatSession&gt;" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-f3" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-currentSession: ChatSession?" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-f4" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-presetQuestions: ObservableCollection" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-f5" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-selectedAttachment: SelectedAttachment?" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-sep" parent="vm-chat" style="line;strokeColor=#3949ab;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-m1" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Instance: ChatViewModel (singleton)" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-m2" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SendMessageAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-m3" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+EscalateToTeamAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-m4" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+StartNewSessionAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-m5" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+UploadAttachmentAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-m6" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoadPresetQuestionsAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chat-m7" parent="vm-chat" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SendTranscriptAsync(email: string)" vertex="1">
+          <mxGeometry height="18" width="230" y="234" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-logs" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="InvestmentLogsViewModel" vertex="1">
+          <mxGeometry height="126" width="230" x="1270" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-logs-f1" parent="vm-logs" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-investmentService: IInvestmentService" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-logs-f2" parent="vm-logs" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-selectedTicker: string?" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-logs-sep" parent="vm-logs" style="line;strokeColor=#3949ab;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-logs-m1" parent="vm-logs" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Logs: ObservableCollection&lt;InvestmentTransaction&gt;" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-logs-m2" parent="vm-logs" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ApplyFiltersCommand: RelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-logs-m3" parent="vm-logs" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ExportCsvCommand: RelayCommand" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loanwrap" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="LoanViewModel" vertex="1">
+          <mxGeometry height="108" width="230" x="770" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loanwrap-f1" parent="vm-loanwrap" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-loan: Loan" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loanwrap-sep" parent="vm-loanwrap" style="line;strokeColor=#3949ab;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loanwrap-m1" parent="vm-loanwrap" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Loan: Loan" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loanwrap-m2" parent="vm-loanwrap" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+RepaymentProgress: double" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-loanwrap-m3" parent="vm-loanwrap" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SavingsAccountListViewModel" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;" value="&lt;&lt;interface&gt;&gt; ISavingsService" vertex="1">
+          <mxGeometry height="216" width="230" x="30" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-sep" parent="i-ssvc" style="line;strokeColor=#2e7d32;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m1" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CreateAccountAsync(dto): SavingsAccount" vertex="1">
+          <mxGeometry height="18" width="230" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m2" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetAccountsAsync(userId, incClosed): List" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m3" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DepositAsync(accountId, amt, src, uid)" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m4" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CloseAccountAsync(accountId, destId, uid)" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m5" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+WithdrawAsync(accountId, amt, dest, uid)" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m6" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetAutoDepositAsync(accountId)" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m7" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SaveAutoDepositAsync(autoDeposit)" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m8" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetFundingSourcesAsync(userId)" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m9" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetTransactionsAsync(accountId, filter, p, ps)" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="i-ssvc-m10" parent="i-ssvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="(returns paged SavingsTransaction list)" vertex="1">
+          <mxGeometry height="18" width="230" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-sav" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#388e3c;fontSize=11;" value="SavingsService" vertex="1">
+          <mxGeometry height="144" width="230" x="280" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-sav-f1" parent="svc-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-savingsRepository: ISavingsRepository" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-sav-f2" parent="svc-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-MaxActiveAccounts: int = 5" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-sav-sep" parent="svc-sav" style="line;strokeColor=#388e3c;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-sav-m1" parent="svc-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CreateAccountAsync(dto): SavingsAccount" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-sav-m2" parent="svc-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DepositAsync(...): DepositResponseDto" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-sav-m3" parent="svc-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+WithdrawAsync(...): WithdrawResponseDto" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-sav-m4" parent="svc-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CloseAccountAsync(...): ClosureResult" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;" value="&lt;&lt;interface&gt;&gt; ILoanService" vertex="1">
+          <mxGeometry height="234" width="230" x="530" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-sep" parent="i-lsvc" style="line;strokeColor=#2e7d32;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m1" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetAllLoansAsync(): List&lt;Loan&gt;" vertex="1">
+          <mxGeometry height="18" width="230" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m2" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetLoanByIdAsync(id): Loan" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m3" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetLoansByUserAsync(userId): List" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m4" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetLoansByStatusAsync(status): List" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m5" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetLoansByTypeAsync(type): List" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m6" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ProcessApplicationStatusAsync(app)" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m7" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ApplyForLoanAsync(request): LoanApplication" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m8" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetLoanEstimate(request): LoanEstimate" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m9" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+PayInstallmentAsync(loanId, amount?)" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m10" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetAmortizationAsync(loanId)" vertex="1">
+          <mxGeometry height="18" width="230" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lsvc-m11" parent="i-lsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GenerateAmortizationAsync(loanId)" vertex="1">
+          <mxGeometry height="18" width="230" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-loan" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#388e3c;fontSize=11;" value="LoanService" vertex="1">
+          <mxGeometry height="162" width="230" x="780" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-loan-f1" parent="svc-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-loanRepository: ILoanRepository" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-loan-f2" parent="svc-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-validator: LoanApplicationValidator" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-loan-f3" parent="svc-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-calculator: AmortizationCalculator" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-loan-sep" parent="svc-loan" style="line;strokeColor=#388e3c;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="86" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-loan-m1" parent="svc-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ApplyForLoanAsync(request): LoanApplication" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-loan-m2" parent="svc-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+EvaluateApplicationAsync(app): status" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-loan-m3" parent="svc-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+PayInstallmentAsync(loanId, amount?)" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-loan-m4" parent="svc-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GenerateAmortizationAsync(loanId)" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invsvc" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;" value="&lt;&lt;interface&gt;&gt; IInvestmentService" vertex="1">
+          <mxGeometry height="108" width="230" x="1030" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invsvc-sep" parent="i-invsvc" style="line;strokeColor=#2e7d32;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invsvc-m1" parent="i-invsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ExecuteCryptoTradeAsync(...): bool" vertex="1">
+          <mxGeometry height="18" width="230" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invsvc-m2" parent="i-invsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetPortfolio(userId): Portfolio" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invsvc-m3" parent="i-invsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetInvestmentLogsAsync(portfolioId,...): List" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invsvc-m4" parent="i-invsvc" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="(startDate?, endDate?, ticker?)" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-inv" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#388e3c;fontSize=11;" value="InvestmentService" vertex="1">
+          <mxGeometry height="126" width="230" x="1280" y="940" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-inv-f1" parent="svc-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-investmentRepository: IInvestmentRepository" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-inv-f2" parent="svc-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-CryptoTradeFeePercentage: decimal = 0.015" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-inv-sep" parent="svc-inv" style="line;strokeColor=#388e3c;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-inv-m1" parent="svc-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ExecuteCryptoTradeAsync(...): bool" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-inv-m2" parent="svc-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetPortfolio(userId): Portfolio" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-inv-m3" parent="svc-inv" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetInvestmentLogsAsync(...): List" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-api" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#388e3c;fontSize=11;" value="ApiService" vertex="1">
+          <mxGeometry height="108" width="230" x="30" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-api-f1" parent="svc-api" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-baseUrl: string" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-api-f2" parent="svc-api" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-loanService: ILoanService" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-api-sep" parent="svc-api" style="line;strokeColor=#388e3c;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-api-m1" parent="svc-api" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetChatbotPresetQuestionsAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-api-m2" parent="svc-api" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SendChatToSupportAsync(...)" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-mock" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#388e3c;fontSize=11;" value="MockApiService" vertex="1">
+          <mxGeometry height="90" width="230" x="280" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-mock-sep" parent="svc-mock" style="line;strokeColor=#388e3c;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-mock-m1" parent="svc-mock" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetChatbotPresetQuestionsAsync()" vertex="1">
+          <mxGeometry height="18" width="230" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-mock-m2" parent="svc-mock" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetChatbotPresetAnswerAsync(question)" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-mock-m3" parent="svc-mock" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetChatHistoryAsync(sessionId)" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-email" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#388e3c;fontSize=11;" value="EmailTranscriptService" vertex="1">
+          <mxGeometry height="90" width="230" x="530" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-email-f1" parent="svc-email" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-chatMessageRepository: ChatMessageRepository" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-email-sep" parent="svc-email" style="line;strokeColor=#388e3c;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-email-m1" parent="svc-email" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SendSessionTranscript(sessionId, email)" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-email-m2" parent="svc-email" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-BuildTranscriptBody(): string" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-market" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#388e3c;fontSize=11;" value="MarketDataService" vertex="1">
+          <mxGeometry height="108" width="230" x="780" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-market-f1" parent="svc-market" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-prices: Dictionary&lt;string, decimal&gt;" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-market-f2" parent="svc-market" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-trackedTickers: List&lt;string&gt;" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-market-sep" parent="svc-market" style="line;strokeColor=#388e3c;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-market-m1" parent="svc-market" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+startPolling(tickers: List&lt;string&gt;)" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-market-m2" parent="svc-market" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+getPrice(ticker): decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-file" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#e8f5e9;strokeColor=#388e3c;fontSize=11;" value="FileStorage" vertex="1">
+          <mxGeometry height="90" width="230" x="1030" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-file-f1" parent="svc-file" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="-attachmentsFolderPath: string" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-file-sep" parent="svc-file" style="line;strokeColor=#388e3c;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-file-m1" parent="svc-file" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+UploadFileAsync(srcPath): string" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-file-m2" parent="svc-file" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DeleteUrl(url) / GetSignedDownloadUrl(url)" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff8e1;strokeColor=#f57f17;fontSize=11;" value="&lt;&lt;interface&gt;&gt; ISavingsRepository" vertex="1">
+          <mxGeometry height="252" width="230" x="30" y="1330" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-sep" parent="i-srepo" style="line;strokeColor=#f57f17;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m1" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CreateAsync(dto): SavingsAccount" vertex="1">
+          <mxGeometry height="18" width="230" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m2" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetByUserIdAsync(userId, inclClosed)" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m3" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DepositAsync(accountId, amount, src)" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m4" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CloseAsync(accountId, destAccountId)" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m5" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+WithdrawAsync(accountId, amount, destLbl)" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m6" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetAutoDepositAsync(accountId)" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m7" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SaveAutoDepositAsync(autoDeposit)" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m8" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetFundingSourcesAsync(userId)" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m9" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetTransactionsPagedAsync(accountId,...)" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m10" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="  (typeFilter, page, pageSize)" vertex="1">
+          <mxGeometry height="18" width="230" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m11" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="  returns (Items, TotalCount)" vertex="1">
+          <mxGeometry height="18" width="230" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="i-srepo-m12" parent="i-srepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="SavingsRepository implements this" vertex="1">
+          <mxGeometry height="18" width="230" y="234" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff8e1;strokeColor=#f57f17;fontSize=11;" value="&lt;&lt;interface&gt;&gt; ILoanRepository" vertex="1">
+          <mxGeometry height="252" width="230" x="280" y="1330" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-sep" parent="i-lrepo" style="line;strokeColor=#f57f17;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m1" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetAllLoansAsync(): List&lt;Loan&gt;" vertex="1">
+          <mxGeometry height="18" width="230" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m2" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetLoanByIdAsync(id): Loan" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m3" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetLoansByUserAsync(userId)" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m4" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetLoansByStatusAsync(status)" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m5" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetLoansByTypeAsync(type)" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m6" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SaveAmortizationAsync(rows)" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m7" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetAmortizationAsync(loanId)" vertex="1">
+          <mxGeometry height="18" width="230" y="144" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m8" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CreateLoanApplicationAsync(request): int" vertex="1">
+          <mxGeometry height="18" width="230" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m9" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+UpdateLoanApplicationStatusAsync(id,...)" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m10" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CreateLoanAsync(loan): int" vertex="1">
+          <mxGeometry height="18" width="230" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m11" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+UpdateLoanAfterPaymentAsync(id,...)" vertex="1">
+          <mxGeometry height="18" width="230" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="i-lrepo-m12" parent="i-lrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="LoanRepository implements this" vertex="1">
+          <mxGeometry height="18" width="230" y="234" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invrepo" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff8e1;strokeColor=#f57f17;fontSize=11;" value="&lt;&lt;interface&gt;&gt; IInvestmentRepository" vertex="1">
+          <mxGeometry height="126" width="230" x="530" y="1330" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invrepo-sep" parent="i-invrepo" style="line;strokeColor=#f57f17;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invrepo-m1" parent="i-invrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetPortfolio(userId): Portfolio" vertex="1">
+          <mxGeometry height="18" width="230" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invrepo-m2" parent="i-invrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+RecordCryptoTradeAsync(portfolioId,...)" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invrepo-m3" parent="i-invrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetInvestmentLogsAsync(portfolioId,...)" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invrepo-m4" parent="i-invrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="  (startDate?, endDate?, ticker?)" vertex="1">
+          <mxGeometry height="18" width="230" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="i-invrepo-m5" parent="i-invrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="InvestmentRepository implements this" vertex="1">
+          <mxGeometry height="18" width="230" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="i-chatrepo" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff8e1;strokeColor=#f57f17;fontSize=11;" value="&lt;&lt;interface&gt;&gt; IChatRepository" vertex="1">
+          <mxGeometry height="90" width="230" x="780" y="1330" as="geometry" />
+        </mxCell>
+        <mxCell id="i-chatrepo-sep" parent="i-chatrepo" style="line;strokeColor=#f57f17;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="i-chatrepo-m1" parent="i-chatrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GetChatMessagesAsync(chatSessionId): List" vertex="1">
+          <mxGeometry height="18" width="230" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="i-chatrepo-m2" parent="i-chatrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="ChatMessageRepository implements this" vertex="1">
+          <mxGeometry height="18" width="230" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="i-chatrepo-m3" parent="i-chatrepo" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="ChatSessionRepository also exists" vertex="1">
+          <mxGeometry height="18" width="230" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="SavingsAccount" vertex="1">
+          <mxGeometry height="252" width="230" x="30" y="1690" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f1" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f2" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+UserId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f3" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SavingsType: string" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f4" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Balance: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f5" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+AccruedInterest: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f6" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Apy: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f7" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+MaturityDate: DateTime?" vertex="1">
+          <mxGeometry height="18" width="230" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f8" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+AccountStatus: string" vertex="1">
+          <mxGeometry height="18" width="230" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f9" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+TargetAmount: decimal?" vertex="1">
+          <mxGeometry height="18" width="230" y="174" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-f10" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+FundingAccountId: int?" vertex="1">
+          <mxGeometry height="18" width="230" y="192" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-sep" parent="m-sav" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="212" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-m1" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+MonthlyInterestProjection: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="m-sav-m2" parent="m-sav" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ProgressPercent: double" vertex="1">
+          <mxGeometry height="18" width="230" y="234" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="SavingsTransaction" vertex="1">
+          <mxGeometry height="198" width="230" x="280" y="1690" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn-f1" parent="m-stxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn-f2" parent="m-stxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SavingsAccountId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn-f3" parent="m-stxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Amount: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn-f4" parent="m-stxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Type: TransactionType" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn-f5" parent="m-stxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Source: string?" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn-f6" parent="m-stxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CreatedAt: DateTime" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn-f7" parent="m-stxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+BalanceAfter: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn-f8" parent="m-stxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Description: string?" vertex="1">
+          <mxGeometry height="18" width="230" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="m-stxn-sep" parent="m-stxn" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="176" as="geometry" />
+        </mxCell>
+        <mxCell id="m-auto" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="AutoDeposit" vertex="1">
+          <mxGeometry height="144" width="230" x="30" y="1960" as="geometry" />
+        </mxCell>
+        <mxCell id="m-auto-f1" parent="m-auto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-auto-f2" parent="m-auto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SavingsAccountId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-auto-f3" parent="m-auto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Amount: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-auto-f4" parent="m-auto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Frequency: DepositFrequency" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-auto-f5" parent="m-auto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+NextRunDate: DateTime" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-auto-f6" parent="m-auto" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+IsActive: bool" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-auto-sep" parent="m-auto" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="Loan" vertex="1">
+          <mxGeometry height="216" width="230" x="530" y="1690" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f1" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f2" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+UserId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f3" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoanType: LoanType" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f4" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Principal: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f5" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+OutstandingBalance: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f6" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+InterestRate: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f7" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+MonthlyInstallment: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f8" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+RemainingMonths: int" vertex="1">
+          <mxGeometry height="18" width="230" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f9" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoanStatus: LoanStatus" vertex="1">
+          <mxGeometry height="18" width="230" y="174" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-f10" parent="m-loan" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+TermInMonths: int" vertex="1">
+          <mxGeometry height="18" width="230" y="192" as="geometry" />
+        </mxCell>
+        <mxCell id="m-loan-sep" parent="m-loan" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="212" as="geometry" />
+        </mxCell>
+        <mxCell id="m-lapp" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="LoanApplication" vertex="1">
+          <mxGeometry height="162" width="230" x="780" y="1690" as="geometry" />
+        </mxCell>
+        <mxCell id="m-lapp-f1" parent="m-lapp" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-lapp-f2" parent="m-lapp" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+UserId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-lapp-f3" parent="m-lapp" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoanType: LoanType" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-lapp-f4" parent="m-lapp" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DesiredAmount: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-lapp-f5" parent="m-lapp" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+PreferredTermMonths: int" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-lapp-f6" parent="m-lapp" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Purpose: string" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-lapp-f7" parent="m-lapp" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ApplicationStatus: LoanApplicationStatus" vertex="1">
+          <mxGeometry height="18" width="230" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="m-lapp-sep" parent="m-lapp" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="158" as="geometry" />
+        </mxCell>
+        <mxCell id="m-amort" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="AmortizationRow" vertex="1">
+          <mxGeometry height="162" width="230" x="530" y="1920" as="geometry" />
+        </mxCell>
+        <mxCell id="m-amort-f1" parent="m-amort" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-amort-f2" parent="m-amort" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+LoanId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-amort-f3" parent="m-amort" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+InstallmentNumber: int" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-amort-f4" parent="m-amort" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DueDate: DateTime" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-amort-f5" parent="m-amort" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+PrincipalPortion: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-amort-f6" parent="m-amort" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+InterestPortion: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-amort-f7" parent="m-amort" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+RemainingBalance: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="m-amort-sep" parent="m-amort" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="158" as="geometry" />
+        </mxCell>
+        <mxCell id="m-port" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="Portfolio" vertex="1">
+          <mxGeometry height="144" width="230" x="1030" y="1690" as="geometry" />
+        </mxCell>
+        <mxCell id="m-port-f1" parent="m-port" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-port-f2" parent="m-port" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+UserId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-port-f3" parent="m-port" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+TotalValue: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-port-f4" parent="m-port" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+TotalGainLoss: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-port-f5" parent="m-port" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+GainLossPercent: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-port-f6" parent="m-port" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Holdings: List&lt;InvestmentHolding&gt;" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-port-sep" parent="m-port" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="InvestmentHolding" vertex="1">
+          <mxGeometry height="180" width="230" x="1280" y="1690" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold-f1" parent="m-hold" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold-f2" parent="m-hold" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+PortfolioId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold-f3" parent="m-hold" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Ticker: string" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold-f4" parent="m-hold" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+AssetType: string" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold-f5" parent="m-hold" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Quantity: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold-f6" parent="m-hold" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+AvgPurchasePrice: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold-f7" parent="m-hold" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+CurrentPrice: decimal (notifies)" vertex="1">
+          <mxGeometry height="18" width="230" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold-f8" parent="m-hold" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+UnrealizedGainLoss: decimal (notifies)" vertex="1">
+          <mxGeometry height="18" width="230" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="m-hold-sep" parent="m-hold" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="176" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="InvestmentTransaction" vertex="1">
+          <mxGeometry height="198" width="230" x="1030" y="1870" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-f1" parent="m-itxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-f2" parent="m-itxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+HoldingId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-f3" parent="m-itxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Ticker: string" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-f4" parent="m-itxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ActionType: string (BUY/SELL)" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-f5" parent="m-itxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Quantity: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-f6" parent="m-itxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+PricePerUnit: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-f7" parent="m-itxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Fees: decimal" vertex="1">
+          <mxGeometry height="18" width="230" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-f8" parent="m-itxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+OrderType: string" vertex="1">
+          <mxGeometry height="18" width="230" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-f9" parent="m-itxn" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+ExecutedAt: DateTime" vertex="1">
+          <mxGeometry height="18" width="230" y="174" as="geometry" />
+        </mxCell>
+        <mxCell id="m-itxn-sep" parent="m-itxn" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="ChatSession" vertex="1">
+          <mxGeometry height="216" width="230" x="280" y="1920" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-f1" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-f2" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+userId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-f3" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+issueCategory: string" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-f4" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+sessionStatus: string" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-f5" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Title: string (notifies)" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-f6" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+IsEscalatedToTeam: bool (notifies)" vertex="1">
+          <mxGeometry height="18" width="230" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-f7" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Messages: ObservableCollection" vertex="1">
+          <mxGeometry height="18" width="230" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-f8" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Attachment: SelectedAttachment?" vertex="1">
+          <mxGeometry height="18" width="230" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-sep" parent="m-csess" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="176" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-m1" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SessionModeLabel: string" vertex="1">
+          <mxGeometry height="18" width="230" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="m-csess-m2" parent="m-csess" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="implements INotifyPropertyChanged" vertex="1">
+          <mxGeometry height="18" width="230" y="198" as="geometry" />
+        </mxCell>
+        <mxCell id="m-cmsg" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="ChatMessage" vertex="1">
+          <mxGeometry height="144" width="230" x="780" y="1920" as="geometry" />
+        </mxCell>
+        <mxCell id="m-cmsg-f1" parent="m-cmsg" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Id: int" vertex="1">
+          <mxGeometry height="18" width="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m-cmsg-f2" parent="m-cmsg" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SessionId: int" vertex="1">
+          <mxGeometry height="18" width="230" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="m-cmsg-f3" parent="m-cmsg" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SenderType: string" vertex="1">
+          <mxGeometry height="18" width="230" y="66" as="geometry" />
+        </mxCell>
+        <mxCell id="m-cmsg-f4" parent="m-cmsg" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+Content: string" vertex="1">
+          <mxGeometry height="18" width="230" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="m-cmsg-f5" parent="m-cmsg" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+SentAt: DateTime" vertex="1">
+          <mxGeometry height="18" width="230" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="m-cmsg-sep" parent="m-cmsg" style="line;strokeColor=#7b1fa2;" value="" vertex="1">
+          <mxGeometry height="3" width="230" y="122" as="geometry" />
+        </mxCell>
+        <mxCell id="m-cmsg-m1" parent="m-cmsg" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="+DisplaySentAt: string" vertex="1">
+          <mxGeometry height="18" width="230" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ltype" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;" value="&lt;&lt;enum&gt;&gt; LoanType" vertex="1">
+          <mxGeometry height="108" width="160" x="1280" y="1920" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ltype-sep" parent="e-ltype" style="line;strokeColor=#e65100;" value="" vertex="1">
+          <mxGeometry height="3" width="160" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ltype-v1" parent="e-ltype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Personal" vertex="1">
+          <mxGeometry height="18" width="160" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ltype-v2" parent="e-ltype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Auto" vertex="1">
+          <mxGeometry height="18" width="160" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ltype-v3" parent="e-ltype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Mortgage" vertex="1">
+          <mxGeometry height="18" width="160" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ltype-v4" parent="e-ltype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Student" vertex="1">
+          <mxGeometry height="18" width="160" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lstatus" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;" value="&lt;&lt;enum&gt;&gt; LoanStatus" vertex="1">
+          <mxGeometry height="72" width="160" x="1455" y="1920" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lstatus-sep" parent="e-lstatus" style="line;strokeColor=#e65100;" value="" vertex="1">
+          <mxGeometry height="3" width="160" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lstatus-v1" parent="e-lstatus" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Active" vertex="1">
+          <mxGeometry height="18" width="160" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lstatus-v2" parent="e-lstatus" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Passed" vertex="1">
+          <mxGeometry height="18" width="160" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lappstatus" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;" value="&lt;&lt;enum&gt;&gt; LoanApplicationStatus" vertex="1">
+          <mxGeometry height="90" width="160" x="1280" y="2045" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lappstatus-sep" parent="e-lappstatus" style="line;strokeColor=#e65100;" value="" vertex="1">
+          <mxGeometry height="3" width="160" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lappstatus-v1" parent="e-lappstatus" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Pending" vertex="1">
+          <mxGeometry height="18" width="160" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lappstatus-v2" parent="e-lappstatus" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Approved" vertex="1">
+          <mxGeometry height="18" width="160" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="e-lappstatus-v3" parent="e-lappstatus" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Rejected" vertex="1">
+          <mxGeometry height="18" width="160" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="e-txntype" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;" value="&lt;&lt;enum&gt;&gt; TransactionType" vertex="1">
+          <mxGeometry height="126" width="160" x="1455" y="2045" as="geometry" />
+        </mxCell>
+        <mxCell id="e-txntype-sep" parent="e-txntype" style="line;strokeColor=#e65100;" value="" vertex="1">
+          <mxGeometry height="3" width="160" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="e-txntype-v1" parent="e-txntype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Deposit" vertex="1">
+          <mxGeometry height="18" width="160" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e-txntype-v2" parent="e-txntype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Withdrawal" vertex="1">
+          <mxGeometry height="18" width="160" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="e-txntype-v3" parent="e-txntype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Interest" vertex="1">
+          <mxGeometry height="18" width="160" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="e-txntype-v4" parent="e-txntype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Transfer" vertex="1">
+          <mxGeometry height="18" width="160" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e-txntype-v5" parent="e-txntype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Closure" vertex="1">
+          <mxGeometry height="18" width="160" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="e-savtype" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;" value="&lt;&lt;enum&gt;&gt; SavingsType" vertex="1">
+          <mxGeometry height="108" width="160" x="1280" y="2150" as="geometry" />
+        </mxCell>
+        <mxCell id="e-savtype-sep" parent="e-savtype" style="line;strokeColor=#e65100;" value="" vertex="1">
+          <mxGeometry height="3" width="160" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="e-savtype-v1" parent="e-savtype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Standard" vertex="1">
+          <mxGeometry height="18" width="160" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e-savtype-v2" parent="e-savtype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="GoalSavings" vertex="1">
+          <mxGeometry height="18" width="160" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="e-savtype-v3" parent="e-savtype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="FixedDeposit" vertex="1">
+          <mxGeometry height="18" width="160" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="e-savtype-v4" parent="e-savtype" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="HighYield" vertex="1">
+          <mxGeometry height="18" width="160" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="e-depfreq" parent="1" style="swimlane;fontStyle=3;align=center;startSize=30;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;" value="&lt;&lt;enum&gt;&gt; DepositFrequency" vertex="1">
+          <mxGeometry height="90" width="160" x="1455" y="2186" as="geometry" />
+        </mxCell>
+        <mxCell id="e-depfreq-sep" parent="e-depfreq" style="line;strokeColor=#e65100;" value="" vertex="1">
+          <mxGeometry height="3" width="160" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="e-depfreq-v1" parent="e-depfreq" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Daily" vertex="1">
+          <mxGeometry height="18" width="160" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e-depfreq-v2" parent="e-depfreq" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Weekly" vertex="1">
+          <mxGeometry height="18" width="160" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="e-depfreq-v3" parent="e-depfreq" style="text;strokeColor=none;fillColor=none;align=left;spacingLeft=4;fontSize=10;" value="Monthly" vertex="1">
+          <mxGeometry height="18" width="160" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vsav-vmsav" edge="1" parent="1" source="v-sav" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e91e63;" target="vm-sav" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vcsav-vmcsav" edge="1" parent="1" source="v-csav" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e91e63;" target="vm-csav" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vloan-vmloan" edge="1" parent="1" source="v-loan" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e91e63;" target="vm-loan" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vinv-vminv" edge="1" parent="1" source="v-inv" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e91e63;" target="vm-inv" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vchat-vmchat" edge="1" parent="1" source="v-chat" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e91e63;" target="vm-chat" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vcrypto-vmcrypto" edge="1" parent="1" source="v-crypto" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e91e63;" target="vm-crypto" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vlogs-vmlogs" edge="1" parent="1" source="v-logs" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e91e63;" target="vm-logs" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vmsav-base" edge="1" parent="1" source="vm-sav" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=0;strokeColor=#3949ab;" target="vm-base" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vmsav-issvc" edge="1" parent="1" source="vm-sav" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#3949ab;" target="i-ssvc" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vmcsav-issvc" edge="1" parent="1" source="vm-csav" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#3949ab;" target="i-ssvc" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vmloan-svcapi" edge="1" parent="1" source="vm-loan" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#3949ab;" target="svc-api" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vminv-invrepo" edge="1" parent="1" source="vm-inv" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#3949ab;" target="i-invrepo" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vmcrypto-iinvsvc" edge="1" parent="1" source="vm-crypto" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#3949ab;" target="i-invsvc" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vmchat-svcapi" edge="1" parent="1" source="vm-chat" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#3949ab;" target="svc-api" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-vmlogs-iinvsvc" edge="1" parent="1" source="vm-logs" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#3949ab;" target="i-invsvc" value="uses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-ssvc-issvc" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=block;endFill=0;strokeColor=#388e3c;" value="implements">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="279" y="1012" as="sourcePoint" />
+            <mxPoint x="259" y="1048" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-lsvc-ilsvc" edge="1" parent="1" source="svc-loan" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=block;endFill=0;strokeColor=#388e3c;" target="i-lsvc" value="implements">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-invsvc-iinvsvc" edge="1" parent="1" source="svc-inv" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=block;endFill=0;strokeColor=#388e3c;" target="i-invsvc" value="implements">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-mock-api" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;endArrow=block;endFill=0;strokeColor=#388e3c;" value="extends">
+          <mxGeometry relative="1" x="-0.0055" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="276" y="1160.0400000000002" as="sourcePoint" />
+            <mxPoint x="256" y="1169" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-ssvc-srepo" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#388e3c;" value="uses">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="302" y="1017" as="sourcePoint" />
+            <mxPoint x="167.03999999999996" y="1335" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-lsvc-lrepo" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#388e3c;" value="uses">
+          <mxGeometry relative="1" x="0.0006" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="852" y="1034.04" as="sourcePoint" />
+            <mxPoint x="467.03999999999996" y="1343" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-invsvc-invrepo" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#388e3c;" value="uses">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1303" y="1003.04" as="sourcePoint" />
+            <mxPoint x="668.04" y="1330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-port-hold" edge="1" parent="1" source="m-port" style="edgeStyle=orthogonalEdgeStyle;endArrow=diamond;endFill=1;strokeColor=#7b1fa2;" target="m-hold" value="1..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-csess-cmsg" edge="1" parent="1" source="m-csess" style="edgeStyle=orthogonalEdgeStyle;endArrow=diamond;endFill=1;strokeColor=#7b1fa2;" target="m-cmsg" value="0..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-loan-ltype" edge="1" parent="1" source="m-loan" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e65100;" target="e-ltype" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-loan-lstatus" edge="1" parent="1" source="m-loan" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e65100;" target="e-lstatus" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel-stxn-txntype" edge="1" parent="1" source="m-stxn-f4" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e65100;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="524" y="1789.04" as="sourcePoint" />
+            <mxPoint x="1549.04" y="2045" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel-auto-depfreq" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e65100;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="260" y="2036" as="sourcePoint" />
+            <mxPoint x="1535.04" y="2190" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="R8wTbYmc1hCDABAp-dza-1" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;dashed=1;endArrow=open;endFill=0;strokeColor=#e65100;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" target="e-lappstatus" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1010" y="1850" />
+              <mxPoint x="1400" y="1850" />
+            </Array>
+            <mxPoint x="1010" y="1840" as="sourcePoint" />
+            <mxPoint x="1400" y="1930" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
