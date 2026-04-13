@@ -1,83 +1,89 @@
-using KarmaBanking.App.Models;
-using KarmaBanking.App.Repositories;
-using KarmaBanking.App.ViewModels;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-
 namespace KarmaBanking.App.Views
 {
+    using KarmaBanking.App.Models;
+    using KarmaBanking.App.Repositories;
+    using KarmaBanking.App.ViewModels;
+    using Microsoft.UI.Xaml;
+    using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml.Controls.Primitives;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Linq;
+
     public sealed partial class InvestmentsView : Page
     {
-        private const string RefreshPricesEvent = "refreshPrices";
-        private readonly ObservableCollection<InvestmentHolding> _displayedHoldings;
-        private readonly List<ToggleButton> _filterButtons;
-        private InvestmentsViewModel ViewModel { get; }
-        private string _activeFilter = "All";
-        private bool _hasLoaded;
+        // Redenumit pentru a fi semantic conform cerintei
+        private const string RefreshPricesEventName = "refreshPrices";
+        private readonly ObservableCollection<InvestmentHolding> displayedHoldings;
+        private readonly List<ToggleButton> filterButtons;
+        private bool hasPageLoaded;
+        private string activeFilterType = "All";
 
         public InvestmentsView()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            ViewModel = new InvestmentsViewModel(new InvestmentRepository());
-            DataContext = ViewModel;
+            // Dependency Injection manual
+            this.ViewModel = new InvestmentsViewModel(new InvestmentRepository());
+            this.DataContext = this.ViewModel;
 
-            _displayedHoldings = new ObservableCollection<InvestmentHolding>();
-            _filterButtons = new List<ToggleButton>
+            this.displayedHoldings = new ObservableCollection<InvestmentHolding>();
+            this.filterButtons = new List<ToggleButton>
             {
-                AllFilterButton,
-                StocksFilterButton,
-                EtfsFilterButton,
-                BondsFilterButton,
-                CryptoFilterButton,
-                OtherFilterButton
+                this.AllFilterButton,
+                this.StocksFilterButton,
+                this.EtfsFilterButton,
+                this.BondsFilterButton,
+                this.CryptoFilterButton,
+                this.OtherFilterButton
             };
 
-            HoldingsListView.ItemsSource = _displayedHoldings;
+            this.HoldingsListView.ItemsSource = this.displayedHoldings;
 
-            Loaded += OnPageLoaded;
-            Unloaded += OnPageUnloaded;
-            ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+            this.Loaded += this.OnPageLoaded;
+            this.Unloaded += this.OnPageUnloaded;
+            this.ViewModel.PropertyChanged += this.OnViewModelPropertyChanged;
         }
+
+        public InvestmentsViewModel ViewModel { get; }
 
         private void OnPageLoaded(object sender, RoutedEventArgs e)
         {
-            if (_hasLoaded)
+            if (this.hasPageLoaded)
             {
                 return;
             }
 
-            _hasLoaded = true;
-            ViewModel.loadPortfolio();
-            RefreshDisplayedHoldings();
+            this.hasPageLoaded = true;
+            // Redenumit din loadPortfolio() -> LoadUserPortfolio()
+            this.ViewModel.LoadUserPortfolio();
+            this.RefreshDisplayedHoldings();
         }
 
         private void OnPageUnloaded(object sender, RoutedEventArgs e)
         {
-            ViewModel.stopPolling();
-            ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-            Loaded -= OnPageLoaded;
-            Unloaded -= OnPageUnloaded;
+            // Redenumit din stopPolling() -> StopMarketDataPolling()
+            this.ViewModel.StopMarketDataPolling();
+            this.ViewModel.PropertyChanged -= this.OnViewModelPropertyChanged;
+            this.Loaded -= this.OnPageLoaded;
+            this.Unloaded -= this.OnPageUnloaded;
         }
 
         private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(InvestmentsViewModel.portfolio))
+            // Sincronizat cu noile nume de proprietati din ViewModel
+            if (e.PropertyName == nameof(InvestmentsViewModel.UserPortfolio))
             {
-                RefreshDisplayedHoldings();
+                this.RefreshDisplayedHoldings();
             }
-            else if (e.PropertyName == RefreshPricesEvent)
+            else if (e.PropertyName == RefreshPricesEventName)
             {
-                RefreshDisplayedHoldings();
+                this.RefreshDisplayedHoldings();
             }
-            else if (e.PropertyName == nameof(InvestmentsViewModel.isLoading))
+            else if (e.PropertyName == nameof(InvestmentsViewModel.IsPortfolioLoading))
             {
-                UpdateEmptyState();
+                this.UpdateEmptyState();
             }
         }
 
@@ -85,35 +91,36 @@ namespace KarmaBanking.App.Views
         {
             if (sender is ToggleButton selectedButton)
             {
-                _activeFilter = selectedButton.Tag?.ToString() ?? "All";
+                this.activeFilterType = selectedButton.Tag?.ToString() ?? "All";
 
-                foreach (ToggleButton button in _filterButtons)
+                foreach (ToggleButton button in this.filterButtons)
                 {
                     button.IsChecked = button == selectedButton;
                 }
 
-                RefreshDisplayedHoldings();
+                this.RefreshDisplayedHoldings();
             }
         }
 
         private void RefreshDisplayedHoldings()
         {
-            _displayedHoldings.Clear();
+            this.displayedHoldings.Clear();
 
-            IEnumerable<InvestmentHolding> holdings = ViewModel.portfolio?.Holdings ?? Enumerable.Empty<InvestmentHolding>();
-            foreach (InvestmentHolding holding in holdings.Where(MatchesActiveFilter))
+            // Sincronizat: portfolio -> UserPortfolio
+            IEnumerable<InvestmentHolding> holdings = this.ViewModel.UserPortfolio?.Holdings ?? Enumerable.Empty<InvestmentHolding>();
+            foreach (InvestmentHolding holding in holdings.Where(this.MatchesActiveFilter))
             {
-                _displayedHoldings.Add(holding);
+                this.displayedHoldings.Add(holding);
             }
 
-            UpdateEmptyState();
+            this.UpdateEmptyState();
         }
 
         private bool MatchesActiveFilter(InvestmentHolding holding)
         {
             string assetType = holding.AssetType?.Trim() ?? string.Empty;
 
-            return _activeFilter switch
+            return this.activeFilterType switch
             {
                 "Stocks" => assetType.Equals("Stock", System.StringComparison.OrdinalIgnoreCase)
                     || assetType.Equals("Stocks", System.StringComparison.OrdinalIgnoreCase),
@@ -135,9 +142,10 @@ namespace KarmaBanking.App.Views
 
         private void UpdateEmptyState()
         {
-            bool isEmpty = !ViewModel.isLoading && _displayedHoldings.Count == 0;
-            EmptyStateTextBlock.Visibility = isEmpty ? Visibility.Visible : Visibility.Collapsed;
-            HoldingsListView.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+            // Sincronizat: isLoading -> IsPortfolioLoading
+            bool isEmpty = !this.ViewModel.IsPortfolioLoading && this.displayedHoldings.Count == 0;
+            this.EmptyStateTextBlock.Visibility = isEmpty ? Visibility.Visible : Visibility.Collapsed;
+            this.HoldingsListView.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 }

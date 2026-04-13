@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using KarmaBanking.App.Data;
 
 public class ChatMessageRepository
 {
@@ -10,7 +11,7 @@ public class ChatMessageRepository
     {
         List<ChatMessage> messages = new List<ChatMessage>();
 
-        using (SqlConnection connection = new SqlConnection(DatabaseConfig.ConnectionString))
+        using (SqlConnection connection = new SqlConnection(DatabaseConfig.DatabaseConnectionString))
         {
             connection.Open();
 

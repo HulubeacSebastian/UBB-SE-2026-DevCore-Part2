@@ -1,45 +1,50 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
 namespace KarmaBanking.App.Models
 {
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
+
     public class InvestmentHolding : INotifyPropertyChanged
     {
-        private decimal _currentPrice;
-        private decimal _unrealizedGainLoss;
+        private decimal currentPrice;
+        private decimal unrealizedGainLoss;
 
-        public int Id { get; set; }
-        public int PortfolioId { get; set; }
+        public int IdentificationNumber { get; set; }
+
+        public int PortfolioIdentificationNumber { get; set; }
+
         public string Ticker { get; set; } = string.Empty;
+
         public string AssetType { get; set; } = string.Empty;
+
         public decimal Quantity { get; set; }
-        public decimal AvgPurchasePrice { get; set; }
+
+        public decimal AveragePurchasePrice { get; set; }
 
         public decimal CurrentPrice
         {
-            get => _currentPrice;
+            get => this.currentPrice;
             set
             {
-                _currentPrice = value;
-                OnPropertyChanged();
+                this.currentPrice = value;
+                this.OnPropertyChanged();
             }
         }
 
         public decimal UnrealizedGainLoss
         {
-            get => _unrealizedGainLoss;
+            get => this.unrealizedGainLoss;
             set
             {
-                _unrealizedGainLoss = value;
-                OnPropertyChanged();
+                this.unrealizedGainLoss = value;
+                this.OnPropertyChanged();
             }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
