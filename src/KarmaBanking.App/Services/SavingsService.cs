@@ -22,7 +22,7 @@ namespace KarmaBanking.App.Services
         public async Task<SavingsAccount> CreateAccountAsync(CreateSavingsAccountDto dto)
         {
             // BA-9: max 5 active accounts per user
-            var existing = await savingsRepository.GetSavingsAccountsByUserIdAsync(dto.UserId, includesClosed: false);
+            var existing = await savingsRepository.GetSavingsAccountsByUserIdAsync(dto.UserId, includesClosedAccounts: false);
             if (existing.Count >= MaxActiveAccounts)
                 throw new InvalidOperationException("You cannot have more than 5 active savings accounts.");
 
@@ -53,7 +53,7 @@ namespace KarmaBanking.App.Services
                 throw new ArgumentException("Deposit amount must be positive.");
 
             // BA-14: get the account and validate ownership + status
-            var accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, includesClosed: true);
+            var accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, includesClosedAccounts: true);
             var account = accounts.Find(a => a.Id == accountId)
                 ?? throw new InvalidOperationException("Account not found or does not belong to you.");
 
@@ -67,9 +67,9 @@ namespace KarmaBanking.App.Services
             return await savingsRepository.DepositAsync(accountId, amount, source);
         }
 
-        public async Task<ClosureResult> CloseAccountAsync(int accountId, int destinationAccountId, int userId)
+        public async Task<ClosureResultDto> CloseAccountAsync(int accountId, int destinationAccountId, int userId)
         {
-            var accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, includesClosed: true);
+            var accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, includesClosedAccounts: true);
 
             var account = accounts.FirstOrDefault(a => a.Id == accountId)
                 ?? throw new InvalidOperationException("Account not found.");
@@ -85,7 +85,7 @@ namespace KarmaBanking.App.Services
             if (amount <= 0)
                 throw new ArgumentException("Withdrawal amount must be positive.");
 
-            var accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, includesClosed: true);
+            var accounts = await savingsRepository.GetSavingsAccountsByUserIdAsync(userId, includesClosedAccounts: true);
             var account = accounts.Find(a => a.Id == accountId)
                 ?? throw new InvalidOperationException("Account not found or does not belong to you.");
 
