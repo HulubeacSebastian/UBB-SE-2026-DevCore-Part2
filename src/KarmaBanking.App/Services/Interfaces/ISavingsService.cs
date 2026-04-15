@@ -17,5 +17,7 @@ namespace KarmaBanking.App.Services.Interfaces
         Task SaveAutoDepositAsync(AutoDeposit autoDeposit);
         Task<List<FundingSourceOption>> GetFundingSourcesAsync(int userId);
         Task<(List<SavingsTransaction> Items, int TotalCount)> GetTransactionsAsync(int accountId, string filter, int page, int pageSize);
+        decimal ComputeWithdrawalPenalty(decimal amount);
+        bool HasRiskEarlyWithdrawal(SavingsAccount savingsAccount)
     }
 }

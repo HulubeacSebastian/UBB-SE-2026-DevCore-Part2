@@ -184,5 +184,17 @@ namespace KarmaBanking.App.Services
                 page,
                 pageSize);
         }
+
+        public decimal ComputeWithdrawalPenalty(decimal amount)
+        {
+            return amount * DECIMAL_EARLY_WITHDRAWAL_PENALTY;
+        }
+
+        public bool HasRiskEarlyWithdrawal(SavingsAccount savingsAccount)
+        {
+            return savingsAccount?.SavingsType == "FixedDeposit" &&
+            savingsAccount.MaturityDate.HasValue &&
+            savingsAccount.MaturityDate.Value > DateTime.UtcNow;
+        }
     }
 }
