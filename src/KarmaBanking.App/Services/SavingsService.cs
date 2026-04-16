@@ -185,6 +185,12 @@ namespace KarmaBanking.App.Services
                 pageSize);
         }
 
+        public async Task<List<SavingsAccount>> GetValidTransferDestinationsAsync(int currentAccountId)
+        {
+            var openAccountsList = await savingsRepository.GetSavingsAccountsByUserIdAsync(currentAccountId, includesClosedAccounts: false);
+            return openAccountsList.Where(account => account.Id != currentAccountId).ToList();
+        }
+
         public decimal ComputeWithdrawalPenalty(decimal amount)
         {
             return amount * DECIMAL_EARLY_WITHDRAWAL_PENALTY;
@@ -195,6 +201,16 @@ namespace KarmaBanking.App.Services
             return savingsAccount?.SavingsType == "FixedDeposit" &&
             savingsAccount.MaturityDate.HasValue &&
             savingsAccount.MaturityDate.Value > DateTime.UtcNow;
+        }
+
+        public decimal GetPenaltyDecimalFor(string penaltyCase) 
+        {
+            return penaltyCase switch
+            {
+                "EarlyWithdrawal" => DECIMAL_EARLY_WITHDRAWAL_PENALTY,
+                "EarlyClosure" => DECIMAL_EARLY_CLOSURE_PENALTY,
+                _ => throw new ArgumentException("Invalid penalty case.")
+            };
         }
     }
 }

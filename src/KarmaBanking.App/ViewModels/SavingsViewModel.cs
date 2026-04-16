@@ -121,7 +121,7 @@ namespace KarmaBanking.App.ViewModels
         public bool WithdrawHasPenalty => WithdrawEstimatedPenalty > 0;
 
         public string WithdrawPenaltySummary =>
-            WithdrawHasEarlyRisk ? $"Early withdrawal penalty: 2% of amount. Maturity date: {SelectedAccount?.MaturityDate:d}" : string.Empty;
+            WithdrawHasEarlyRisk ? $"Early withdrawal penalty: {savingsService.GetPenaltyDecimalFor("EarlyWithdrawal"):P2} of amount. Maturity date: {SelectedAccount?.MaturityDate:d}" : string.Empty;
 
         public async Task<bool> ConfirmWithdrawAsync()
         {
@@ -292,9 +292,9 @@ namespace KarmaBanking.App.ViewModels
             CloseUserConfirmed = false;
             CloseResultMessage = string.Empty;
             CloseSuccess = false;
-            var accountsList = await savingsService.GetAccountsAsync(CurrentUserId);
+            var openAccountsList = await savingsService.GetValidTransferDestinationsAsync(SelectedAccount!.Id);
             CloseDestinationAccounts.Clear();
-            foreach (var account in accountsList.Where(account => account.Id != SelectedAccount?.Id && account.AccountStatus != "Closed"))
+            foreach (var account in openAccountsList)
                 CloseDestinationAccounts.Add(account);
             if (CloseDestinationAccounts.Count > 0)
                 SelectedCloseDestinationId = CloseDestinationAccounts[0].Id;
