@@ -244,12 +244,12 @@ namespace KarmaBanking.App.ViewModels
             }
 
             ChatSession session = CurrentSession!;
-            session.issueCategory = InferCategory(question);
+            session.IssueCategory = InferCategory(question);
 
             session.Messages.Add(new ChatMessage
             {
                 Id = session.Messages.Count + 1,
-                SessionId = session.id,
+                SessionId = session.Id,
                 SenderType = "USER",
                 Content = question,
                 SentAt = DateTime.Now
@@ -258,7 +258,7 @@ namespace KarmaBanking.App.ViewModels
             session.Messages.Add(new ChatMessage
             {
                 Id = session.Messages.Count + 1,
-                SessionId = session.id,
+                SessionId = session.Id,
                 SenderType = "CHATBOT ASSISTANCE",
                 Content = response,
                 SentAt = DateTime.Now.AddSeconds(1)
@@ -288,7 +288,7 @@ namespace KarmaBanking.App.ViewModels
 
             CurrentSession.TeamContactMessage = trimmedMessage;
             CurrentSession.IsEscalatedToTeam = true;
-            CurrentSession.sessionStatus = "Escalated";
+            CurrentSession.SessionStatus = "Escalated";
 
             string attachmentMessage = SelectedAttachment == null
                 ? "No attachment was added."
@@ -297,7 +297,7 @@ namespace KarmaBanking.App.ViewModels
             CurrentSession.Messages.Add(new ChatMessage
             {
                 Id = CurrentSession.Messages.Count + 1,
-                SessionId = CurrentSession.id,
+                SessionId = CurrentSession.Id,
                 SenderType = "SYSTEM",
                 Content = $"Conversation sent to the Karma Banking team. {attachmentMessage}",
                 SentAt = DateTime.Now
@@ -308,7 +308,7 @@ namespace KarmaBanking.App.ViewModels
                 CurrentSession.Messages.Add(new ChatMessage
                 {
                     Id = CurrentSession.Messages.Count + 1,
-                    SessionId = CurrentSession.id,
+                    SessionId = CurrentSession.Id,
                     SenderType = "CUSTOMER NOTE",
                     Content = trimmedMessage,
                     SentAt = DateTime.Now.AddSeconds(1)
@@ -370,17 +370,17 @@ namespace KarmaBanking.App.ViewModels
         {
             ChatSession session = new ChatSession
             {
-                id = nextSessionId++,
-                issueCategory = "General",
-                sessionStatus = "Open",
-                startedAt = DateTime.Now,
+                Id = nextSessionId++,
+                IssueCategory = "General",
+                SessionStatus = "Open",
+                StartedAt = DateTime.Now,
                 Title = $"Session {nextSessionId - 1}"
             };
 
             session.Messages.Add(new ChatMessage
             {
                 Id = 1,
-                SessionId = session.id,
+                SessionId = session.Id,
                 SenderType = "CHATBOT ASSISTANCE",
                 Content = "Welcome. This support assistant uses preset questions and fixed answers only. Choose a question below or contact the real team at any time.",
                 SentAt = DateTime.Now
@@ -396,7 +396,7 @@ namespace KarmaBanking.App.ViewModels
         {
             string preferredTitle = !string.IsNullOrWhiteSpace(selectedQuestion)
                 ? selectedQuestion
-                : session.Messages.FirstOrDefault(message => message.SenderType == "USER")?.Content ?? $"Session {session.id}";
+                : session.Messages.FirstOrDefault(message => message.SenderType == "USER")?.Content ?? $"Session {session.Id}";
 
             session.Title = TrimForPreview(preferredTitle, 32);
 

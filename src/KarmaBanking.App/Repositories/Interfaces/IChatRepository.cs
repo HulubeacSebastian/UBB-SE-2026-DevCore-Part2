@@ -10,5 +10,8 @@ namespace KarmaBanking.App.Repositories.Interfaces
     public interface IChatRepository
     {
         Task<List<ChatMessage>> GetChatMessagesAsync(int chatSessionId);
+        void SaveSessionRatingAndFeedback(int sessionId, int rating, string feedback);
+        Task<int> CreateChatSessionAsync(int userId, string issueCategory);
+        Task<List<ChatSession>> GetChatSessionsAsync();
     }
 }

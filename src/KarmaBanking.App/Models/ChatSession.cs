@@ -7,14 +7,14 @@ namespace KarmaBanking.App.Models
 {
     public class ChatSession : INotifyPropertyChanged
     {
-        public int id { get; set; }
-        public int userId { get; set; }
-        public string issueCategory { get; set; } = string.Empty;
-        public string sessionStatus { get; set; } = string.Empty;
-        public int rating { get; set; }
-        public string feedback { get; set; } = string.Empty;
-        public DateTime startedAt { get; set; }
-        public DateTime endedAt { get; set; }
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public string IssueCategory { get; set; } = string.Empty;
+        public string SessionStatus { get; set; } = string.Empty;
+        public int Rating { get; set; }
+        public string Feedback { get; set; } = string.Empty;
+        public DateTime StartedAt { get; set; }
+        public DateTime EndedAt { get; set; }
 
         private string title = "New chat";
         private string lastPreview = "No messages yet.";

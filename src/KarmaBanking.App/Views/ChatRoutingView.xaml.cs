@@ -193,7 +193,7 @@ namespace KarmaBanking.App.Views
                 {
                     ApiService api = new ApiService();
 
-                    int sessionId = viewModel.CurrentSession?.id ?? 1;
+                    int sessionId = viewModel.CurrentSession?.Id ?? 1;
                     string feedback = feedbackTextBox.Text;
 
                     api.SubmitFeedback(sessionId, selectedRating, feedback);

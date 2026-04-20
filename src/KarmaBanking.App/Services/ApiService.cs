@@ -1,6 +1,7 @@
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
 using KarmaBanking.App.Repositories;
+using KarmaBanking.App.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,11 +18,13 @@ namespace KarmaBanking.App.Services
         private readonly string baseUrl = "https://localhost:5001";
         private readonly string authToken = "";
         private readonly ILoanService _loanService;
+        private readonly IChatRepository _chatRepository;
 
         public ApiService() { }
-        public ApiService(ILoanService loanService)
+        public ApiService(ILoanService loanService, IChatRepository chatRepository)
         {
             _loanService = loanService;
+            _chatRepository = chatRepository;
         }
 
         protected static readonly Dictionary<string, string> DefaultChatbotResponses = new Dictionary<string, string>
@@ -143,14 +146,12 @@ namespace KarmaBanking.App.Services
 
         public async Task<int> CreateChatSessionAsync(int userId, string issueCategory)
         {
-            ChatSessionRepository repo = new ChatSessionRepository();
-            return await repo.CreateChatSessionAsync(userId, issueCategory);
+            return await _chatRepository.CreateChatSessionAsync(userId, issueCategory);
         }
 
         public void SubmitFeedback(int sessionId, int rating, string feedback)
         {
-            ChatSessionRepository repo = new ChatSessionRepository();
-            repo.SaveSessionRatingAndFeedback(sessionId, rating, feedback);
+            _chatRepository.SaveSessionRatingAndFeedback(sessionId, rating, feedback);
         }
 
         public void EmailSessionTranscript(int sessionId, string recipientEmail)
