@@ -13,7 +13,7 @@ namespace KarmaBanking.App.Repositories
     public class SavingsRepository : ISavingsRepository
     {
         public SavingsRepository() { }
-        
+
         public async Task<List<SavingsAccount>> GetSavingsAccountsByUserIdAsync(int userId, bool includesClosedAccounts = false)
         {
             string selectAccountsQuery = @"
@@ -26,7 +26,7 @@ namespace KarmaBanking.App.Repositories
                 " ORDER BY balance DESC";
 
             var accountsList = new List<SavingsAccount>();
-                
+
             using SqlConnection dbConnection = DatabaseConfig.GetDatabaseConnection();
             await dbConnection.OpenAsync();
 
@@ -35,7 +35,9 @@ namespace KarmaBanking.App.Repositories
 
             using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync();
             while (await reader.ReadAsync())
+            {
                 accountsList.Add(MapReaderToAccount(reader));
+            }
 
             return accountsList;
         }
@@ -68,7 +70,7 @@ namespace KarmaBanking.App.Repositories
             sqlCommand.Parameters.AddWithValue("@FundingAccountId", dto.FundingAccountId == 0 ? (object)DBNull.Value : dto.FundingAccountId);
             sqlCommand.Parameters.AddWithValue("@TargetAmount", (object?)dto.TargetAmount ?? DBNull.Value);
             sqlCommand.Parameters.AddWithValue("@TargetDate", (object?)dto.TargetDate ?? DBNull.Value);
-            
+
             int newSavingsAccountId = (int)await sqlCommand.ExecuteScalarAsync();
 
             return new SavingsAccount
@@ -262,7 +264,7 @@ namespace KarmaBanking.App.Repositories
                 {
                     selectAccountDataCommand.Parameters.AddWithValue("@Id", accountId);
                     using var reader = await selectAccountDataCommand.ExecuteReaderAsync();
-                    
+
                     oldBalance = (decimal)reader["balance"];
                     savingsAccountType = reader["savingsType"].ToString();
                     maturityDate = reader["maturityDate"] as DateTime?;
@@ -338,7 +340,10 @@ namespace KarmaBanking.App.Repositories
             selectAutoDepositByAccountIdCommand.Parameters.AddWithValue("@AccountId", accountId);
             using var reader = await selectAutoDepositByAccountIdCommand.ExecuteReaderAsync();
 
-            if (!await reader.ReadAsync()) return null;
+            if (!await reader.ReadAsync())
+            {
+                return null;
+            }
 
             return new AutoDeposit
             {
@@ -504,7 +509,9 @@ namespace KarmaBanking.App.Repositories
                     var result = await getCmd.ExecuteScalarAsync();
 
                     if (result == null)
+                    {
                         return false;
+                    }
 
                     currentBalance = (decimal)result;
                 }
@@ -575,7 +582,9 @@ namespace KarmaBanking.App.Repositories
             countAccountTransactionsCommand.Parameters.AddWithValue("@AccountId", accountId);
 
             if (baseQuery.Contains("@Type"))
+            {
                 countAccountTransactionsCommand.Parameters.AddWithValue("@Type", typeFilter);
+            }
 
             int numberOfAccountTransactions = (int)await countAccountTransactionsCommand.ExecuteScalarAsync();
 
@@ -592,7 +601,9 @@ namespace KarmaBanking.App.Repositories
             paginatedSelectAccountsCommand.Parameters.AddWithValue("@PageSize", pageSize);
 
             if (baseQuery.Contains("@Type"))
+            {
                 paginatedSelectAccountsCommand.Parameters.AddWithValue("@Type", typeFilter);
+            }
 
             var transactionsList = new List<SavingsTransaction>();
 

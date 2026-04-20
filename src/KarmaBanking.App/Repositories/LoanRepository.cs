@@ -12,7 +12,7 @@ public class LoanRepository : ILoanRepository
     public async Task<List<Loan>> GetAllLoansAsync()
     {
 
-        List<Loan> loans = new List<Loan>();
+        List<Loan> loans = [];
 
         using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
 
@@ -75,7 +75,7 @@ public class LoanRepository : ILoanRepository
 
     public async Task<List<Loan>> GetLoansByUserAsync(int userId)
     {
-        List<Loan> loans = new List<Loan>();
+        List<Loan> loans = [];
 
         using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
 
@@ -99,7 +99,7 @@ public class LoanRepository : ILoanRepository
 
     public async Task<List<Loan>> GetLoansByTypeAsync(LoanType loanType)
     {
-        List<Loan> loans = new List<Loan>();
+        List<Loan> loans = [];
 
         using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
 
@@ -123,7 +123,7 @@ public class LoanRepository : ILoanRepository
 
     public async Task<List<Loan>> GetLoansByStatusAsync(LoanStatus loanStatus)
     {
-        List<Loan> loans = new List<Loan>();
+        List<Loan> loans = [];
 
         using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
 
@@ -148,7 +148,10 @@ public class LoanRepository : ILoanRepository
 
     public async Task SaveAmortizationAsync(List<AmortizationRow> rows)
     {
-        if (rows == null || rows.Count == 0) return;
+        if (rows == null || rows.Count == 0)
+        {
+            return;
+        }
 
         using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
         await connection.OpenAsync();
@@ -206,7 +209,7 @@ public class LoanRepository : ILoanRepository
 
     public async Task<List<AmortizationRow>> GetAmortizationAsync(int loanId)
     {
-        List<AmortizationRow> rows = new List<AmortizationRow>();
+        List<AmortizationRow> rows = [];
 
         using SqlConnection connection = DatabaseConfig.GetDatabaseConnection();
 
