@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace KarmaBanking.App.Models
@@ -27,7 +28,7 @@ namespace KarmaBanking.App.Models
 
         public string Title
         {
-            get => title;
+            get => $"Chat {Id}";
             set
             {
                 if (title != value)
@@ -40,7 +41,7 @@ namespace KarmaBanking.App.Models
 
         public string LastPreview
         {
-            get => lastPreview;
+            get => Messages.Count > 0 ? Messages.Last().Content : "No messages yet.";
             set
             {
                 if (lastPreview != value)

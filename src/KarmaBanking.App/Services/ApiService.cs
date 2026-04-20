@@ -148,6 +148,14 @@ namespace KarmaBanking.App.Services
         {
             return await _chatRepository.CreateChatSessionAsync(userId, issueCategory);
         }
+        public async Task SendMessageAsync(ChatMessage message)
+        {
+            await _chatRepository.AddChatMessageAsync(message);
+        }
+        public async Task<List<ChatSession>> GetUserChatSessionsAsync()
+        {
+            return await _chatRepository.GetChatSessionsAsync();
+        }
 
         public void SubmitFeedback(int sessionId, int rating, string feedback)
         {

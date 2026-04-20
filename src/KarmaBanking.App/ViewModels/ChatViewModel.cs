@@ -1,4 +1,5 @@
 ﻿using KarmaBanking.App.Models;
+using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Services;
 using KarmaBanking.App.Utils;
 using System;
@@ -15,7 +16,7 @@ namespace KarmaBanking.App.ViewModels
     {
         public static ChatViewModel Instance { get; } = new ChatViewModel();
 
-        private readonly ApiService apiService = new MockApiService();
+        private readonly ApiService apiService = new ApiService(null, new ChatRepository());
         private ObservableCollection<ChatSession> sessions = new ObservableCollection<ChatSession>();
         private ObservableCollection<ChatMessage> messages = new ObservableCollection<ChatMessage>();
         private ObservableCollection<string> presetQuestions = new ObservableCollection<string>();
@@ -177,10 +178,34 @@ namespace KarmaBanking.App.ViewModels
             _ = LoadPresetQuestionsAsync();
         }
 
-        private Task OnStartNewSessionAsync()
+        public async Task OnStartNewSessionAsync()
         {
-            CreateSession();
-            return Task.CompletedTask;
+            try
+            {
+                int currentUserId = CurrentUser.Id;
+
+                int newSessionId = await apiService.CreateChatSessionAsync(currentUserId, "New Inquiry");
+
+                var newSession = new ChatSession
+                {
+                    Id = newSessionId,
+                    UserId = currentUserId,
+                    IssueCategory = "New Inquiry",
+                    StartedAt = DateTime.Now,
+                    Title = "New chat",
+                    LastPreview = "No messages yet."
+                };
+
+                Sessions.Insert(0, newSession);
+
+                CurrentSession = newSession;
+
+                StatusMessage = "Ready for your question!";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Failed to create session in DB: " + ex.Message;
+            }
         }
 
         private Task OnRemoveAttachmentAsync()
@@ -218,55 +243,69 @@ namespace KarmaBanking.App.ViewModels
             UploadStatusMessage = "Attachment selected. Ready to upload.";
         }
 
-        public void SelectSession(ChatSession? session)
+        public async Task SelectSessionAsync(ChatSession session)
         {
-            if (session == null)
+            if (session != null && CurrentSession != session)
             {
-                return;
-            }
+                CurrentSession = session;
 
-            CurrentSession = session;
-            StatusMessage = $"Viewing {session.Title.ToLowerInvariant()}.";
+                await LoadMessagesForSessionAsync(CurrentSession);
+            }
         }
 
         public async Task AskPresetQuestionAsync(string question)
         {
-            string response = await apiService.GetChatbotPresetAnswerAsync(question);
-
-            if (string.IsNullOrWhiteSpace(response))
-            {
-                return;
-            }
+            int currentUserId = CurrentUser.Id; 
 
             if (CurrentSession == null)
             {
-                CreateSession();
+                string category = InferCategory(question);
+                int newSessionId = await apiService.CreateChatSessionAsync(currentUserId, category);
+
+                CurrentSession = new ChatSession
+                {
+                    Id = newSessionId,
+                    UserId = currentUserId,
+                    IssueCategory = category,
+                    StartedAt = DateTime.Now,
+                    Title = "Chat started at " + DateTime.Now.ToString("HH:mm")
+                };
+                Sessions.Add(CurrentSession);
             }
 
-            ChatSession session = CurrentSession!;
-            session.IssueCategory = InferCategory(question);
-
-            session.Messages.Add(new ChatMessage
+            var userMessage = new ChatMessage
             {
-                Id = session.Messages.Count + 1,
-                SessionId = session.Id,
+                SessionId = CurrentSession.Id,
                 SenderType = "USER",
                 Content = question,
                 SentAt = DateTime.Now
-            });
+            };
+            await apiService.SendMessageAsync(userMessage);
+            CurrentSession.Messages.Add(userMessage); 
 
-            session.Messages.Add(new ChatMessage
+            var botMessage = new ChatMessage
             {
-                Id = session.Messages.Count + 1,
-                SessionId = session.Id,
-                SenderType = "CHATBOT ASSISTANCE",
-                Content = response,
+                SessionId = CurrentSession.Id,
+                SenderType = "BOT",
+                Content = "This is an automated response to: " + question,
                 SentAt = DateTime.Now.AddSeconds(1)
-            });
+            };
+            await apiService.SendMessageAsync(botMessage);
+            CurrentSession.Messages.Add(botMessage);
 
-            UpdateSessionSummary(session, question, response);
-            StatusMessage = "Preset answer added to the chat.";
-            OnPropertyChanged(nameof(HasMessages));
+            UpdateSessionPreview(CurrentSession);
+        }
+
+        public void UpdateSessionPreview(ChatSession session)
+        {
+            if (session == null) return;
+
+            var lastMessage = session.Messages.LastOrDefault();
+
+            string preferredPreview = lastMessage != null ? lastMessage.Content : "No messages yet.";
+
+            session.LastPreview = TrimForPreview(preferredPreview, 56);
+            session.LastUpdatedAt = DateTime.Now;
         }
 
         public async Task<bool> SendCurrentConversationToTeamAsync(string customerMessage)
@@ -346,11 +385,41 @@ namespace KarmaBanking.App.ViewModels
             return string.Join(Environment.NewLine, lines);
         }
 
-        public void EnsureSession()
+        public async Task LoadSessionsAsync()
         {
-            if (CurrentSession == null)
+            try
             {
-                CreateSession();
+                var databaseSessions = await apiService.GetUserChatSessionsAsync();
+
+                Sessions.Clear();
+                foreach (var s in databaseSessions)
+                {
+                    Sessions.Add(s);
+                }
+
+                if (Sessions.Count > 0)
+                {
+                    CurrentSession = Sessions.Last();
+                    await LoadMessagesForSessionAsync(CurrentSession);
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "Failed to load sessions: " + ex.Message;
+            }
+        }
+
+        public async Task LoadMessagesForSessionAsync(ChatSession session)
+        {
+            if (session == null) return;
+
+            var repo = new ChatMessageRepository();
+            var messages = await Task.Run(() => repo.GetMessagesBySessionId(session.Id));
+
+            session.Messages.Clear();
+            foreach (var msg in messages)
+            {
+                session.Messages.Add(msg);
             }
         }
 

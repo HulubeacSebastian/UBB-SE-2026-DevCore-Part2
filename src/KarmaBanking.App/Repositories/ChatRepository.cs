@@ -95,6 +95,24 @@ namespace KarmaBanking.App.Repositories
             }
         }
 
+        public async Task AddChatMessageAsync(ChatMessage message)
+        {
+            using (var connection = DatabaseConfig.GetDatabaseConnection())
+            {
+                await connection.OpenAsync();
+                string query = @"INSERT INTO ChatMessage (sessionId, senderType, content, sentAt) 
+                         VALUES (@sessionId, @senderType, @content, @sentAt)";
+
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@sessionId", message.SessionId);
+                command.Parameters.AddWithValue("@senderType", message.SenderType);
+                command.Parameters.AddWithValue("@content", message.Content);
+                command.Parameters.AddWithValue("@sentAt", message.SentAt);
+
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
         public async Task<List<ChatSession>> GetChatSessionsAsync()
         {
             var chatSessions = new List<ChatSession>();
@@ -102,8 +120,9 @@ namespace KarmaBanking.App.Repositories
             {
                 await connection.OpenAsync();
 
-                string query = @"SELECT is, userId, issueCategory, sessionStatus, rating, startedAt, endedAt, feedback " +
-                    "FROM ChatSession";
+                string query = @"SELECT id, userId, issueCategory, sessionStatus, rating, startedAt, endedAt, feedback " +
+                    "FROM ChatSession " +
+                    "ORDER BY id DESC";
 
                 SqlCommand command = new SqlCommand(query, connection);
 
@@ -117,9 +136,9 @@ namespace KarmaBanking.App.Repositories
                             UserId = reader.GetInt32(1),
                             IssueCategory = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                             SessionStatus = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
-                            Rating = reader.GetInt32(4),
+                            Rating = reader.IsDBNull(4) ? 0 : reader.GetInt32(4),
                             StartedAt = reader.GetDateTime(5),
-                            EndedAt = reader.GetDateTime(6),
+                            EndedAt = reader.IsDBNull(6) ? DateTime.MinValue : reader.GetDateTime(6),
                             Feedback = reader.IsDBNull(7) ? string.Empty : reader.GetString(7)
                         });
                     }
