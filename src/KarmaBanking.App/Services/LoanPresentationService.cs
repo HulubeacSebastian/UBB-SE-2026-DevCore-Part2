@@ -1,14 +1,11 @@
-using KarmaBanking.App.Utils;
+namespace KarmaBanking.App.Services;
 
-namespace KarmaBanking.App.Services
+public class LoanPresentationService
 {
-    public class LoanPresentationService
+    public double GetRepaymentProgress(Loan loan)
     {
-        public double GetRepaymentProgress(Loan loan)
-        {
-            return (double)AmortizationCalculator.ComputeRepaymentProgress(
-                loan.Principal,
-                loan.OutstandingBalance);
-        }
+        return (double)AmortizationCalculator.ComputeRepaymentProgress(
+            loan.Principal,
+            loan.OutstandingBalance);
     }
 }

@@ -1,35 +1,34 @@
-namespace KarmaBanking.App.Views
+namespace KarmaBanking.App.Views;
+
+using KarmaBanking.App.Repositories;
+using KarmaBanking.App.ViewModels;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+
+public sealed partial class InvestmentsView : Page
 {
-    using KarmaBanking.App.Repositories;
-    using KarmaBanking.App.ViewModels;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-
-    public sealed partial class InvestmentsView : Page
+    public InvestmentsView()
     {
-        public InvestmentsView()
-        {
-            InitializeComponent();
+        this.InitializeComponent();
 
-            ViewModel = new InvestmentsViewModel(new InvestmentRepository());
-            DataContext = ViewModel;
+        this.ViewModel = new InvestmentsViewModel(new InvestmentRepository());
+        this.DataContext = this.ViewModel;
 
-            Loaded += OnPageLoaded;
-            Unloaded += OnPageUnloaded;
-        }
+        this.Loaded += this.OnPageLoaded;
+        this.Unloaded += this.OnPageUnloaded;
+    }
 
-        public InvestmentsViewModel ViewModel { get; }
+    public InvestmentsViewModel ViewModel { get; }
 
-        private void OnPageLoaded(object sender, RoutedEventArgs e)
-        {
-            ViewModel.EnsureInitialized();
-        }
+    private void OnPageLoaded(object sender, RoutedEventArgs e)
+    {
+        this.ViewModel.EnsureInitialized();
+    }
 
-        private void OnPageUnloaded(object sender, RoutedEventArgs e)
-        {
-            ViewModel.StopMarketDataPolling();
-            Loaded -= OnPageLoaded;
-            Unloaded -= OnPageUnloaded;
-        }
+    private void OnPageUnloaded(object sender, RoutedEventArgs e)
+    {
+        this.ViewModel.StopMarketDataPolling();
+        this.Loaded -= this.OnPageLoaded;
+        this.Unloaded -= this.OnPageUnloaded;
     }
 }

@@ -1,12 +1,11 @@
-namespace KarmaBanking.App.Services
+namespace KarmaBanking.App.Services;
+
+public class LoanDialogStateService
 {
-    public class LoanDialogStateService
+    public bool ShouldComputeEstimate(double desiredAmount, int preferredTermMonths, string purpose)
     {
-        public bool ShouldComputeEstimate(double desiredAmount, int preferredTermMonths, string purpose)
-        {
-            return desiredAmount > 0 &&
-                   preferredTermMonths > 0 &&
-                   !string.IsNullOrWhiteSpace(purpose);
-        }
+        return desiredAmount > 0 &&
+               preferredTermMonths > 0 &&
+               !string.IsNullOrWhiteSpace(purpose);
     }
 }

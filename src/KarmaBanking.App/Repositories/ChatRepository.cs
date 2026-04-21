@@ -1,36 +1,37 @@
-﻿using KarmaBanking.App.Data;
+﻿namespace KarmaBanking.App.Repositories;
+
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using KarmaBanking.App.Data;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace KarmaBanking.App.Repositories
+public class ChatRepository : IChatRepository
 {
-    public class ChatRepository : IChatRepository
+    public async Task<List<ChatMessage>> GetChatMessagesAsync(int chatSessionId)
     {
-        public async Task<List<ChatMessage>> GetChatMessagesAsync(int chatSessionId)
+        var messages = new List<ChatMessage>();
+
+        using (var conn = DatabaseConfig.GetDatabaseConnection())
         {
-            var messages = new List<ChatMessage>();
+            await conn.OpenAsync();
 
-            using (var conn = DatabaseConfig.GetDatabaseConnection())
+            var cmd = new SqlCommand(
+                "SELECT id, sessionId, senderType, content, sentAt " +
+                "FROM ChatMessage " +
+                "WHERE sessionId = @chatId " +
+                "ORDER BY sentAt",
+                conn);
+
+            cmd.Parameters.AddWithValue("@chatId", chatSessionId);
+
+            using (var reader = await cmd.ExecuteReaderAsync())
             {
-                await conn.OpenAsync();
-
-                var cmd = new SqlCommand(
-                    "SELECT id, sessionId, senderType, content, sentAt " +
-                    "FROM ChatMessage " +
-                    "WHERE sessionId = @chatId " +
-                    "ORDER BY sentAt",
-                    conn);
-
-                cmd.Parameters.AddWithValue("@chatId", chatSessionId);
-
-                using (var reader = await cmd.ExecuteReaderAsync())
+                while (await reader.ReadAsync())
                 {
-                    while (await reader.ReadAsync())
-                    {
-                        messages.Add(new ChatMessage
+                    messages.Add(
+                        new ChatMessage
                         {
                             IdentificationNumber = reader.GetInt32(0),
                             SessionIdentificationNumber = reader.GetInt32(1),
@@ -38,11 +39,10 @@ namespace KarmaBanking.App.Repositories
                             Content = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
                             SentAt = reader.GetDateTime(4)
                         });
-                    }
                 }
             }
-
-            return messages;
         }
+
+        return messages;
     }
 }

@@ -1,31 +1,30 @@
-using Microsoft.UI.Xaml.Data;
 using System;
+using Microsoft.UI.Xaml.Data;
 
-namespace KarmaBanking.App.Utils
+namespace KarmaBanking.App.Utils;
+
+public class DecimalToTrendSymbolConverter : IValueConverter
 {
-    public class DecimalToTrendSymbolConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        if (value is decimal amount)
         {
-            if (value is decimal amount)
+            if (amount > 0)
             {
-                if (amount > 0)
-                {
-                    return "▲";
-                }
-
-                if (amount < 0)
-                {
-                    return "▼";
-                }
+                return "▲";
             }
 
-            return string.Empty;
+            if (amount < 0)
+            {
+                return "▼";
+            }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
+        return string.Empty;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,3 +1,7 @@
+namespace KarmaBanking.App.Views;
+
+using System;
+using System.Threading.Tasks;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Services;
@@ -5,522 +9,511 @@ using KarmaBanking.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using System;
 
-namespace KarmaBanking.App.Views
+public sealed partial class SavingsView : Page
 {
-    public sealed partial class SavingsView : Page
+    private readonly SavingsViewModel viewModel;
+
+    public SavingsView()
     {
-        private readonly SavingsViewModel viewModel;
+        this.InitializeComponent();
+        var repository = new SavingsRepository();
+        var service = new SavingsService(repository);
+        this.viewModel = new SavingsViewModel(service);
+        this.DataContext = this.viewModel;
+        this.MainNavigationView.SelectedItem = this.MyAccountsTab;
+    }
 
+    protected override async void OnNavigatedTo(NavigationEventArgs args)
+    {
+        base.OnNavigatedTo(args);
+        await this.viewModel.LoadAccountsAsync();
 
-        public SavingsView()
+        if (this.viewModel.HasError)
         {
-            InitializeComponent();
-            var repository = new SavingsRepository();
-            var service = new SavingsService(repository);
-            viewModel = new SavingsViewModel(service);
-            DataContext = viewModel;
-            MainNavigationView.SelectedItem = MyAccountsTab;
+            await this.ShowDialogAsync("Load Error", this.viewModel.ErrorMessage);
+        }
+    }
+
+    // ── Tab switching ────────────────────────────────────────────────────
+    private async void OnTabSelectionChanged(
+        NavigationView sender,
+        NavigationViewSelectionChangedEventArgs args)
+    {
+        if (args.SelectedItem is not NavigationViewItem tab)
+        {
+            return;
         }
 
+        var tag = tab.Tag?.ToString() ?? string.Empty;
 
-        protected override async void OnNavigatedTo(NavigationEventArgs args)
+        this.MyAccountsPanel.Visibility = tag == "MyAccounts" ? Visibility.Visible : Visibility.Collapsed;
+        this.OpenNewPanel.Visibility = tag == "OpenNew" ? Visibility.Visible : Visibility.Collapsed;
+        this.ManagePanel.Visibility = tag == "Manage" ? Visibility.Visible : Visibility.Collapsed;
+
+        if (tag == "OpenNew")
         {
-            base.OnNavigatedTo(args);
-            await viewModel.LoadAccountsAsync();
+            this.SavingsTypeRadioButtons.SelectedIndex = -1;
+            this.FrequencyRadioButtons.SelectedIndex = -1;
+            this.viewModel.SelectedSavingsType = string.Empty;
+            this.viewModel.SelectedFrequency = string.Empty;
+            this.GoalSavingsPanel.Visibility = Visibility.Collapsed;
+            this.ClearCreateErrors();
 
-            if (viewModel.HasError)
+            await this.viewModel.LoadFundingSourcesAsync();
+            this.FundingSourceComboBox.ItemsSource = this.viewModel.FundingSources;
+            if (this.viewModel.FundingSources.Count > 0)
             {
-                await ShowDialogAsync("Load Error", viewModel.ErrorMessage);
-            }
-        }
-
-        // ── Tab switching ────────────────────────────────────────────────────
-
-        private async void OnTabSelectionChanged(NavigationView sender,
-            NavigationViewSelectionChangedEventArgs args)
-        {
-            if (args.SelectedItem is not NavigationViewItem tab)
-            {
-                return;
-            }
-
-            string tag = tab.Tag?.ToString() ?? string.Empty;
-
-            MyAccountsPanel.Visibility = tag == "MyAccounts" ? Visibility.Visible : Visibility.Collapsed;
-            OpenNewPanel.Visibility = tag == "OpenNew" ? Visibility.Visible : Visibility.Collapsed;
-            ManagePanel.Visibility = tag == "Manage" ? Visibility.Visible : Visibility.Collapsed;
-
-            if (tag == "OpenNew")
-            {
-                SavingsTypeRadioButtons.SelectedIndex = -1;
-                FrequencyRadioButtons.SelectedIndex = -1;
-                viewModel.SelectedSavingsType = string.Empty;
-                viewModel.SelectedFrequency = string.Empty;
-                GoalSavingsPanel.Visibility = Visibility.Collapsed;
-                ClearCreateErrors();
-
-                await viewModel.LoadFundingSourcesAsync();
-                FundingSourceComboBox.ItemsSource = viewModel.FundingSources;
-                if (viewModel.FundingSources.Count > 0)
-                {
-                    FundingSourceComboBox.SelectedIndex = 0;
-                }
-            }
-
-            if (tag == "Manage")
-            {
-                HideAllActionPanels();
-                ManageButtonsPanel.Visibility = Visibility.Collapsed;
-                ManageAccountComboBox.SelectedIndex = -1;
+                this.FundingSourceComboBox.SelectedIndex = 0;
             }
         }
 
-        // ── Open New ─────────────────────────────────────────────────────────
-
-        private void OnFrequencySelectionChanged(object sender, SelectionChangedEventArgs e)
+        if (tag == "Manage")
         {
-            if (FrequencyRadioButtons.SelectedItem is RadioButton radioButton)
+            this.HideAllActionPanels();
+            this.ManageButtonsPanel.Visibility = Visibility.Collapsed;
+            this.ManageAccountComboBox.SelectedIndex = -1;
+        }
+    }
+
+    // ── Open New ─────────────────────────────────────────────────────────
+    private void OnFrequencySelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (this.FrequencyRadioButtons.SelectedItem is RadioButton radioButton)
+        {
+            this.viewModel.SelectedFrequency = radioButton.Tag?.ToString() ?? string.Empty;
+        }
+    }
+
+    private void OnSavingsTypeChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (this.SavingsTypeRadioButtons.SelectedItem is RadioButton radioButton)
+        {
+            this.viewModel.SelectedSavingsType = radioButton.Tag?.ToString() ?? string.Empty;
+
+            this.GoalSavingsPanel.Visibility = this.viewModel.SelectedSavingsType == "GoalSavings"
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            this.FixedDepositPanel.Visibility = this.viewModel.SelectedSavingsType == "FixedDeposit"
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+    }
+
+    private async void OnOpenAccountClicked(object sender, RoutedEventArgs e)
+    {
+        this.ClearCreateErrors();
+        this.viewModel.PrepareCreateAccountSubmission(
+            this.AccountNameTextBox.Text,
+            this.InitialDepositTextBox.Text,
+            this.FundingSourceComboBox.SelectedItem as FundingSourceOption,
+            this.TargetAmountTextBox.Text,
+            this.TargetDatePicker.Date,
+            this.MaturityDatePicker.Date);
+
+        await this.viewModel.CreateAccountCommand.ExecuteAsync(null);
+
+        if (this.viewModel.FieldErrors.TryGetValue("SavingsType", out var savingsTypeError))
+        {
+            ShowError(this.TypeErrorText, savingsTypeError);
+        }
+
+        if (this.viewModel.FieldErrors.TryGetValue("AccountName", out var accountNameError))
+        {
+            ShowError(this.AccountNameError, accountNameError);
+        }
+
+        if (this.viewModel.FieldErrors.TryGetValue("InitialDeposit", out var initialDepositError))
+        {
+            ShowError(this.InitialDepositError, initialDepositError);
+        }
+
+        if (this.viewModel.FieldErrors.TryGetValue("FundingSource", out var fundingSourceError))
+        {
+            ShowError(this.FundingSourceError, fundingSourceError);
+        }
+
+        if (this.viewModel.FieldErrors.TryGetValue("Frequency", out var frequencyError))
+        {
+            ShowError(this.FrequencyError, frequencyError);
+        }
+
+        if (this.viewModel.FieldErrors.TryGetValue("TargetAmount", out var targetAmountError))
+        {
+            ShowError(this.TargetAmountError, targetAmountError);
+        }
+
+        if (this.viewModel.FieldErrors.TryGetValue("TargetDate", out var targetDateError))
+        {
+            ShowError(this.TargetDateError, targetDateError);
+        }
+
+        if (this.viewModel.HasError)
+        {
+            this.CreateErrorBar.Message = this.viewModel.ErrorMessage;
+            this.CreateErrorBar.IsOpen = true;
+            return;
+        }
+
+        if (this.viewModel.ShowCreateConfirmation)
+        {
+            this.CreateSuccessBar.IsOpen = true;
+            this.OpenAccountButton.IsEnabled = false;
+            await Task.Delay(1500);
+            this.CreateSuccessBar.IsOpen = false;
+            this.OpenAccountButton.IsEnabled = true;
+            this.AccountNameTextBox.Text = string.Empty;
+            this.InitialDepositTextBox.Text = string.Empty;
+            this.SavingsTypeRadioButtons.SelectedIndex = -1;
+            this.MainNavigationView.SelectedItem = this.MyAccountsTab;
+        }
+    }
+
+    private void OnCancelCreateClicked(object sender, RoutedEventArgs e)
+    {
+        this.MainNavigationView.SelectedItem = this.MyAccountsTab;
+    }
+
+    // ── Manage: account selection ────────────────────────────────────────
+    private void OnManageAccountSelected(object sender, SelectionChangedEventArgs e)
+    {
+        this.viewModel.SelectedAccount = this.ManageAccountComboBox.SelectedItem as SavingsAccount;
+        this.HideAllActionPanels();
+        this.ManageButtonsPanel.Visibility = this.viewModel.SelectedAccount != null
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+    }
+
+    // ── Manage: show action panels ───────────────────────────────────────
+    private async void OnDepositClicked(object sender, RoutedEventArgs e)
+    {
+        if (this.viewModel.SelectedAccount == null)
+        {
+            return;
+        }
+
+        // Load funding sources into the deposit combobox
+        await this.viewModel.LoadFundingSourcesAsync();
+        this.DepositSourceComboBox.ItemsSource = this.viewModel.FundingSources;
+        if (this.viewModel.FundingSources.Count > 0)
+        {
+            this.DepositSourceComboBox.SelectedIndex = 0;
+        }
+
+        // Sync amount field
+        this.DepositAmountTextBox.Text = string.Empty;
+        this.viewModel.DepositAmountText = string.Empty;
+        this.DepositLivePreview.Text = string.Empty;
+        this.DepositResultBar.IsOpen = false;
+
+        this.HideAllActionPanels();
+        this.ManageButtonsPanel.Visibility = Visibility.Collapsed;
+        this.DepositActionPanel.Visibility = Visibility.Visible;
+    }
+
+    private async void OnWithdrawClicked(object sender, RoutedEventArgs e)
+    {
+        if (this.viewModel.SelectedAccount == null)
+        {
+            return;
+        }
+
+        // Load funding sources as withdraw destinations
+        await this.viewModel.LoadFundingSourcesAsync();
+        this.WithdrawDestComboBox.ItemsSource = this.viewModel.FundingSources;
+        if (this.viewModel.FundingSources.Count > 0)
+        {
+            this.WithdrawDestComboBox.SelectedIndex = 0;
+            this.viewModel.WithdrawDestination = this.viewModel.FundingSources[0];
+        }
+
+        this.WithdrawAmountTextBox.Text = string.Empty;
+        this.viewModel.WithdrawAmountText = string.Empty;
+        this.WithdrawResultBar.IsOpen = false;
+
+        // Show penalty warning if applicable
+        this.WithdrawPenaltyWarning.Visibility = this.viewModel.WithdrawHasEarlyRisk
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+        this.WithdrawPenaltySummaryText.Text = this.viewModel.WithdrawPenaltySummary;
+        this.WithdrawPenaltyBreakdown.Visibility = Visibility.Collapsed;
+
+        this.HideAllActionPanels();
+        this.ManageButtonsPanel.Visibility = Visibility.Collapsed;
+        this.WithdrawActionPanel.Visibility = Visibility.Visible;
+    }
+
+    private async void OnAutoDepositClicked(object sender, RoutedEventArgs e)
+    {
+        if (this.viewModel.SelectedAccount == null)
+        {
+            return;
+        }
+
+        await this.viewModel.LoadAutoDepositAsync(this.viewModel.SelectedAccount.Id);
+
+        this.AutoDepositTitle.Text = this.viewModel.ExistingLabel + " Auto Deposit";
+        this.AutoDepositAmountTextBox.Text = this.viewModel.AutoDepositAmountText;
+
+        // Set frequency radio
+        this.AutoDepositFrequencyRadios.SelectedIndex = -1;
+        for (var i = 0; i < this.AutoDepositFrequencyRadios.Items.Count; i++)
+        {
+            if (this.AutoDepositFrequencyRadios.Items[i] is RadioButton radioButton &&
+                radioButton.Tag?.ToString() == this.viewModel.AutoDepositFrequency)
             {
-                viewModel.SelectedFrequency = radioButton.Tag?.ToString() ?? string.Empty;
+                this.AutoDepositFrequencyRadios.SelectedIndex = i;
+                break;
             }
         }
 
-        private void OnSavingsTypeChanged(object sender, SelectionChangedEventArgs e)
+        this.AutoDepositStartDatePicker.Date = this.viewModel.AutoDepositStartDate;
+        this.AutoDepositActiveToggle.IsOn = this.viewModel.AutoDepositIsActive;
+        this.AutoDepositResultBar.IsOpen = false;
+
+        this.HideAllActionPanels();
+        this.ManageButtonsPanel.Visibility = Visibility.Collapsed;
+        this.AutoDepositActionPanel.Visibility = Visibility.Visible;
+    }
+
+    private async void OnCloseAccountClicked(object sender, RoutedEventArgs e)
+    {
+        if (this.viewModel.SelectedAccount == null)
         {
-            if (SavingsTypeRadioButtons.SelectedItem is RadioButton radioButton)
-            {
-                viewModel.SelectedSavingsType = radioButton.Tag?.ToString() ?? string.Empty;
-
-                GoalSavingsPanel.Visibility =
-                    viewModel.SelectedSavingsType == "GoalSavings"
-                        ? Visibility.Visible : Visibility.Collapsed;
-
-                FixedDepositPanel.Visibility =
-                    viewModel.SelectedSavingsType == "FixedDeposit"
-                        ? Visibility.Visible : Visibility.Collapsed;
-            }
+            return;
         }
 
-        private async void OnOpenAccountClicked(object sender, RoutedEventArgs e)
+        await this.viewModel.LoadCloseDestinationAccountsAsync();
+
+        this.CloseDestComboBox.ItemsSource = this.viewModel.CloseDestinationAccounts;
+        this.CloseResultBar.IsOpen = false;
+        this.CloseConfirmCheckBox.IsChecked = false;
+        this.CloseConfirmButton.IsEnabled = false;
+
+        var hasNoDest = this.viewModel.CloseDestinationAccounts.Count == 0;
+        this.CloseNoDestText.Visibility = hasNoDest ? Visibility.Visible : Visibility.Collapsed;
+        this.CloseDestComboBox.Visibility = hasNoDest ? Visibility.Collapsed : Visibility.Visible;
+
+        if (!hasNoDest)
         {
-            ClearCreateErrors();
-            viewModel.PrepareCreateAccountSubmission(
-                AccountNameTextBox.Text,
-                InitialDepositTextBox.Text,
-                FundingSourceComboBox.SelectedItem as KarmaBanking.App.Models.FundingSourceOption,
-                TargetAmountTextBox.Text,
-                TargetDatePicker.Date,
-                MaturityDatePicker.Date);
-
-            await viewModel.CreateAccountCommand.ExecuteAsync(null);
-
-            if (viewModel.FieldErrors.TryGetValue("SavingsType", out string? savingsTypeError))
-            {
-                ShowError(TypeErrorText, savingsTypeError);
-            }
-
-            if (viewModel.FieldErrors.TryGetValue("AccountName", out string? accountNameError))
-            {
-                ShowError(AccountNameError, accountNameError);
-            }
-
-            if (viewModel.FieldErrors.TryGetValue("InitialDeposit", out string? initialDepositError))
-            {
-                ShowError(InitialDepositError, initialDepositError);
-            }
-
-            if (viewModel.FieldErrors.TryGetValue("FundingSource", out string? fundingSourceError))
-            {
-                ShowError(FundingSourceError, fundingSourceError);
-            }
-
-            if (viewModel.FieldErrors.TryGetValue("Frequency", out string? frequencyError))
-            {
-                ShowError(FrequencyError, frequencyError);
-            }
-
-            if (viewModel.FieldErrors.TryGetValue("TargetAmount", out string? targetAmountError))
-            {
-                ShowError(TargetAmountError, targetAmountError);
-            }
-
-            if (viewModel.FieldErrors.TryGetValue("TargetDate", out string? targetDateError))
-            {
-                ShowError(TargetDateError, targetDateError);
-            }
-
-            if (viewModel.HasError)
-            {
-                CreateErrorBar.Message = viewModel.ErrorMessage;
-                CreateErrorBar.IsOpen = true;
-                return;
-            }
-
-            if (viewModel.ShowCreateConfirmation)
-            {
-                CreateSuccessBar.IsOpen = true;
-                OpenAccountButton.IsEnabled = false;
-                await System.Threading.Tasks.Task.Delay(1500);
-                CreateSuccessBar.IsOpen = false;
-                OpenAccountButton.IsEnabled = true;
-                AccountNameTextBox.Text = string.Empty;
-                InitialDepositTextBox.Text = string.Empty;
-                SavingsTypeRadioButtons.SelectedIndex = -1;
-                MainNavigationView.SelectedItem = MyAccountsTab;
-            }
+            this.CloseDestComboBox.SelectedIndex = 0;
         }
 
-        private void OnCancelCreateClicked(object sender, RoutedEventArgs e)
+        // Show penalty warning for fixed deposit before maturity
+        this.ClosePenaltyWarning.Visibility = this.viewModel.CloseHasPenalty
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+        this.HideAllActionPanels();
+        this.ManageButtonsPanel.Visibility = Visibility.Collapsed;
+        this.CloseAccountActionPanel.Visibility = Visibility.Visible;
+    }
+
+    // ── Deposit action ───────────────────────────────────────────────────
+    private void OnDepositAmountChanged(object sender, TextChangedEventArgs e)
+    {
+        this.viewModel.DepositAmountText = this.DepositAmountTextBox.Text;
+        this.DepositLivePreview.Text = this.viewModel.LivePreview;
+    }
+
+    private void OnDepositSourceChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (this.DepositSourceComboBox.SelectedItem is FundingSourceOption fundingSourceOption)
         {
-            MainNavigationView.SelectedItem = MyAccountsTab;
+            this.viewModel.DepositSource = fundingSourceOption.DisplayName;
         }
+    }
 
-        // ── Manage: account selection ────────────────────────────────────────
+    private async void OnDepositConfirmed(object sender, RoutedEventArgs e)
+    {
+        this.DepositResultBar.IsOpen = false;
+        await this.viewModel.DepositAsync();
 
-        private void OnManageAccountSelected(object sender, SelectionChangedEventArgs e)
+        if (this.viewModel.HasError)
         {
-            viewModel.SelectedAccount = ManageAccountComboBox.SelectedItem as SavingsAccount;
-            HideAllActionPanels();
-            ManageButtonsPanel.Visibility = viewModel.SelectedAccount != null
-                ? Visibility.Visible : Visibility.Collapsed;
+            this.DepositResultBar.Severity = InfoBarSeverity.Error;
+            this.DepositResultBar.Message = this.viewModel.ErrorMessage;
+            this.DepositResultBar.IsOpen = true;
         }
-
-        // ── Manage: show action panels ───────────────────────────────────────
-
-        private async void OnDepositClicked(object sender, RoutedEventArgs e)
+        else if (this.viewModel.ShowDepositSuccess)
         {
-            if (viewModel.SelectedAccount == null)
-            {
-                return;
-            }
-
-            // Load funding sources into the deposit combobox
-            await viewModel.LoadFundingSourcesAsync();
-            DepositSourceComboBox.ItemsSource = viewModel.FundingSources;
-            if (viewModel.FundingSources.Count > 0)
-            {
-                DepositSourceComboBox.SelectedIndex = 0;
-            }
-
-            // Sync amount field
-            DepositAmountTextBox.Text = string.Empty;
-            viewModel.DepositAmountText = string.Empty;
-            DepositLivePreview.Text = string.Empty;
-            DepositResultBar.IsOpen = false;
-
-            HideAllActionPanels();
-            ManageButtonsPanel.Visibility = Visibility.Collapsed;
-            DepositActionPanel.Visibility = Visibility.Visible;
+            this.DepositResultBar.Severity = InfoBarSeverity.Success;
+            this.DepositResultBar.Message = this.viewModel.DepositSuccessMessage;
+            this.DepositResultBar.IsOpen = true;
+            this.DepositAmountTextBox.Text = string.Empty;
         }
+    }
 
-        private async void OnWithdrawClicked(object sender, RoutedEventArgs e)
+    private void OnDepositBack(object sender, RoutedEventArgs e)
+    {
+        this.DepositActionPanel.Visibility = Visibility.Collapsed;
+        this.ManageButtonsPanel.Visibility = Visibility.Visible;
+    }
+
+    // ── Withdraw action ──────────────────────────────────────────────────
+    private void OnWithdrawAmountChanged(object sender, TextChangedEventArgs e)
+    {
+        this.viewModel.WithdrawAmountText = this.WithdrawAmountTextBox.Text;
+
+        var hasPenalty = this.viewModel.WithdrawHasPenalty;
+        this.WithdrawPenaltyBreakdown.Visibility = hasPenalty ? Visibility.Visible : Visibility.Collapsed;
+        if (hasPenalty)
         {
-            if (viewModel.SelectedAccount == null)
-            {
-                return;
-            }
-
-            // Load funding sources as withdraw destinations
-            await viewModel.LoadFundingSourcesAsync();
-            WithdrawDestComboBox.ItemsSource = viewModel.FundingSources;
-            if (viewModel.FundingSources.Count > 0)
-            {
-                WithdrawDestComboBox.SelectedIndex = 0;
-                viewModel.WithdrawDestination = viewModel.FundingSources[0];
-            }
-
-            WithdrawAmountTextBox.Text = string.Empty;
-            viewModel.WithdrawAmountText = string.Empty;
-            WithdrawResultBar.IsOpen = false;
-
-            // Show penalty warning if applicable
-            WithdrawPenaltyWarning.Visibility = viewModel.WithdrawHasEarlyRisk
-                ? Visibility.Visible : Visibility.Collapsed;
-            WithdrawPenaltySummaryText.Text = viewModel.WithdrawPenaltySummary;
-            WithdrawPenaltyBreakdown.Visibility = Visibility.Collapsed;
-
-            HideAllActionPanels();
-            ManageButtonsPanel.Visibility = Visibility.Collapsed;
-            WithdrawActionPanel.Visibility = Visibility.Visible;
+            this.WithdrawPenaltyAmountText.Text = this.viewModel.WithdrawPenaltyBreakdownText;
+            this.WithdrawNetAmountText.Text = this.viewModel.WithdrawNetAmountText;
         }
+    }
 
-        private async void OnAutoDepositClicked(object sender, RoutedEventArgs e)
+    private void OnWithdrawDestChanged(object sender, SelectionChangedEventArgs e)
+    {
+        this.viewModel.WithdrawDestination = this.WithdrawDestComboBox.SelectedItem as FundingSourceOption;
+    }
+
+    private async void OnWithdrawConfirmed(object sender, RoutedEventArgs e)
+    {
+        this.WithdrawResultBar.IsOpen = false;
+        var success = await this.viewModel.ConfirmWithdrawAsync();
+
+        this.WithdrawResultBar.Severity = success ? InfoBarSeverity.Success : InfoBarSeverity.Error;
+        this.WithdrawResultBar.Message = this.viewModel.WithdrawResultMessage;
+        this.WithdrawResultBar.IsOpen = true;
+
+        if (success)
         {
-            if (viewModel.SelectedAccount == null)
-            {
-                return;
-            }
-
-            await viewModel.LoadAutoDepositAsync(viewModel.SelectedAccount.Id);
-
-            AutoDepositTitle.Text = viewModel.ExistingLabel + " Auto Deposit";
-            AutoDepositAmountTextBox.Text = viewModel.AutoDepositAmountText;
-
-            // Set frequency radio
-            AutoDepositFrequencyRadios.SelectedIndex = -1;
-            for (int i = 0; i < AutoDepositFrequencyRadios.Items.Count; i++)
-            {
-                if (AutoDepositFrequencyRadios.Items[i] is RadioButton radioButton &&
-                    radioButton.Tag?.ToString() == viewModel.AutoDepositFrequency)
-                {
-                    AutoDepositFrequencyRadios.SelectedIndex = i;
-                    break;
-                }
-            }
-
-            AutoDepositStartDatePicker.Date = viewModel.AutoDepositStartDate;
-            AutoDepositActiveToggle.IsOn = viewModel.AutoDepositIsActive;
-            AutoDepositResultBar.IsOpen = false;
-
-            HideAllActionPanels();
-            ManageButtonsPanel.Visibility = Visibility.Collapsed;
-            AutoDepositActionPanel.Visibility = Visibility.Visible;
+            this.WithdrawAmountTextBox.Text = string.Empty;
         }
+    }
 
-        private async void OnCloseAccountClicked(object sender, RoutedEventArgs e)
+    private void OnWithdrawBack(object sender, RoutedEventArgs e)
+    {
+        this.WithdrawActionPanel.Visibility = Visibility.Collapsed;
+        this.ManageButtonsPanel.Visibility = Visibility.Visible;
+    }
+
+    // ── Auto Deposit action ──────────────────────────────────────────────
+    private void OnAutoDepositFrequencyChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (this.AutoDepositFrequencyRadios.SelectedItem is RadioButton radioButton)
         {
-            if (viewModel.SelectedAccount == null)
-            {
-                return;
-            }
-
-            await viewModel.LoadCloseDestinationAccountsAsync();
-
-            CloseDestComboBox.ItemsSource = viewModel.CloseDestinationAccounts;
-            CloseResultBar.IsOpen = false;
-            CloseConfirmCheckBox.IsChecked = false;
-            CloseConfirmButton.IsEnabled = false;
-
-            bool hasNoDest = viewModel.CloseDestinationAccounts.Count == 0;
-            CloseNoDestText.Visibility = hasNoDest ? Visibility.Visible : Visibility.Collapsed;
-            CloseDestComboBox.Visibility = hasNoDest ? Visibility.Collapsed : Visibility.Visible;
-
-            if (!hasNoDest)
-            {
-                CloseDestComboBox.SelectedIndex = 0;
-            }
-
-            // Show penalty warning for fixed deposit before maturity
-            ClosePenaltyWarning.Visibility = viewModel.CloseHasPenalty
-                ? Visibility.Visible : Visibility.Collapsed;
-
-            HideAllActionPanels();
-            ManageButtonsPanel.Visibility = Visibility.Collapsed;
-            CloseAccountActionPanel.Visibility = Visibility.Visible;
+            this.viewModel.AutoDepositFrequency = radioButton.Tag?.ToString() ?? string.Empty;
         }
+    }
 
-        // ── Deposit action ───────────────────────────────────────────────────
+    private async void OnAutoDepositSaved(object sender, RoutedEventArgs e)
+    {
+        this.AutoDepositResultBar.IsOpen = false;
 
-        private void OnDepositAmountChanged(object sender, TextChangedEventArgs e)
+        this.viewModel.AutoDepositAmountText = this.AutoDepositAmountTextBox.Text;
+        this.viewModel.AutoDepositStartDate = this.AutoDepositStartDatePicker.Date;
+        this.viewModel.AutoDepositIsActive = this.AutoDepositActiveToggle.IsOn;
+
+        await this.viewModel.SaveAutoDepositAsync();
+
+        if (this.viewModel.HasError)
         {
-            viewModel.DepositAmountText = DepositAmountTextBox.Text;
-            DepositLivePreview.Text = viewModel.LivePreview;
+            this.AutoDepositResultBar.Severity = InfoBarSeverity.Error;
+            this.AutoDepositResultBar.Message = this.viewModel.ErrorMessage;
+            this.AutoDepositResultBar.IsOpen = true;
         }
-
-        private void OnDepositSourceChanged(object sender, SelectionChangedEventArgs e)
+        else if (!string.IsNullOrEmpty(this.viewModel.AutoDepositSaveMessage))
         {
-            if (DepositSourceComboBox.SelectedItem is FundingSourceOption fundingSourceOption)
-            {
-                viewModel.DepositSource = fundingSourceOption.DisplayName;
-            }
+            this.AutoDepositResultBar.Severity = InfoBarSeverity.Success;
+            this.AutoDepositResultBar.Message = this.viewModel.AutoDepositSaveMessage;
+            this.AutoDepositResultBar.IsOpen = true;
+            this.AutoDepositTitle.Text = "Modify Auto Deposit";
         }
+    }
 
-        private async void OnDepositConfirmed(object sender, RoutedEventArgs e)
+    private void OnAutoDepositBack(object sender, RoutedEventArgs e)
+    {
+        this.AutoDepositActionPanel.Visibility = Visibility.Collapsed;
+        this.ManageButtonsPanel.Visibility = Visibility.Visible;
+    }
+
+    // ── Close Account action ─────────────────────────────────────────────
+    private void OnCloseDestChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (this.CloseDestComboBox.SelectedItem is SavingsAccount savingsAccount)
         {
-            DepositResultBar.IsOpen = false;
-            await viewModel.DepositAsync();
-
-            if (viewModel.HasError)
-            {
-                DepositResultBar.Severity = InfoBarSeverity.Error;
-                DepositResultBar.Message = viewModel.ErrorMessage;
-                DepositResultBar.IsOpen = true;
-            }
-            else if (viewModel.ShowDepositSuccess)
-            {
-                DepositResultBar.Severity = InfoBarSeverity.Success;
-                DepositResultBar.Message = viewModel.DepositSuccessMessage;
-                DepositResultBar.IsOpen = true;
-                DepositAmountTextBox.Text = string.Empty;
-            }
+            this.viewModel.SelectedCloseDestinationId = savingsAccount.Id;
         }
+    }
 
-        private void OnDepositBack(object sender, RoutedEventArgs e)
+    private void OnCloseConfirmChecked(object sender, RoutedEventArgs e)
+    {
+        this.viewModel.CloseUserConfirmed = true;
+        this.CloseConfirmButton.IsEnabled = true;
+    }
+
+    private void OnCloseConfirmUnchecked(object sender, RoutedEventArgs e)
+    {
+        this.viewModel.CloseUserConfirmed = false;
+        this.CloseConfirmButton.IsEnabled = false;
+    }
+
+    private async void OnCloseConfirmed(object sender, RoutedEventArgs e)
+    {
+        this.CloseResultBar.IsOpen = false;
+        var success = await this.viewModel.ConfirmCloseAsync();
+
+        this.CloseResultBar.Severity = success ? InfoBarSeverity.Success : InfoBarSeverity.Error;
+        this.CloseResultBar.Message = this.viewModel.CloseResultMessage;
+        this.CloseResultBar.IsOpen = true;
+
+        if (success)
         {
-            DepositActionPanel.Visibility = Visibility.Collapsed;
-            ManageButtonsPanel.Visibility = Visibility.Visible;
+            // After successful close, go back to buttons panel after a brief moment
+            await Task.Delay(1500);
+            this.CloseAccountActionPanel.Visibility = Visibility.Collapsed;
+            this.ManageButtonsPanel.Visibility = Visibility.Visible;
+            this.ManageAccountComboBox.SelectedIndex = -1;
+            this.ManageButtonsPanel.Visibility = Visibility.Collapsed;
         }
+    }
 
-        // ── Withdraw action ──────────────────────────────────────────────────
+    private void OnCloseBack(object sender, RoutedEventArgs e)
+    {
+        this.CloseAccountActionPanel.Visibility = Visibility.Collapsed;
+        this.ManageButtonsPanel.Visibility = Visibility.Visible;
+    }
 
-        private void OnWithdrawAmountChanged(object sender, TextChangedEventArgs e)
+    // ── Helpers ──────────────────────────────────────────────────────────
+    private void HideAllActionPanels()
+    {
+        this.DepositActionPanel.Visibility = Visibility.Collapsed;
+        this.WithdrawActionPanel.Visibility = Visibility.Collapsed;
+        this.AutoDepositActionPanel.Visibility = Visibility.Collapsed;
+        this.CloseAccountActionPanel.Visibility = Visibility.Collapsed;
+    }
+
+    private void ClearCreateErrors()
+    {
+        this.CreateErrorBar.IsOpen = false;
+        this.CreateSuccessBar.IsOpen = false;
+        this.TypeErrorText.Visibility = Visibility.Collapsed;
+        this.AccountNameError.Visibility = Visibility.Collapsed;
+        this.InitialDepositError.Visibility = Visibility.Collapsed;
+        this.FundingSourceError.Visibility = Visibility.Collapsed;
+        this.TargetAmountError.Visibility = Visibility.Collapsed;
+        this.TargetDateError.Visibility = Visibility.Collapsed;
+    }
+
+    private static void ShowError(TextBlock tb, string msg)
+    {
+        tb.Text = msg;
+        tb.Visibility = Visibility.Visible;
+    }
+
+    private async Task ShowDialogAsync(string title, string msg)
+    {
+        var contentDialog = new ContentDialog
         {
-            viewModel.WithdrawAmountText = WithdrawAmountTextBox.Text;
-
-            bool hasPenalty = viewModel.WithdrawHasPenalty;
-            WithdrawPenaltyBreakdown.Visibility = hasPenalty ? Visibility.Visible : Visibility.Collapsed;
-            if (hasPenalty)
-            {
-                WithdrawPenaltyAmountText.Text = viewModel.WithdrawPenaltyBreakdownText;
-                WithdrawNetAmountText.Text = viewModel.WithdrawNetAmountText;
-            }
-        }
-
-        private void OnWithdrawDestChanged(object sender, SelectionChangedEventArgs e)
-        {
-            viewModel.WithdrawDestination = WithdrawDestComboBox.SelectedItem as FundingSourceOption;
-        }
-
-        private async void OnWithdrawConfirmed(object sender, RoutedEventArgs e)
-        {
-            WithdrawResultBar.IsOpen = false;
-            bool success = await viewModel.ConfirmWithdrawAsync();
-
-            WithdrawResultBar.Severity = success ? InfoBarSeverity.Success : InfoBarSeverity.Error;
-            WithdrawResultBar.Message = viewModel.WithdrawResultMessage;
-            WithdrawResultBar.IsOpen = true;
-
-            if (success)
-            {
-                WithdrawAmountTextBox.Text = string.Empty;
-            }
-        }
-
-        private void OnWithdrawBack(object sender, RoutedEventArgs e)
-        {
-            WithdrawActionPanel.Visibility = Visibility.Collapsed;
-            ManageButtonsPanel.Visibility = Visibility.Visible;
-        }
-
-        // ── Auto Deposit action ──────────────────────────────────────────────
-
-        private void OnAutoDepositFrequencyChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (AutoDepositFrequencyRadios.SelectedItem is RadioButton radioButton)
-            {
-                viewModel.AutoDepositFrequency = radioButton.Tag?.ToString() ?? string.Empty;
-            }
-        }
-
-        private async void OnAutoDepositSaved(object sender, RoutedEventArgs e)
-        {
-            AutoDepositResultBar.IsOpen = false;
-
-            viewModel.AutoDepositAmountText = AutoDepositAmountTextBox.Text;
-            viewModel.AutoDepositStartDate = AutoDepositStartDatePicker.Date;
-            viewModel.AutoDepositIsActive = AutoDepositActiveToggle.IsOn;
-
-            await viewModel.SaveAutoDepositAsync();
-
-            if (viewModel.HasError)
-            {
-                AutoDepositResultBar.Severity = InfoBarSeverity.Error;
-                AutoDepositResultBar.Message = viewModel.ErrorMessage;
-                AutoDepositResultBar.IsOpen = true;
-            }
-            else if (!string.IsNullOrEmpty(viewModel.AutoDepositSaveMessage))
-            {
-                AutoDepositResultBar.Severity = InfoBarSeverity.Success;
-                AutoDepositResultBar.Message = viewModel.AutoDepositSaveMessage;
-                AutoDepositResultBar.IsOpen = true;
-                AutoDepositTitle.Text = "Modify Auto Deposit";
-            }
-        }
-
-        private void OnAutoDepositBack(object sender, RoutedEventArgs e)
-        {
-            AutoDepositActionPanel.Visibility = Visibility.Collapsed;
-            ManageButtonsPanel.Visibility = Visibility.Visible;
-        }
-
-        // ── Close Account action ─────────────────────────────────────────────
-
-        private void OnCloseDestChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (CloseDestComboBox.SelectedItem is SavingsAccount savingsAccount)
-            {
-                viewModel.SelectedCloseDestinationId = savingsAccount.Id;
-            }
-        }
-
-        private void OnCloseConfirmChecked(object sender, RoutedEventArgs e)
-        {
-            viewModel.CloseUserConfirmed = true;
-            CloseConfirmButton.IsEnabled = true;
-        }
-
-        private void OnCloseConfirmUnchecked(object sender, RoutedEventArgs e)
-        {
-            viewModel.CloseUserConfirmed = false;
-            CloseConfirmButton.IsEnabled = false;
-        }
-
-        private async void OnCloseConfirmed(object sender, RoutedEventArgs e)
-        {
-            CloseResultBar.IsOpen = false;
-            bool success = await viewModel.ConfirmCloseAsync();
-
-            CloseResultBar.Severity = success ? InfoBarSeverity.Success : InfoBarSeverity.Error;
-            CloseResultBar.Message = viewModel.CloseResultMessage;
-            CloseResultBar.IsOpen = true;
-
-            if (success)
-            {
-                // After successful close, go back to buttons panel after a brief moment
-                await System.Threading.Tasks.Task.Delay(1500);
-                CloseAccountActionPanel.Visibility = Visibility.Collapsed;
-                ManageButtonsPanel.Visibility = Visibility.Visible;
-                ManageAccountComboBox.SelectedIndex = -1;
-                ManageButtonsPanel.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        private void OnCloseBack(object sender, RoutedEventArgs e)
-        {
-            CloseAccountActionPanel.Visibility = Visibility.Collapsed;
-            ManageButtonsPanel.Visibility = Visibility.Visible;
-        }
-
-        // ── Helpers ──────────────────────────────────────────────────────────
-
-        private void HideAllActionPanels()
-        {
-            DepositActionPanel.Visibility = Visibility.Collapsed;
-            WithdrawActionPanel.Visibility = Visibility.Collapsed;
-            AutoDepositActionPanel.Visibility = Visibility.Collapsed;
-            CloseAccountActionPanel.Visibility = Visibility.Collapsed;
-        }
-
-        private void ClearCreateErrors()
-        {
-            CreateErrorBar.IsOpen = false;
-            CreateSuccessBar.IsOpen = false;
-            TypeErrorText.Visibility = Visibility.Collapsed;
-            AccountNameError.Visibility = Visibility.Collapsed;
-            InitialDepositError.Visibility = Visibility.Collapsed;
-            FundingSourceError.Visibility = Visibility.Collapsed;
-            TargetAmountError.Visibility = Visibility.Collapsed;
-            TargetDateError.Visibility = Visibility.Collapsed;
-        }
-
-        private static void ShowError(TextBlock tb, string msg)
-        {
-            tb.Text = msg;
-            tb.Visibility = Visibility.Visible;
-        }
-
-        private async System.Threading.Tasks.Task ShowDialogAsync(string title, string msg)
-        {
-            var contentDialog = new ContentDialog
-            {
-                Title = title,
-                Content = msg,
-                CloseButtonText = "OK",
-                XamlRoot = XamlRoot
-            };
-            await contentDialog.ShowAsync();
-        }
+            Title = title,
+            Content = msg,
+            CloseButtonText = "OK",
+            XamlRoot = this.XamlRoot
+        };
+        await contentDialog.ShowAsync();
     }
 }

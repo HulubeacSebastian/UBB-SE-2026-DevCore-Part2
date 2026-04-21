@@ -11,5 +11,4 @@ public class LoanApplicationRequest
     public int PreferredTermMonths { get; set; }
 
     public string Purpose { get; set; }
-
 }

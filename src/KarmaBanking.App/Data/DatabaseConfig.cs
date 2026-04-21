@@ -1,16 +1,15 @@
-namespace KarmaBanking.App.Data
+namespace KarmaBanking.App.Data;
+
+using Microsoft.Data.SqlClient;
+
+public static class DatabaseConfig
 {
-    using Microsoft.Data.SqlClient;
+    // Redenumit din ConnectionString in DatabaseConnectionString (No Abbreviations)
+    public static readonly string DatabaseConnectionString =
+        @"Server=PATRICKPC\SQLEXPRESS;Database=KarmaBankingDb;Trusted_Connection=True;TrustServerCertificate=True;";
 
-    public static class DatabaseConfig
+    public static SqlConnection GetDatabaseConnection()
     {
-        // Redenumit din ConnectionString in DatabaseConnectionString (No Abbreviations)
-        public static readonly string DatabaseConnectionString =
-            @"Server=PATRICKPC\SQLEXPRESS;Database=KarmaBankingDb;Trusted_Connection=True;TrustServerCertificate=True;";
-
-        public static SqlConnection GetDatabaseConnection()
-        {
-            return new SqlConnection(DatabaseConnectionString);
-        }
+        return new SqlConnection(DatabaseConnectionString);
     }
 }

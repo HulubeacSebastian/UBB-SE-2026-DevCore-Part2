@@ -1,61 +1,70 @@
-using KarmaBanking.App.Models;
-using KarmaBanking.App.Models.DTOs;
+namespace KarmaBanking.App.Services;
+
 using System.Collections.Generic;
 using System.Linq;
+using KarmaBanking.App.Models;
+using KarmaBanking.App.Models.DTOs;
 
-namespace KarmaBanking.App.Services
+public class SavingsWorkflowService
 {
-    public class SavingsWorkflowService
+    public FundingSourceOption? GetDefaultFundingSource(IEnumerable<FundingSourceOption> fundingSources)
     {
-        public FundingSourceOption? GetDefaultFundingSource(IEnumerable<FundingSourceOption> fundingSources)
-            => fundingSources.FirstOrDefault();
+        return fundingSources.FirstOrDefault();
+    }
 
-        public int GetDefaultCloseDestinationId(IEnumerable<SavingsAccount> destinationAccounts)
-            => destinationAccounts.FirstOrDefault()?.Id ?? 0;
+    public int GetDefaultCloseDestinationId(IEnumerable<SavingsAccount> destinationAccounts)
+    {
+        return destinationAccounts.FirstOrDefault()?.Id ?? 0;
+    }
 
-        public (bool IsValid, string ErrorMessage) ValidateWithdrawRequest(decimal amount, FundingSourceOption? destination)
+    public (bool IsValid, string ErrorMessage) ValidateWithdrawRequest(decimal amount, FundingSourceOption? destination)
+    {
+        if (amount <= 0m)
         {
-            if (amount <= 0m)
-            {
-                return (false, "Please enter a valid amount.");
-            }
-
-            if (destination == null)
-            {
-                return (false, "Please select a destination account.");
-            }
-
-            return (true, string.Empty);
+            return (false, "Please enter a valid amount.");
         }
 
-        public string BuildWithdrawResultMessage(WithdrawResponseDto response)
+        if (destination == null)
         {
-            if (!response.Success)
-            {
-                return response.Message;
-            }
-
-            string penaltyText = response.PenaltyApplied > 0 ? $" (penalty: ${response.PenaltyApplied:N2})" : string.Empty;
-            return $"Withdrawn: ${response.AmountWithdrawn:N2}{penaltyText}. New balance: ${response.NewBalance:N2}";
+            return (false, "Please select a destination account.");
         }
 
-        public (bool IsValid, string ErrorMessage) ValidateCloseConfirmation(bool userConfirmed, int destinationId)
+        return (true, string.Empty);
+    }
+
+    public string BuildWithdrawResultMessage(WithdrawResponseDto response)
+    {
+        if (!response.Success)
         {
-            if (!userConfirmed)
-            {
-                return (false, "Please confirm account closure.");
-            }
-
-            if (destinationId == 0)
-            {
-                return (false, "Please select a destination account.");
-            }
-
-            return (true, string.Empty);
+            return response.Message;
         }
 
-        public bool CanMoveToNextPage(int currentPage, int totalPages) => currentPage < totalPages;
+        var penaltyText = response.PenaltyApplied > 0 ? $" (penalty: ${response.PenaltyApplied:N2})" : string.Empty;
+        return $"Withdrawn: ${response.AmountWithdrawn:N2}{penaltyText}. New balance: ${response.NewBalance:N2}";
+    }
 
-        public bool CanMoveToPreviousPage(int currentPage) => currentPage > 1;
+    public (bool IsValid, string ErrorMessage) ValidateCloseConfirmation(bool userConfirmed, int destinationId)
+    {
+        if (!userConfirmed)
+        {
+            return (false, "Please confirm account closure.");
+        }
+
+        if (destinationId == 0)
+        {
+            return (false, "Please select a destination account.");
+        }
+
+        return (true, string.Empty);
+    }
+
+    public bool CanMoveToNextPage(int currentPage, int totalPages)
+    {
+        return currentPage < totalPages;
+    }
+
+    public bool CanMoveToPreviousPage(int currentPage)
+    {
+        return currentPage > 1;
     }
 }

@@ -1,16 +1,24 @@
-﻿namespace KarmaBanking.App.Services.Interfaces
+﻿namespace KarmaBanking.App.Services.Interfaces;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using KarmaBanking.App.Models;
+
+public interface IInvestmentService
 {
-    using KarmaBanking.App.Models;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+    Task<bool> ExecuteCryptoTradeAsync(
+        int portfolioIdentificationNumber,
+        string ticker,
+        string actionType,
+        decimal quantity,
+        decimal pricePerUnit);
 
-    public interface IInvestmentService
-    {
-        Task<bool> ExecuteCryptoTradeAsync(int portfolioIdentificationNumber, string ticker, string actionType, decimal quantity, decimal pricePerUnit);
+    Portfolio GetPortfolio(int userIdentificationNumber);
 
-        Portfolio GetPortfolio(int userIdentificationNumber);
-
-        Task<List<InvestmentTransaction>> GetInvestmentLogsAsync(int portfolioIdentificationNumber, DateTime? startDate = null, DateTime? endDate = null, string? ticker = null);
-    }
+    Task<List<InvestmentTransaction>> GetInvestmentLogsAsync(
+        int portfolioIdentificationNumber,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string? ticker = null);
 }

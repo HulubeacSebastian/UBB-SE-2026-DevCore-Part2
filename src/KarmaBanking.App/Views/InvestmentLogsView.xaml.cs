@@ -1,26 +1,25 @@
+namespace KarmaBanking.App.Views;
+
 using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Services;
 using KarmaBanking.App.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 
-namespace KarmaBanking.App.Views
+public sealed partial class InvestmentLogsView : Page
 {
-    public sealed partial class InvestmentLogsView : Page
+    public InvestmentLogsView()
     {
-        public InvestmentLogsViewModel ViewModel { get; }
+        this.InitializeComponent();
 
-        public InvestmentLogsView()
-        {
-            InitializeComponent();
+        var repository = new InvestmentRepository();
+        var service = new InvestmentService(repository);
 
-            var repository = new InvestmentRepository();
-            var service = new InvestmentService(repository);
+        this.ViewModel = new InvestmentLogsViewModel(service);
+        this.DataContext = this.ViewModel;
 
-            ViewModel = new InvestmentLogsViewModel(service);
-            DataContext = ViewModel;
-
-            // Load logs initially with no filters applied
-            _ = ViewModel.LoadLogsAsync();
-        }
+        // Load logs initially with no filters applied
+        _ = this.ViewModel.LoadLogsAsync();
     }
+
+    public InvestmentLogsViewModel ViewModel { get; }
 }

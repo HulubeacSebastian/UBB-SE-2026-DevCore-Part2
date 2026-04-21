@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 public interface ILoanService
 {
     Task<List<Loan>> GetAllLoansAsync();

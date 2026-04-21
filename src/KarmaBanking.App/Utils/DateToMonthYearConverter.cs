@@ -1,23 +1,23 @@
-using Microsoft.UI.Xaml.Data;
+namespace KarmaBanking.App.Utils;
+
 using System;
+using Microsoft.UI.Xaml.Data;
 
-namespace KarmaBanking.App.Utils
+public class DateToMonthYearConverter : IValueConverter
 {
-    public class DateToMonthYearConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        if (value is DateTime date)
         {
-            if (value is DateTime date)
-            {
-                // Format: "Mar '26"
-                return date.ToString("MMM ''yy");
-            }
-            return string.Empty;
+            // Format: "Mar '26"
+            return date.ToString("MMM ''yy");
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
+        return string.Empty;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
     }
 }

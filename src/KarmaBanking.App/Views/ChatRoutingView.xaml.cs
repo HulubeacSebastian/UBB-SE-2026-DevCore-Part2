@@ -1,116 +1,115 @@
-namespace KarmaBanking.App.Views
+namespace KarmaBanking.App.Views;
+
+using System;
+using System.Threading.Tasks;
+using Windows.Storage.Pickers;
+using KarmaBanking.App.ViewModels;
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
+using WinRT.Interop;
+
+public sealed partial class ChatRoutingView : Page
 {
-    using KarmaBanking.App.ViewModels;
-    using Microsoft.UI;
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using Microsoft.UI.Xaml.Media;
-    using Microsoft.UI.Xaml.Navigation;
-    using System;
-    using System.Threading.Tasks;
-    using Windows.Storage;
-    using Windows.Storage.Pickers;
-    using WinRT.Interop;
+    private readonly ChatViewModel viewModel = ChatViewModel.Instance;
 
-    public sealed partial class ChatRoutingView : Page
+    public ChatRoutingView()
     {
-        private readonly ChatViewModel viewModel = ChatViewModel.Instance;
+        this.InitializeComponent();
+        this.DataContext = this.viewModel;
+    }
 
-        public ChatRoutingView()
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        this.SessionTitleTextBlock.Text = this.viewModel.CurrentSession == null
+            ? "No active chat selected."
+            : $"{this.viewModel.CurrentSession.Title} ({this.viewModel.CurrentSession.SessionModeLabel})";
+
+        this.TranscriptTextBox.Text = this.viewModel.BuildCurrentTranscript();
+
+        this.AttachmentInfoTextBlock.Text = this.viewModel.SelectedAttachment == null
+            ? "No file attached."
+            : $"Attached file: {this.viewModel.SelectedAttachment.FileName} ({this.viewModel.SelectedAttachment.FileSizeDisplay})";
+
+        if (this.viewModel.CurrentSession != null &&
+            !string.IsNullOrWhiteSpace(this.viewModel.CurrentSession.TeamContactMessage))
         {
-            InitializeComponent();
-            DataContext = viewModel;
+            this.TeamMessageTextBox.Text = this.viewModel.CurrentSession.TeamContactMessage;
+        }
+    }
+
+    private async void SendToTeam_Click(object sender, RoutedEventArgs e)
+    {
+        var wasSent = await this.viewModel.SendCurrentConversationToTeamAsync(this.TeamMessageTextBox.Text);
+
+        if (!wasSent)
+        {
+            this.StatusText.Text = "The support request could not be sent.";
+            this.StatusText.Foreground = new SolidColorBrush(Colors.Red);
+            return;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        this.TranscriptTextBox.Text = this.viewModel.BuildCurrentTranscript();
+        this.SessionTitleTextBlock.Text = this.viewModel.CurrentSession == null
+            ? "No active chat selected."
+            : $"{this.viewModel.CurrentSession.Title} ({this.viewModel.CurrentSession.SessionModeLabel})";
+
+        this.StatusText.Text = "The chat session was prepared for the support team.";
+        this.StatusText.Foreground = new SolidColorBrush(Colors.Green);
+    }
+
+    private async void AttachFileButton_Click(object sender, RoutedEventArgs e)
+    {
+        await this.PickAttachmentAsync();
+    }
+
+    private async void OpenRatingDialog_Click(object sender, RoutedEventArgs e)
+    {
+        var statusBefore = this.viewModel.StatusMessage;
+        await this.viewModel.ShowFeedbackDialogAsync(this.XamlRoot);
+        if (this.viewModel.StatusMessage != statusBefore)
         {
-            base.OnNavigatedTo(e);
+            var isSuccess = this.viewModel.StatusMessage.StartsWith("Thank you");
+            this.StatusText.Text = this.viewModel.StatusMessage;
+            this.StatusText.Foreground = new SolidColorBrush(isSuccess ? Colors.Green : Colors.Red);
+        }
+    }
 
-            SessionTitleTextBlock.Text = viewModel.CurrentSession == null
-                ? "No active chat selected."
-                : $"{viewModel.CurrentSession.Title} ({viewModel.CurrentSession.SessionModeLabel})";
+    private void BackButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (this.Frame.CanGoBack)
+        {
+            this.Frame.GoBack();
+        }
+    }
 
-            TranscriptTextBox.Text = viewModel.BuildCurrentTranscript();
+    private async Task PickAttachmentAsync()
+    {
+        var picker = new FileOpenPicker();
+        var windowHandle = WindowNative.GetWindowHandle(App.MainAppWindow);
+        InitializeWithWindow.Initialize(picker, windowHandle);
 
-            AttachmentInfoTextBlock.Text = viewModel.SelectedAttachment == null
-                ? "No file attached."
-                : $"Attached file: {viewModel.SelectedAttachment.FileName} ({viewModel.SelectedAttachment.FileSizeDisplay})";
+        picker.ViewMode = PickerViewMode.List;
+        picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+        picker.FileTypeFilter.Add(".pdf");
+        picker.FileTypeFilter.Add(".png");
+        picker.FileTypeFilter.Add(".jpg");
+        picker.FileTypeFilter.Add(".jpeg");
 
-            if (viewModel.CurrentSession != null && !string.IsNullOrWhiteSpace(viewModel.CurrentSession.TeamContactMessage))
-            {
-                TeamMessageTextBox.Text = viewModel.CurrentSession.TeamContactMessage;
-            }
+        var file = await picker.PickSingleFileAsync();
+        if (file == null)
+        {
+            return;
         }
 
-        private async void SendToTeam_Click(object sender, RoutedEventArgs e)
-        {
-            bool wasSent = await viewModel.SendCurrentConversationToTeamAsync(TeamMessageTextBox.Text);
+        await this.viewModel.ProcessAttachmentAsync(file);
 
-            if (!wasSent)
-            {
-                StatusText.Text = "The support request could not be sent.";
-                StatusText.Foreground = new SolidColorBrush(Colors.Red);
-                return;
-            }
-
-            TranscriptTextBox.Text = viewModel.BuildCurrentTranscript();
-            SessionTitleTextBlock.Text = viewModel.CurrentSession == null
-                ? "No active chat selected."
-                : $"{viewModel.CurrentSession.Title} ({viewModel.CurrentSession.SessionModeLabel})";
-
-            StatusText.Text = "The chat session was prepared for the support team.";
-            StatusText.Foreground = new SolidColorBrush(Colors.Green);
-        }
-
-        private async void AttachFileButton_Click(object sender, RoutedEventArgs e)
-        {
-            await PickAttachmentAsync();
-        }
-
-        private async void OpenRatingDialog_Click(object sender, RoutedEventArgs e)
-        {
-            string statusBefore = viewModel.StatusMessage;
-            await viewModel.ShowFeedbackDialogAsync(XamlRoot);
-            if (viewModel.StatusMessage != statusBefore)
-            {
-                bool isSuccess = viewModel.StatusMessage.StartsWith("Thank you");
-                StatusText.Text = viewModel.StatusMessage;
-                StatusText.Foreground = new SolidColorBrush(isSuccess ? Colors.Green : Colors.Red);
-            }
-        }
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (Frame.CanGoBack)
-            {
-                Frame.GoBack();
-            }
-        }
-
-        private async Task PickAttachmentAsync()
-        {
-            FileOpenPicker picker = new FileOpenPicker();
-            IntPtr windowHandle = WindowNative.GetWindowHandle(App.MainAppWindow);
-            InitializeWithWindow.Initialize(picker, windowHandle);
-
-            picker.ViewMode = PickerViewMode.List;
-            picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            picker.FileTypeFilter.Add(".pdf");
-            picker.FileTypeFilter.Add(".png");
-            picker.FileTypeFilter.Add(".jpg");
-            picker.FileTypeFilter.Add(".jpeg");
-
-            StorageFile? file = await picker.PickSingleFileAsync();
-            if (file == null)
-            {
-                return;
-            }
-
-            await viewModel.ProcessAttachmentAsync(file);
-
-            AttachmentInfoTextBlock.Text = viewModel.SelectedAttachment == null
-                ? "No file attached."
-                : $"Attached file: {viewModel.SelectedAttachment.FileName} ({viewModel.SelectedAttachment.FileSizeDisplay})";
-        }
+        this.AttachmentInfoTextBlock.Text = this.viewModel.SelectedAttachment == null
+            ? "No file attached."
+            : $"Attached file: {this.viewModel.SelectedAttachment.FileName} ({this.viewModel.SelectedAttachment.FileSizeDisplay})";
     }
 }

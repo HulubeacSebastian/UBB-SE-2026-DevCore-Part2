@@ -1,25 +1,22 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿namespace KarmaBanking.App.ViewModels;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using KarmaBanking.App.Services;
 
-namespace KarmaBanking.App.ViewModels
+public partial class LoanViewModel : ObservableObject
 {
-    public partial class LoanViewModel : ObservableObject
+    private readonly LoanPresentationService loanPresentationService;
+
+    public LoanViewModel(Loan loan)
     {
-        private readonly Loan _loan;
-        private readonly LoanPresentationService _loanPresentationService;
-
-        public Loan Loan => _loan;
-
-        public double RepaymentProgress =>
-           _loanPresentationService.GetRepaymentProgress(_loan);
-
-        public int PaidInstallments => _loan.TermInMonths - _loan.RemainingMonths;
-
-        public LoanViewModel(Loan loan)
-        {
-            _loan = loan;
-            _loanPresentationService = new LoanPresentationService();
-        }
-
+        this.Loan = loan;
+        this.loanPresentationService = new LoanPresentationService();
     }
+
+    public Loan Loan { get; }
+
+    public double RepaymentProgress =>
+        this.loanPresentationService.GetRepaymentProgress(this.Loan);
+
+    public int PaidInstallments => this.Loan.TermInMonths - this.Loan.RemainingMonths;
 }

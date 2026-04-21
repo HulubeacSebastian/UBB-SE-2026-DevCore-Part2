@@ -1,11 +1,12 @@
+namespace KarmaBanking.App.Models.DTOs;
+
 using System;
 
-namespace KarmaBanking.App.Models.DTOs
+public class DepositResponseDto
 {
-    public class DepositResponseDto
-    {
-        public decimal NewBalance { get; set; }
-        public int TransactionId { get; set; }
-        public DateTime Timestamp { get; set; }
-    }
+    public decimal NewBalance { get; set; }
+
+    public int TransactionId { get; set; }
+
+    public DateTime Timestamp { get; set; }
 }
