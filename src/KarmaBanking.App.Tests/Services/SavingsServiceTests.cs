@@ -155,6 +155,7 @@ namespace KarmaBanking.App.Tests.Services
         public async Task CreateAccountAsync_UserHasMaxActiveAccounts_ThrowsInvalidOperationException()
         {
             var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
             var userId = 1;
 
             var activeAccounts = new List<SavingsAccount>
@@ -167,10 +168,92 @@ namespace KarmaBanking.App.Tests.Services
             };
             repository.GetSavingsAccountsByUserIdAsync(userId, false).Returns(Task.FromResult(activeAccounts));
 
-            var service = new SavingsService(repository);
             var dto = new CreateSavingsAccountDto { UserId = userId, SavingsType = "Standard" };
 
-            Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateAccountAsync(dto));
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await service.CreateAccountAsync(dto));
+            Assert.That(ex.Message, Is.EqualTo("You cannot have more than 5 active savings accounts."));
+            await repository.DidNotReceive().CreateSavingsAccountAsync(Arg.Any<CreateSavingsAccountDto>(), Arg.Any<decimal>());
+        }
+
+        [Test]
+        public async Task CreateAccountAsync_GoalSavingsWithoutTargetDate_ThrowsArgumentException()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+            var dto = new CreateSavingsAccountDto
+            {
+                UserId = 1,
+                SavingsType = "GoalSavings",
+                AccountName = "My Goal Savings",
+                InitialDeposit = 1000m,
+                FundingAccountId = 123,
+                TargetAmount = 5000m
+            };
+
+            var ex = Assert.ThrowsAsync<ArgumentException>(async () => await service.CreateAccountAsync(dto));
+            Assert.That(ex.Message, Is.EqualTo("GoalSavings accounts require a target date."));
+            await repository.DidNotReceive().CreateSavingsAccountAsync(Arg.Any<CreateSavingsAccountDto>(), Arg.Any<decimal>());
+        }
+
+        [Test]
+        public async Task CreateAccountAsync_GoalSavingsWithPastTargetDate_ThrowsArgumentException()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+            var dto = new CreateSavingsAccountDto
+            {
+                UserId = 1,
+                SavingsType = "GoalSavings",
+                AccountName = "My Goal Savings",
+                InitialDeposit = 1000m,
+                FundingAccountId = 123,
+                TargetAmount = 5000m,
+                TargetDate = DateTime.UtcNow.AddDays(-1)
+            };
+
+            var ex = Assert.ThrowsAsync<ArgumentException>(async () => await service.CreateAccountAsync(dto));
+            Assert.That(ex.Message, Is.EqualTo("Target date must be in the future."));
+            await repository.DidNotReceive().CreateSavingsAccountAsync(Arg.Any<CreateSavingsAccountDto>(), Arg.Any<decimal>());
+        }
+
+        [Test]
+        public async Task CreateAccountAsync_GoalSavingsWithoutTargetAmount_ThrowsArgumentException()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+            var dto = new CreateSavingsAccountDto
+            {
+                UserId = 1,
+                SavingsType = "GoalSavings",
+                AccountName = "My Goal Savings",
+                InitialDeposit = 1000m,
+                FundingAccountId = 123,
+                TargetDate = DateTime.UtcNow.AddDays(30)
+            };
+
+            var ex = Assert.ThrowsAsync<ArgumentException>(async () => await service.CreateAccountAsync(dto));
+            Assert.That(ex.Message, Is.EqualTo("GoalSavings accounts require a positive target amount."));
+            await repository.DidNotReceive().CreateSavingsAccountAsync(Arg.Any<CreateSavingsAccountDto>(), Arg.Any<decimal>());
+        }
+
+        [Test]
+        public async Task CreateAccountAsync_GoalSavingsWithNegativeTargetAmount_ThrowsArgumentException()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+            var dto = new CreateSavingsAccountDto
+            {
+                UserId = 1,
+                SavingsType = "GoalSavings",
+                AccountName = "My Goal Savings",
+                InitialDeposit = 1000m,
+                FundingAccountId = 123,
+                TargetDate = DateTime.UtcNow.AddDays(30),
+                TargetAmount = -5000m
+            };
+
+            var ex = Assert.ThrowsAsync<ArgumentException>(async () => await service.CreateAccountAsync(dto));
+            Assert.That(ex.Message, Is.EqualTo("GoalSavings accounts require a positive target amount."));
             await repository.DidNotReceive().CreateSavingsAccountAsync(Arg.Any<CreateSavingsAccountDto>(), Arg.Any<decimal>());
         }
     }
