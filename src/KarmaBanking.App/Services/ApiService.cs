@@ -4,6 +4,9 @@
 
 namespace KarmaBanking.App.Services;
 
+using KarmaBanking.App.Models;
+using KarmaBanking.App.Models.DTOs;
+using KarmaBanking.App.Repositories;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,9 +15,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using KarmaBanking.App.Models;
-using KarmaBanking.App.Models.DTOs;
-using KarmaBanking.App.Repositories;
 
 public class ApiService
 {

@@ -4,8 +4,6 @@
 
 namespace KarmaBanking.App.Views;
 
-using System;
-using System.Threading.Tasks;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Services;
@@ -13,6 +11,8 @@ using KarmaBanking.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using System;
+using System.Threading.Tasks;
 
 public sealed partial class SavingsView : Page
 {

@@ -4,11 +4,11 @@
 
 namespace KarmaBanking.App.Utils;
 
-using System;
-using Windows.UI;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
+using System;
+using Windows.UI;
 
 public class AccountStatusToBrushConverter : IValueConverter
 {

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NSubstitute;
-using KarmaBanking.App.Repositories.Interfaces;
-using Xunit;
+﻿using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
+using KarmaBanking.App.Repositories.Interfaces;
 using KarmaBanking.App.Services;
-using KarmaBanking.App.Models;
+using NSubstitute;
+using Xunit;
 
 namespace KarmaBanking.App.Tests.Services
 {

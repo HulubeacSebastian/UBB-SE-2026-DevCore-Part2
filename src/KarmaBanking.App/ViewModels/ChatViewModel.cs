@@ -4,18 +4,18 @@
 
 namespace KarmaBanking.App.ViewModels;
 
-using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Windows.Storage;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Services;
 using KarmaBanking.App.Utils;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Windows.Storage;
 
 public class ChatViewModel : INotifyPropertyChanged
 {

@@ -4,9 +4,9 @@
 
 namespace KarmaBanking.App.Utils;
 
-using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
+using System;
 
 /// <summary>
 ///     Returns Visible when the value is NOT null, Collapsed when null.

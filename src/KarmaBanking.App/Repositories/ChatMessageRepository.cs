@@ -4,12 +4,12 @@
 
 namespace KarmaBanking.App.Repositories;
 
-using System;
-using System.Collections.Generic;
-using System.Data;
 using KarmaBanking.App.Data;
 using KarmaBanking.App.Models;
 using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+using System.Data;
 
 /// <summary>
 /// Provides direct SQL access for chat message retrieval.

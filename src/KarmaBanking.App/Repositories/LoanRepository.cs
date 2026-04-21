@@ -2,12 +2,12 @@
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
+using KarmaBanking.App.Data;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using KarmaBanking.App.Data;
-using Microsoft.Data.SqlClient;
 
 /// <summary>
 /// SQL-backed repository for loans and loan applications.

@@ -1,12 +1,12 @@
 ﻿namespace KarmaBanking.App.Tests.Services
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
     using KarmaBanking.App.Models;
     using KarmaBanking.App.Repositories.Interfaces;
     using KarmaBanking.App.Services;
     using Moq;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Xunit;
 
     public class InvestmentServiceTests

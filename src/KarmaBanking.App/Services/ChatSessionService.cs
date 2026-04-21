@@ -4,9 +4,9 @@
 
 namespace KarmaBanking.App.Services;
 
+using KarmaBanking.App.Models;
 using System;
 using System.Linq;
-using KarmaBanking.App.Models;
 
 public class ChatSessionService
 {

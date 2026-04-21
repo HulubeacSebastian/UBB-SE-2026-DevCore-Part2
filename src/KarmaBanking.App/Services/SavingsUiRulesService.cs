@@ -4,11 +4,11 @@
 
 namespace KarmaBanking.App.Services;
 
+using KarmaBanking.App.Models;
+using KarmaBanking.App.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using KarmaBanking.App.Models;
-using KarmaBanking.App.Models.Enums;
 
 public class SavingsUiRulesService
 {

@@ -4,8 +4,8 @@
 
 namespace KarmaBanking.App.Services;
 
-using System.Linq;
 using KarmaBanking.App.Models;
+using System.Linq;
 
 public class PortfolioValuationService
 {

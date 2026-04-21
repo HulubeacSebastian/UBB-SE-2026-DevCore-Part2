@@ -4,13 +4,13 @@
 
 namespace KarmaBanking.App.ViewModels;
 
+using KarmaBanking.App.Services;
+using KarmaBanking.App.Services.Interfaces;
+using KarmaBanking.App.Utils;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using KarmaBanking.App.Services;
-using KarmaBanking.App.Services.Interfaces;
-using KarmaBanking.App.Utils;
 
 public class CryptoTradingViewModel : INotifyPropertyChanged
 {

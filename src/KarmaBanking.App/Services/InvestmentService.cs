@@ -16,10 +16,10 @@
         private const decimal CryptoTradeFeePercentage = 0.015m; // 1.5% commission
         private const decimal MinimumTradeFee = 0.50m; // Minimum commission of $0.50
 
-    public InvestmentService(IInvestmentRepository investmentRepository)
-    {
-        this.investmentRepository = investmentRepository;
-    }
+        public InvestmentService(IInvestmentRepository investmentRepository)
+        {
+            this.investmentRepository = investmentRepository;
+        }
 
         public async Task<bool> ExecuteCryptoTradeAsync(
             int portfolioIdentificationNumber,
@@ -37,10 +37,10 @@
             decimal tradeValueAmount = quantity * pricePerUnit;
             decimal calculatedFee = Math.Round(tradeValueAmount * CryptoTradeFeePercentage, 2);
 
-        if (calculatedFee < MinimumTradeFee)
-        {
-            calculatedFee = MinimumTradeFee;
-        }
+            if (calculatedFee < MinimumTradeFee)
+            {
+                calculatedFee = MinimumTradeFee;
+            }
 
             // 3. Fetch current state to perform business logic calculations
             Portfolio portfolio = this.investmentRepository.GetPortfolio(portfolioIdentificationNumber);
@@ -117,10 +117,10 @@
                 throw new ArgumentException("Invalid portfolio identification number.", nameof(portfolioIdentificationNumber));
             }
 
-        if (startDate.HasValue && endDate.HasValue && startDate.Value > endDate.Value)
-        {
-            throw new ArgumentException("Start date cannot be after the end date.");
-        }
+            if (startDate.HasValue && endDate.HasValue && startDate.Value > endDate.Value)
+            {
+                throw new ArgumentException("Start date cannot be after the end date.");
+            }
 
             return await this.investmentRepository.GetInvestmentLogsAsync(portfolioIdentificationNumber, startDate, endDate, ticker);
         }

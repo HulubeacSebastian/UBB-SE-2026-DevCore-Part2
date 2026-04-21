@@ -4,10 +4,10 @@
 
 namespace KarmaBanking.App.Services;
 
+using KarmaBanking.App.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using KarmaBanking.App.Models;
 
 // Mock version of ApiService for testing without a real backend
 // In ChatViewModel.cs replace your existing ApiService instance with the mock:

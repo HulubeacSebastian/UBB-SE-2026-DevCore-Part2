@@ -4,8 +4,8 @@
 
 namespace KarmaBanking.App.Models;
 
-using System;
 using KarmaBanking.App.Models.Enums;
+using System;
 
 /// <summary>
 ///     This model is used to represent a transaction that occurs on a savings account.

@@ -4,10 +4,10 @@
 
 namespace KarmaBanking.App.Utils;
 
-using System;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
+using System;
 
 public class DecimalToGainLossBrushConverter : IValueConverter
 {

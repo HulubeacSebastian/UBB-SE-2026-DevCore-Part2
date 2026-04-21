@@ -4,15 +4,15 @@
 
 namespace KarmaBanking.App.Repositories;
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using KarmaBanking.App.Data;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
 using KarmaBanking.App.Models.Enums;
 using KarmaBanking.App.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 /// <summary>
 /// SQL-backed savings repository implementation.

@@ -4,11 +4,11 @@
 
 namespace KarmaBanking.App.Repositories;
 
+using KarmaBanking.App.Data;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Data;
 using System.Threading.Tasks;
-using KarmaBanking.App.Data;
-using Microsoft.Data.SqlClient;
 
 /// <summary>
 /// Handles persistence operations for chat session lifecycle data.

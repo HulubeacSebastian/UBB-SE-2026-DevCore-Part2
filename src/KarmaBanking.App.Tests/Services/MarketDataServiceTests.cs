@@ -1,8 +1,8 @@
 ﻿namespace KarmaBanking.App.Tests.Services
 {
+    using KarmaBanking.App.Services;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using KarmaBanking.App.Services;
     using Xunit;
 
     public class MarketDataServiceTests

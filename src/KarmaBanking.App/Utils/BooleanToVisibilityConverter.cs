@@ -4,9 +4,9 @@
 
 namespace KarmaBanking.App.Utils;
 
-using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
+using System;
 
 public class BooleanToVisibilityConverter : IValueConverter
 {

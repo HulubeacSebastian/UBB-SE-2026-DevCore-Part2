@@ -4,15 +4,15 @@
 
 namespace KarmaBanking.App.Views;
 
-using System;
-using System.Threading.Tasks;
-using Windows.Storage.Pickers;
 using KarmaBanking.App.ViewModels;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using System;
+using System.Threading.Tasks;
+using Windows.Storage.Pickers;
 using WinRT.Interop;
 
 public sealed partial class ChatRoutingView : Page

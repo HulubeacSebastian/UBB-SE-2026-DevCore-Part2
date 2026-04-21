@@ -4,14 +4,14 @@
 
 namespace KarmaBanking.App.Services;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
 using KarmaBanking.App.Repositories.Interfaces;
 using KarmaBanking.App.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 public class SavingsService : ISavingsService
 {

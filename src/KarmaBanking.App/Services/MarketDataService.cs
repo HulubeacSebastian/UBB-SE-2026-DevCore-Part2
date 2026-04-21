@@ -4,11 +4,11 @@
 
 namespace KarmaBanking.App.Services;
 
+using KarmaBanking.App.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using KarmaBanking.App.Services.Interfaces;
 
 public class MarketDataService : IMarketDataService
 {

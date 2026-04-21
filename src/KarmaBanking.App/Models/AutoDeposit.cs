@@ -4,8 +4,8 @@
 
 namespace KarmaBanking.App.Models;
 
-using System;
 using KarmaBanking.App.Models.Enums;
+using System;
 
 /// <summary>
 /// Represents an automatic recurring transfer into a savings account.

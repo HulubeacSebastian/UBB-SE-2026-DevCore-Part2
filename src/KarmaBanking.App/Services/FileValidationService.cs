@@ -4,12 +4,11 @@
 
 namespace KarmaBanking.App.Services;
 
+using KarmaBanking.App.Models;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
-
-using KarmaBanking.App.Models;
 public class FileValidationService
 {
     private const long MaxFileSize = 10 * 1024 * 1024;

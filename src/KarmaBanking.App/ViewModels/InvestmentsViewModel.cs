@@ -4,13 +4,6 @@
 
 namespace KarmaBanking.App.ViewModels;
 
-using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Repositories.Interfaces;
@@ -18,6 +11,13 @@ using KarmaBanking.App.Services;
 using KarmaBanking.App.Services.Interfaces;
 using KarmaBanking.App.Utils;
 using Microsoft.UI.Dispatching;
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 // Ensure this is present
 public class InvestmentsViewModel : INotifyPropertyChanged

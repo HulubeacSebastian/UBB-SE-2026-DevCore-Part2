@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using KarmaBanking.App.Models;
+﻿using KarmaBanking.App.Models;
 using KarmaBanking.App.Services.Interfaces;
 using KarmaBanking.App.ViewModels;
 using Moq;

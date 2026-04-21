@@ -4,8 +4,8 @@
 
 namespace KarmaBanking.App.Models.DTOs;
 
-using System;
 using KarmaBanking.App.Models.Enums;
+using System;
 
 /// <summary>
 /// Request payload for creating a new savings account.

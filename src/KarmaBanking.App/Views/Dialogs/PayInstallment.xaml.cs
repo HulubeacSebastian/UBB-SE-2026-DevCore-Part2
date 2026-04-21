@@ -4,10 +4,10 @@
 
 namespace KarmaBanking.App.Views.Dialogs;
 
-using System;
 using KarmaBanking.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System;
 
 public sealed partial class PayInstallmentDialog : ContentDialog
 {

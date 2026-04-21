@@ -4,10 +4,10 @@
 
 namespace KarmaBanking.App.Services.Interfaces;
 
+using KarmaBanking.App.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using KarmaBanking.App.Models;
 
 public interface IInvestmentService
 {

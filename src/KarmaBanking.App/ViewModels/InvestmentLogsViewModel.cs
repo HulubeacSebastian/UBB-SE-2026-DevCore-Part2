@@ -4,6 +4,9 @@
 
 namespace KarmaBanking.App.ViewModels;
 
+using KarmaBanking.App.Models;
+using KarmaBanking.App.Services.Interfaces;
+using KarmaBanking.App.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,9 +16,6 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Provider;
-using KarmaBanking.App.Models;
-using KarmaBanking.App.Services.Interfaces;
-using KarmaBanking.App.Utils;
 using WinRT.Interop;
 
 public class InvestmentLogsViewModel : INotifyPropertyChanged

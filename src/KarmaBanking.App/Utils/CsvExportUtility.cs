@@ -4,9 +4,9 @@
 
 namespace KarmaBanking.App.Utils;
 
+using KarmaBanking.App.Models;
 using System.Collections.Generic;
 using System.Text;
-using KarmaBanking.App.Models;
 
 public static class CsvExportUtility
 {

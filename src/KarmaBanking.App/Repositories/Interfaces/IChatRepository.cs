@@ -4,9 +4,9 @@
 
 namespace KarmaBanking.App.Repositories.Interfaces;
 
+using KarmaBanking.App.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using KarmaBanking.App.Models;
 
 /// <summary>
 /// Defines read operations for chat sessions and messages.

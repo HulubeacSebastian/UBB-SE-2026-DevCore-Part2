@@ -4,10 +4,10 @@
 
 namespace KarmaBanking.App.Services;
 
-using System.Collections.Generic;
-using System.Linq;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
+using System.Collections.Generic;
+using System.Linq;
 
 public class SavingsWorkflowService
 {

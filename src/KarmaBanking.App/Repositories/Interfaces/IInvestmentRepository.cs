@@ -4,10 +4,10 @@
 
 namespace KarmaBanking.App.Repositories.Interfaces;
 
+using KarmaBanking.App.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using KarmaBanking.App.Models;
 
 /// <summary>
 /// Defines persistence operations for investment portfolios and trades.
@@ -21,15 +21,15 @@ public interface IInvestmentRepository
     /// <returns>The portfolio data.</returns>
     Portfolio GetPortfolio(int userIdentificationNumber);
 
-        Task RecordCryptoTradeAsync(
-            int portfolioIdentificationNumber,
-            string ticker,
-            string actionType,
-            decimal quantity,
-            decimal pricePerUnit,
-            decimal fees,
-            decimal finalQuantity,
-            decimal finalAveragePrice);
+    Task RecordCryptoTradeAsync(
+        int portfolioIdentificationNumber,
+        string ticker,
+        string actionType,
+        decimal quantity,
+        decimal pricePerUnit,
+        decimal fees,
+        decimal finalQuantity,
+        decimal finalAveragePrice);
     /// <summary>
     /// Records a crypto buy or sell trade and updates holdings.
     /// </summary>

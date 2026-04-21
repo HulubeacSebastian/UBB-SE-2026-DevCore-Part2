@@ -4,13 +4,13 @@
 
 namespace KarmaBanking.App.Views;
 
-using System;
-using System.Diagnostics;
 using KarmaBanking.App.ViewModels;
 using KarmaBanking.App.Views.Dialogs;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using System;
+using System.Diagnostics;
 
 public sealed partial class LoansView : Page
 {

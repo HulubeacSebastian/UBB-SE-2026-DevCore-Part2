@@ -4,10 +4,10 @@
 
 namespace KarmaBanking.App.Services.Interfaces;
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public interface ISavingsService
 {
