@@ -6,7 +6,6 @@ namespace KarmaBanking.App.Tests
         [Fact]
         public void Test1()
         {
-            
         }
     }
 }
