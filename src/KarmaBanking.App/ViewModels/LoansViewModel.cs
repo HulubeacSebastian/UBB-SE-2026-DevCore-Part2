@@ -18,6 +18,7 @@ public partial class LoansViewModel : ObservableObject
     private readonly AmortizationCalculator _calculator;
     private readonly PdfExporter _pdfExporter;
     private readonly LoanDialogStateService _loanDialogStateService;
+    private readonly LoanApplicationPresentationService _loanApplicationPresentationService;
     public IEnumerable<LoanType> LoanTypes => Enum.GetValues<LoanType>();
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
@@ -75,6 +76,7 @@ public partial class LoansViewModel : ObservableObject
         _calculator = new AmortizationCalculator();
         _pdfExporter = new PdfExporter();
         _loanDialogStateService = new LoanDialogStateService();
+        _loanApplicationPresentationService = new LoanApplicationPresentationService();
         _ = LoadLoansAsync();
     }
 
@@ -117,17 +119,13 @@ public partial class LoansViewModel : ObservableObject
 
             var rejectionReason = await _apiService.ApplyForLoanAsync(request);
 
-            if (rejectionReason == null)
+            var applicationOutcome = _loanApplicationPresentationService.BuildApplicationOutcome(rejectionReason);
+            ApplicationResult = applicationOutcome.Message;
+            ApplicationWasApproved = applicationOutcome.Approved;
+            if (applicationOutcome.Approved)
             {
-                ApplicationResult = "Your loan application has been approved!";
-                ApplicationWasApproved = true;
                 await LoadLoansAsync();
                 OnPropertyChanged(nameof(FilteredLoans));
-            }
-            else
-            {
-                ApplicationResult = $"Application rejected: {rejectionReason}";
-                ApplicationWasApproved = false;
             }
         }
         catch (Exception ex)

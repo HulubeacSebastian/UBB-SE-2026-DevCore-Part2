@@ -2,7 +2,6 @@ using KarmaBanking.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Globalization;
 
 namespace KarmaBanking.App.Views.Dialogs
 {
@@ -45,9 +44,9 @@ namespace KarmaBanking.App.Views.Dialogs
             if (CustomAmountPanel != null)
             {
                 CustomAmountPanel.Visibility = Visibility.Collapsed;
-                _viewModel.CustomAmount = null;
             }
 
+            _viewModel.SelectStandardPayment();
             UpdatePreview();
         }
 
@@ -61,17 +60,7 @@ namespace KarmaBanking.App.Views.Dialogs
             CustomAmountPanel.Visibility = Visibility.Visible;
             if (_viewModel.SelectedLoan != null)
             {
-                if (!_viewModel.CustomAmount.HasValue)
-                {
-                    _viewModel.CustomAmount = (double)_viewModel.SelectedLoan.Loan.MonthlyInstallment;
-                }
-
-                if (_viewModel.CustomAmount > (double)_viewModel.SelectedLoan.Loan.OutstandingBalance)
-                {
-                    _viewModel.CustomAmount = (double)_viewModel.SelectedLoan.Loan.OutstandingBalance;
-                }
-
-                CustomAmountBox.Text = _viewModel.CustomAmount?.ToString("0.##", CultureInfo.CurrentCulture) ?? string.Empty;
+                CustomAmountBox.Text = _viewModel.SelectCustomPayment();
             }
 
             UpdatePreview();
@@ -101,53 +90,17 @@ namespace KarmaBanking.App.Views.Dialogs
                 return;
             }
 
-            Loan loan = _viewModel.SelectedLoan.Loan;
-            decimal paymentAmount = StandardRadio.IsChecked == true
-                ? loan.MonthlyInstallment
-                : GetCustomPaymentAmount();
-
-            decimal balanceAfterPayment = Math.Max(0m, loan.OutstandingBalance - paymentAmount);
-
-            int monthsPaid = StandardRadio.IsChecked == true
-                ? 1
-                : paymentAmount <= 0m
-                    ? 0
-                    : (int)Math.Floor(paymentAmount / loan.MonthlyInstallment);
-
-            int remainingTerm = Math.Max(0, loan.RemainingMonths - monthsPaid);
-
-            BalanceAfterPaymentText.Text = balanceAfterPayment.ToString("C2");
-            RemainingTermAfterPaymentText.Text = $"{remainingTerm} mo";
-        }
-
-        private decimal GetCustomPaymentAmount()
-        {
-            if (CustomAmountBox != null)
+            if (StandardRadio.IsChecked == true)
             {
-                if (string.IsNullOrWhiteSpace(CustomAmountBox.Text))
-                {
-                    _viewModel.CustomAmount = null;
-                    return 0m;
-                }
-
-                if (decimal.TryParse(CustomAmountBox.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out decimal parsedCurrentCulture))
-                {
-                    _viewModel.CustomAmount = (double)parsedCurrentCulture;
-                    return parsedCurrentCulture;
-                }
-
-                if (decimal.TryParse(CustomAmountBox.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal parsedInvariantCulture))
-                {
-                    _viewModel.CustomAmount = (double)parsedInvariantCulture;
-                    return parsedInvariantCulture;
-                }
-
-                _viewModel.CustomAmount = null;
-                return 0m;
+                _viewModel.SelectStandardPayment();
+            }
+            else
+            {
+                _viewModel.UpdateCustomPayment(CustomAmountBox?.Text ?? string.Empty);
             }
 
-            _viewModel.CustomAmount = null;
-            return 0m;
+            BalanceAfterPaymentText.Text = _viewModel.PaymentPreviewBalance.ToString("C2");
+            RemainingTermAfterPaymentText.Text = $"{_viewModel.PaymentPreviewRemainingMonths} mo";
         }
     }
 }

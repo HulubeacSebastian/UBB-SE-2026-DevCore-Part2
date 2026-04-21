@@ -20,6 +20,7 @@
         private readonly FileValidationService fileValidationService = new();
         private readonly DialogService dialogService = new();
         private readonly ChatCategoryService chatCategoryService = new();
+        private readonly ChatSessionService chatSessionService = new();
         private ObservableCollection<ChatSession> chatSessions = [];
         private ObservableCollection<ChatMessage> chatMessages = [];
         private ObservableCollection<string> presetQuestions = [];
@@ -232,23 +233,8 @@
             ChatSession session = CurrentSession!;
             session.IssueCategory = chatCategoryService.InferCategory(question);
 
-            session.Messages.Add(new ChatMessage
-            {
-                IdentificationNumber = session.Messages.Count + 1,
-                SessionIdentificationNumber = session.IdentificationNumber,
-                SenderType = "USER",
-                Content = question,
-                SentAt = DateTime.Now,
-            });
-
-            session.Messages.Add(new ChatMessage
-            {
-                IdentificationNumber = session.Messages.Count + 1,
-                SessionIdentificationNumber = session.IdentificationNumber,
-                SenderType = "CHATBOT ASSISTANCE",
-                Content = response,
-                SentAt = DateTime.Now.AddSeconds(1),
-            });
+            session.Messages.Add(chatSessionService.CreateMessage(session, session.Messages.Count + 1, "USER", question, DateTime.Now));
+            session.Messages.Add(chatSessionService.CreateMessage(session, session.Messages.Count + 1, "CHATBOT ASSISTANCE", response, DateTime.Now.AddSeconds(1)));
 
             UpdateSessionSummary(session, question, response);
             StatusMessage = "Preset answer added to the chat.";
@@ -276,14 +262,12 @@
             CurrentSession.IsEscalatedToTeam = true;
             CurrentSession.SessionStatus = "Escalated";
 
-            CurrentSession.Messages.Add(new ChatMessage
-            {
-                IdentificationNumber = CurrentSession.Messages.Count + 1,
-                SessionIdentificationNumber = CurrentSession.IdentificationNumber,
-                SenderType = "SYSTEM",
-                Content = "Conversation sent to the Karma Banking team.",
-                SentAt = DateTime.Now,
-            });
+            CurrentSession.Messages.Add(chatSessionService.CreateMessage(
+                CurrentSession,
+                CurrentSession.Messages.Count + 1,
+                "SYSTEM",
+                "Conversation sent to the Karma Banking team.",
+                DateTime.Now));
 
             UpdateSessionSummary(CurrentSession);
             StatusMessage = "The current chat session was sent to the team.";
@@ -293,16 +277,7 @@
 
         public string BuildCurrentTranscript()
         {
-            if (CurrentSession == null)
-            {
-                return "No chat session selected.";
-            }
-
-            List<string> lines = CurrentSession.Messages
-                .Select(message => $"[{message.SentAt:g}] {message.SenderType}: {message.Content}")
-                .ToList();
-
-            return string.Join(Environment.NewLine, lines);
+            return chatSessionService.BuildTranscript(CurrentSession);
         }
 
         /// <summary>
@@ -493,24 +468,7 @@
 
         private void CreateSession()
         {
-            ChatSession session = new ChatSession
-            {
-                IdentificationNumber = nextSessionIdentificationNumber++,
-                IssueCategory = "General",
-                SessionStatus = "Open",
-                StartedAt = DateTime.Now,
-                Title = $"Session {nextSessionIdentificationNumber - 1}",
-            };
-
-            session.Messages.Add(new ChatMessage
-            {
-                IdentificationNumber = 1,
-                SessionIdentificationNumber = session.IdentificationNumber,
-                SenderType = "CHATBOT ASSISTANCE",
-                Content = "Welcome. How can I help you?",
-                SentAt = DateTime.Now,
-            });
-
+            ChatSession session = chatSessionService.CreateSession(nextSessionIdentificationNumber++);
             Sessions.Insert(0, session);
             CurrentSession = session;
         }

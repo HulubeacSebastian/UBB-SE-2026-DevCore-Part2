@@ -19,6 +19,8 @@ namespace KarmaBanking.App.ViewModels
     {
         private readonly ISavingsService savingsService;
         private readonly SavingsUiRulesService savingsUiRulesService;
+        private readonly SavingsPresentationService savingsPresentationService;
+        private readonly SavingsWorkflowService savingsWorkflowService;
         private const int CurrentUserId = 1;
 
         // ── My Accounts ──────────────────────────────────────────────────────
@@ -135,18 +137,15 @@ namespace KarmaBanking.App.ViewModels
         {
             WithdrawResultMessage = string.Empty;
             WithdrawSuccess = false;
-            if (!savingsUiRulesService.TryParsePositiveAmount(WithdrawAmountText, out decimal amount))
-            { WithdrawResultMessage = "Please enter a valid amount."; return false; }
-            if (WithdrawDestination == null)
-            { WithdrawResultMessage = "Please select a destination account."; return false; }
+            savingsUiRulesService.TryParsePositiveAmount(WithdrawAmountText, out decimal amount);
+            var withdrawValidation = savingsWorkflowService.ValidateWithdrawRequest(amount, WithdrawDestination);
+            if (!withdrawValidation.IsValid) { WithdrawResultMessage = withdrawValidation.ErrorMessage; return false; }
             IsLoading = true;
             try
             {
                 var withdrawResponseDto = await savingsService.WithdrawAsync(SelectedAccount!.Id, amount, WithdrawDestination.DisplayName, CurrentUserId);
                 WithdrawSuccess = withdrawResponseDto.Success;
-                WithdrawResultMessage = withdrawResponseDto.Success
-                    ? $"Withdrawn: ${withdrawResponseDto.AmountWithdrawn:N2}" + (withdrawResponseDto.PenaltyApplied > 0 ? $" (penalty: ${withdrawResponseDto.PenaltyApplied:N2})" : "") + $". New balance: ${withdrawResponseDto.NewBalance:N2}"
-                    : withdrawResponseDto.Message;
+                WithdrawResultMessage = savingsWorkflowService.BuildWithdrawResultMessage(withdrawResponseDto);
                 if (withdrawResponseDto.Success)
                 {
                     WithdrawAmountText = string.Empty;
@@ -227,6 +226,8 @@ namespace KarmaBanking.App.ViewModels
         {
             this.savingsService = savingsService;
             savingsUiRulesService = new SavingsUiRulesService();
+            savingsPresentationService = new SavingsPresentationService();
+            savingsWorkflowService = new SavingsWorkflowService();
         }
 
         // ── Commands: My Accounts ────────────────────────────────────────────
@@ -245,10 +246,9 @@ namespace KarmaBanking.App.ViewModels
                 OnPropertyChanged(nameof(IsEmpty));
                 OnPropertyChanged(nameof(ShowAccountsList));
 
-                TotalSavedAmount = $"${SavingsAccounts.Sum(account => account.Balance):F2}";
-                NumberOfAccountsText = $"across {SavingsAccounts.Count} account{(SavingsAccounts.Count == 1 ? "" : "s")}";
-                decimal bestApy = SavingsAccounts.Any() ? SavingsAccounts.Max(account => account.Apy) : 0;
-                BestInterestRate = $"{bestApy * 100:F2}%";
+                TotalSavedAmount = savingsPresentationService.BuildTotalSavedAmount(SavingsAccounts);
+                NumberOfAccountsText = savingsPresentationService.BuildNumberOfAccountsText(SavingsAccounts.Count);
+                BestInterestRate = savingsPresentationService.BuildBestInterestRate(SavingsAccounts);
             }
             catch (Exception exception) { ErrorMessage = exception.Message; }
             finally { IsLoading = false; }
@@ -290,10 +290,7 @@ namespace KarmaBanking.App.ViewModels
         [ObservableProperty] private string closeResultMessage = string.Empty;
         [ObservableProperty] private bool closeSuccess;
 
-        public bool CloseHasPenalty =>
-            SelectedAccount?.SavingsType == "FixedDeposit" &&
-            SelectedAccount.MaturityDate.HasValue &&
-            SelectedAccount.MaturityDate.Value > DateTime.UtcNow;
+        public bool CloseHasPenalty => savingsPresentationService.HasClosePenaltyRisk(SelectedAccount);
 
         public async Task LoadCloseDestinationAccountsAsync()
         {
@@ -304,15 +301,14 @@ namespace KarmaBanking.App.ViewModels
             CloseDestinationAccounts.Clear();
             foreach (var account in openAccountsList)
                 CloseDestinationAccounts.Add(account);
-            if (CloseDestinationAccounts.Count > 0)
-                SelectedCloseDestinationId = CloseDestinationAccounts[0].Id;
+            SelectedCloseDestinationId = savingsWorkflowService.GetDefaultCloseDestinationId(CloseDestinationAccounts);
             OnPropertyChanged(nameof(CloseHasPenalty));
         }
 
         public async Task<bool> ConfirmCloseAsync()
         {
-            if (!CloseUserConfirmed) { CloseResultMessage = "Please confirm account closure."; return false; }
-            if (SelectedCloseDestinationId == 0) { CloseResultMessage = "Please select a destination account."; return false; }
+            var closeValidation = savingsWorkflowService.ValidateCloseConfirmation(CloseUserConfirmed, SelectedCloseDestinationId);
+            if (!closeValidation.IsValid) { CloseResultMessage = closeValidation.ErrorMessage; return false; }
             IsLoading = true;
             try
             {
@@ -335,7 +331,7 @@ namespace KarmaBanking.App.ViewModels
                 var fundingSourcesList = await savingsService.GetFundingSourcesAsync(CurrentUserId);
                 FundingSources.Clear();
                 foreach (var fundingSource in fundingSourcesList) FundingSources.Add(fundingSource);
-                if (FundingSources.Count > 0) SelectedFundingSource = FundingSources[0];
+                SelectedFundingSource = savingsWorkflowService.GetDefaultFundingSource(FundingSources);
             }
             catch (Exception exception) { ErrorMessage = exception.Message; }
         }
@@ -495,7 +491,7 @@ namespace KarmaBanking.App.ViewModels
         }
         public async Task NextPage(int accountId)
         {
-            if (currentPage >= totalPages) return;
+            if (!savingsWorkflowService.CanMoveToNextPage(currentPage, totalPages)) return;
 
             currentPage++;
             await LoadTransactionsAsync(accountId);
@@ -503,7 +499,7 @@ namespace KarmaBanking.App.ViewModels
 
         public async Task PreviousPage(int accountId)
         {
-            if (currentPage <= 1) return;
+            if (!savingsWorkflowService.CanMoveToPreviousPage(currentPage)) return;
 
             currentPage--;
             await LoadTransactionsAsync(accountId);
