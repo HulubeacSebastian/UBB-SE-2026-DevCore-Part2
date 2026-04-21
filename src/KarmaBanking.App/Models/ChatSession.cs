@@ -1,118 +1,117 @@
-﻿namespace KarmaBanking.App.Models
+﻿namespace KarmaBanking.App.Models;
+
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+public class ChatSession : INotifyPropertyChanged
 {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Runtime.CompilerServices;
+    private SelectedAttachment? attachment;
+    private bool isEscalatedToTeam;
+    private string lastPreview = "No messages yet.";
+    private DateTime lastUpdatedAt = DateTime.Now;
+    private string teamContactMessage = string.Empty;
+    private string title = "New chat";
 
-    public class ChatSession : INotifyPropertyChanged
+    public int IdentificationNumber { get; set; }
+
+    public string IssueCategory { get; set; } = string.Empty;
+
+    public string SessionStatus { get; set; } = string.Empty;
+
+    public DateTime StartedAt { get; set; }
+
+    public ObservableCollection<ChatMessage> Messages { get; set; } = [];
+
+    public string Title
     {
-        private string title = "New chat";
-        private string lastPreview = "No messages yet.";
-        private DateTime lastUpdatedAt = DateTime.Now;
-        private bool isEscalatedToTeam;
-        private string teamContactMessage = string.Empty;
-        private SelectedAttachment? attachment;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        public int IdentificationNumber { get; set; }
-
-        public string IssueCategory { get; set; } = string.Empty;
-
-        public string SessionStatus { get; set; } = string.Empty;
-
-        public DateTime StartedAt { get; set; }
-
-        public ObservableCollection<ChatMessage> Messages { get; set; } = [];
-
-        public string Title
+        get => this.title;
+        set
         {
-            get => title;
-            set
+            if (this.title != value)
             {
-                if (title != value)
-                {
-                    title = value;
-                    OnPropertyChanged();
-                }
+                this.title = value;
+                this.OnPropertyChanged();
             }
         }
+    }
 
-        public string LastPreview
+    public string LastPreview
+    {
+        get => this.lastPreview;
+        set
         {
-            get => lastPreview;
-            set
+            if (this.lastPreview != value)
             {
-                if (lastPreview != value)
-                {
-                    lastPreview = value;
-                    OnPropertyChanged();
-                }
+                this.lastPreview = value;
+                this.OnPropertyChanged();
             }
         }
+    }
 
-        public DateTime LastUpdatedAt
+    public DateTime LastUpdatedAt
+    {
+        get => this.lastUpdatedAt;
+        set
         {
-            get => lastUpdatedAt;
-            set
+            if (this.lastUpdatedAt != value)
             {
-                if (lastUpdatedAt != value)
-                {
-                    lastUpdatedAt = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(LastUpdatedDisplay));
-                }
+                this.lastUpdatedAt = value;
+                this.OnPropertyChanged();
+                this.OnPropertyChanged(nameof(this.LastUpdatedDisplay));
             }
         }
+    }
 
-        public string LastUpdatedDisplay => LastUpdatedAt.ToString("g");
+    public string LastUpdatedDisplay => this.LastUpdatedAt.ToString("g");
 
-        public bool IsEscalatedToTeam
+    public bool IsEscalatedToTeam
+    {
+        get => this.isEscalatedToTeam;
+        set
         {
-            get => isEscalatedToTeam;
-            set
+            if (this.isEscalatedToTeam != value)
             {
-                if (isEscalatedToTeam != value)
-                {
-                    isEscalatedToTeam = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(SessionModeLabel));
-                }
+                this.isEscalatedToTeam = value;
+                this.OnPropertyChanged();
+                this.OnPropertyChanged(nameof(this.SessionModeLabel));
             }
         }
+    }
 
-        public string SessionModeLabel => IsEscalatedToTeam ? "Team contact" : "Chatbot assistance";
+    public string SessionModeLabel => this.IsEscalatedToTeam ? "Team contact" : "Chatbot assistance";
 
-        public string TeamContactMessage
+    public string TeamContactMessage
+    {
+        get => this.teamContactMessage;
+        set
         {
-            get => teamContactMessage;
-            set
+            if (this.teamContactMessage != value)
             {
-                if (teamContactMessage != value)
-                {
-                    teamContactMessage = value;
-                    OnPropertyChanged();
-                }
+                this.teamContactMessage = value;
+                this.OnPropertyChanged();
             }
         }
+    }
 
-        public SelectedAttachment? Attachment
+    public SelectedAttachment? Attachment
+    {
+        get => this.attachment;
+        set
         {
-            get => attachment;
-            set
+            if (this.attachment != value)
             {
-                if (attachment != value)
-                {
-                    attachment = value;
-                    OnPropertyChanged();
-                }
+                this.attachment = value;
+                this.OnPropertyChanged();
             }
         }
+    }
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

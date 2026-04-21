@@ -1,12 +1,11 @@
-﻿namespace KarmaBanking.App.Models
+﻿namespace KarmaBanking.App.Models;
+
+public enum IssueCategory
 {
-    public enum IssueCategory
-    {
-        Account,
-        Cards,
-        Transfers,
-        Loans,
-        TechnicalIssue,
-        Other
-    }
+    Account,
+    Cards,
+    Transfers,
+    Loans,
+    TechnicalIssue,
+    Other
 }

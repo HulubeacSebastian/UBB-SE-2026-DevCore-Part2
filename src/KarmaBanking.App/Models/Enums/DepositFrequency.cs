@@ -1,9 +1,8 @@
-namespace KarmaBanking.App.Models.Enums
+namespace KarmaBanking.App.Models.Enums;
+
+public enum DepositFrequency
 {
-    public enum DepositFrequency
-    {
-        Daily,
-        Weekly,
-        Monthly
-    }
+    Daily,
+    Weekly,
+    Monthly
 }

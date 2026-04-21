@@ -1,23 +1,22 @@
-﻿using Microsoft.UI.Xaml;
+﻿namespace KarmaBanking.App;
 
-namespace KarmaBanking.App
+using Microsoft.UI.Xaml;
+
+public partial class App : Application
 {
-    public partial class App : Application
+    private Window? _window;
+
+    public App()
     {
-        private Window? _window;
+        this.InitializeComponent();
+    }
 
-        public static Window MainAppWindow { get; private set; } = null!;
+    public static Window MainAppWindow { get; private set; } = null!;
 
-        public App()
-        {
-            InitializeComponent();
-        }
-
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
-        {
-            _window = new MainWindow();
-            MainAppWindow = _window;
-            _window.Activate();
-        }
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        this._window = new MainWindow();
+        MainAppWindow = this._window;
+        this._window.Activate();
     }
 }

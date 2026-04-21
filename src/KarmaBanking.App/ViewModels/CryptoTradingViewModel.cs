@@ -1,220 +1,206 @@
-﻿namespace KarmaBanking.App.ViewModels
+﻿namespace KarmaBanking.App.ViewModels;
+
+using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using KarmaBanking.App.Services;
+using KarmaBanking.App.Services.Interfaces;
+using KarmaBanking.App.Utils;
+
+public class CryptoTradingViewModel : INotifyPropertyChanged
 {
-    using System;
-    using System.ComponentModel;
-    using System.Runtime.CompilerServices;
-    using System.Threading.Tasks;
-    using KarmaBanking.App.Models;
-    using KarmaBanking.App.Services.Interfaces;
-    using KarmaBanking.App.Utils;
+    private readonly IInvestmentService investmentService;
+    private readonly CryptoTradeCalculationService tradeCalculationService;
 
-    public class CryptoTradingViewModel : INotifyPropertyChanged
+    private decimal currentWalletBalance;
+    private decimal estimatedTransactionFee;
+    private bool isSubmitting;
+    private string quantityText = string.Empty;
+    private string selectedActionType = "BUY";
+
+    private string selectedTicker = "BTC";
+    private string statusMessage = string.Empty;
+    private decimal totalTransactionAmount;
+
+    public CryptoTradingViewModel(IInvestmentService investmentService)
     {
-        private readonly IInvestmentService investmentService;
+        this.investmentService = investmentService;
+        this.tradeCalculationService = new CryptoTradeCalculationService();
+        this.SubmitTradeCommand = new RelayCommand(async () => await this.ExecuteTradeAsync(), this.CanExecuteTrade);
+        this.LoadWalletBalance();
+    }
 
-        private string selectedTicker = "BTC";
-        private string selectedActionType = "BUY";
-        private string quantityText = string.Empty;
-        private string statusMessage = string.Empty;
-        private bool isSubmitting;
+    public RelayCommand SubmitTradeCommand { get; }
 
-        private decimal currentWalletBalance;
-        private decimal estimatedTransactionFee;
-        private decimal totalTransactionAmount;
-
-        public CryptoTradingViewModel(IInvestmentService investmentService)
+    public string SelectedTicker
+    {
+        get => this.selectedTicker;
+        set
         {
-            this.investmentService = investmentService;
-            SubmitTradeCommand = new RelayCommand(async () => await ExecuteTradeAsync(), CanExecuteTrade);
-            LoadWalletBalance();
+            this.selectedTicker = value;
+            this.OnPropertyChanged();
+            this.UpdateCalculations();
+            this.SubmitTradeCommand.RaiseCanExecuteChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        public RelayCommand SubmitTradeCommand { get; }
-
-        public string SelectedTicker
+    public string ActionType
+    {
+        get => this.selectedActionType;
+        set
         {
-            get => selectedTicker;
-            set
-            {
-                selectedTicker = value;
-                OnPropertyChanged();
-                UpdateCalculations();
-                SubmitTradeCommand.RaiseCanExecuteChanged();
-            }
+            this.selectedActionType = value;
+            this.OnPropertyChanged();
+            this.UpdateCalculations();
         }
+    }
 
-        public string ActionType
+    public string QuantityText
+    {
+        get => this.quantityText;
+        set
         {
-            get => selectedActionType;
-            set
-            {
-                selectedActionType = value;
-                OnPropertyChanged();
-                UpdateCalculations();
-            }
+            this.quantityText = value;
+            this.OnPropertyChanged();
+            this.UpdateCalculations();
+            this.SubmitTradeCommand.RaiseCanExecuteChanged();
         }
+    }
 
-        public string QuantityText
+    public string StatusMessage
+    {
+        get => this.statusMessage;
+        set
         {
-            get => quantityText;
-            set
-            {
-                quantityText = value;
-                OnPropertyChanged();
-                UpdateCalculations();
-                SubmitTradeCommand.RaiseCanExecuteChanged();
-            }
+            this.statusMessage = value;
+            this.OnPropertyChanged();
         }
+    }
 
-        public string StatusMessage
+    public bool IsSubmitting
+    {
+        get => this.isSubmitting;
+        set
         {
-            get => statusMessage;
-            set
-            {
-                statusMessage = value;
-                OnPropertyChanged();
-            }
+            this.isSubmitting = value;
+            this.OnPropertyChanged();
+            this.SubmitTradeCommand.RaiseCanExecuteChanged();
         }
+    }
 
-        public bool IsSubmitting
+    public decimal CurrentBalance
+    {
+        get => this.currentWalletBalance;
+        set
         {
-            get => isSubmitting;
-            set
-            {
-                isSubmitting = value;
-                OnPropertyChanged();
-                SubmitTradeCommand.RaiseCanExecuteChanged();
-            }
+            this.currentWalletBalance = value;
+            this.OnPropertyChanged();
         }
+    }
 
-        public decimal CurrentBalance
+    public decimal EstimatedFee
+    {
+        get => this.estimatedTransactionFee;
+        set
         {
-            get => currentWalletBalance;
-            set
-            {
-                currentWalletBalance = value;
-                OnPropertyChanged();
-            }
+            this.estimatedTransactionFee = value;
+            this.OnPropertyChanged();
         }
+    }
 
-        public decimal EstimatedFee
+    public decimal TotalAmount
+    {
+        get => this.totalTransactionAmount;
+        set
         {
-            get => estimatedTransactionFee;
-            set
-            {
-                estimatedTransactionFee = value;
-                OnPropertyChanged();
-            }
+            this.totalTransactionAmount = value;
+            this.OnPropertyChanged();
         }
+    }
 
-        public decimal TotalAmount
-        {
-            get => totalTransactionAmount;
-            set
-            {
-                totalTransactionAmount = value;
-                OnPropertyChanged();
-            }
-        }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-        private void LoadWalletBalance()
+    private void LoadWalletBalance()
+    {
+        try
         {
-            try
+            // Folosim identificatorul hardcodat 1 pentru flow-ul actual al proiectului
+            var userPortfolio = this.investmentService.GetPortfolio(1);
+            if (userPortfolio != null)
             {
-                // Folosim identificatorul hardcodat 1 pentru flow-ul actual al proiectului
-                Portfolio userPortfolio = investmentService.GetPortfolio(1);
-                if (userPortfolio != null)
-                {
-                    CurrentBalance = userPortfolio.TotalValue;
-                }
-            }
-            catch (Exception exception)
-            {
-                StatusMessage = $"Failed to sync wallet balance: {exception.Message}";
+                this.CurrentBalance = userPortfolio.TotalValue;
             }
         }
-
-        private void UpdateCalculations()
+        catch (Exception exception)
         {
-            if (string.IsNullOrWhiteSpace(QuantityText) || !decimal.TryParse(QuantityText, out decimal quantity) || quantity <= 0)
-            {
-                EstimatedFee = 0;
-                TotalAmount = 0;
-                return;
-            }
+            this.StatusMessage = $"Failed to sync wallet balance: {exception.Message}";
+        }
+    }
 
-            // Simulam pretul curent (intr-un scenariu real, acesta vine dintr-un serviciu de Market Data)
-            decimal currentMarketPrice = SelectedTicker == "BTC" ? 65000m : 3000m;
-            decimal tradeValue = quantity * currentMarketPrice;
-
-            // Logica de calcul a comisionului (1.5% cu minim 0.50$)
-            decimal calculatedFee = Math.Round(tradeValue * 0.015m, 2);
-            EstimatedFee = calculatedFee < 0.50m ? 0.50m : calculatedFee;
-
-            if (ActionType == "BUY")
-            {
-                TotalAmount = tradeValue + EstimatedFee;
-            }
-            else
-            {
-                TotalAmount = tradeValue - EstimatedFee;
-            }
+    private void UpdateCalculations()
+    {
+        if (!this.tradeCalculationService.TryParsePositiveQuantity(this.QuantityText, out var quantity))
+        {
+            this.EstimatedFee = 0;
+            this.TotalAmount = 0;
+            return;
         }
 
-        private bool CanExecuteTrade()
+        var (estimatedFee, totalAmount) =
+            this.tradeCalculationService.CalculateTradePreview(this.SelectedTicker, this.ActionType, quantity);
+        this.EstimatedFee = estimatedFee;
+        this.TotalAmount = totalAmount;
+    }
+
+    private bool CanExecuteTrade()
+    {
+        return this.tradeCalculationService.CanExecuteTrade(
+            this.IsSubmitting,
+            this.QuantityText,
+            this.ActionType,
+            this.TotalAmount,
+            this.CurrentBalance);
+    }
+
+    private async Task ExecuteTradeAsync()
+    {
+        if (!this.tradeCalculationService.TryParsePositiveQuantity(this.QuantityText, out var quantity))
         {
-            bool hasValidQuantity = decimal.TryParse(QuantityText, out decimal quantity) && quantity > 0;
-
-            if (IsSubmitting || !hasValidQuantity)
-            {
-                return false;
-            }
-
-            // Validare de baza pentru fonduri insuficiente la cumparare
-            if (ActionType == "BUY" && TotalAmount > CurrentBalance)
-            {
-                return false;
-            }
-
-            return true;
+            return;
         }
 
-        private async Task ExecuteTradeAsync()
+        this.IsSubmitting = true;
+        this.StatusMessage = "Executing trade...";
+
+        try
         {
-            if (!decimal.TryParse(QuantityText, out decimal quantity))
-            {
-                return;
-            }
+            var mockPrice = this.tradeCalculationService.GetMockMarketPrice(this.SelectedTicker);
 
-            IsSubmitting = true;
-            StatusMessage = "Executing trade...";
+            await this.investmentService.ExecuteCryptoTradeAsync(
+                1,
+                this.SelectedTicker,
+                this.ActionType,
+                quantity,
+                mockPrice);
 
-            try
-            {
-                decimal mockPrice = SelectedTicker == "BTC" ? 65000m : 3000m;
+            this.StatusMessage = $"Successfully executed {this.ActionType} for {quantity} {this.SelectedTicker}.";
+            this.QuantityText = string.Empty;
 
-                await investmentService.ExecuteCryptoTradeAsync(1, SelectedTicker, ActionType, quantity, mockPrice);
-
-                StatusMessage = $"Successfully executed {ActionType} for {quantity} {SelectedTicker}.";
-                QuantityText = string.Empty;
-
-                LoadWalletBalance();
-            }
-            catch (Exception exception)
-            {
-                StatusMessage = $"Error: {exception.Message}";
-            }
-            finally
-            {
-                IsSubmitting = false;
-            }
+            this.LoadWalletBalance();
         }
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        catch (Exception exception)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            this.StatusMessage = $"Error: {exception.Message}";
         }
+        finally
+        {
+            this.IsSubmitting = false;
+        }
+    }
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -1,50 +1,49 @@
-namespace KarmaBanking.App.Models
+namespace KarmaBanking.App.Models;
+
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+public class InvestmentHolding : INotifyPropertyChanged
 {
-    using System.ComponentModel;
-    using System.Runtime.CompilerServices;
+    private decimal currentPrice;
+    private decimal unrealizedGainLoss;
 
-    public class InvestmentHolding : INotifyPropertyChanged
+    public int IdentificationNumber { get; set; }
+
+    public int PortfolioIdentificationNumber { get; set; }
+
+    public string Ticker { get; set; } = string.Empty;
+
+    public string AssetType { get; set; } = string.Empty;
+
+    public decimal Quantity { get; set; }
+
+    public decimal AveragePurchasePrice { get; set; }
+
+    public decimal CurrentPrice
     {
-        private decimal currentPrice;
-        private decimal unrealizedGainLoss;
-
-        public int IdentificationNumber { get; set; }
-
-        public int PortfolioIdentificationNumber { get; set; }
-
-        public string Ticker { get; set; } = string.Empty;
-
-        public string AssetType { get; set; } = string.Empty;
-
-        public decimal Quantity { get; set; }
-
-        public decimal AveragePurchasePrice { get; set; }
-
-        public decimal CurrentPrice
+        get => this.currentPrice;
+        set
         {
-            get => currentPrice;
-            set
-            {
-                currentPrice = value;
-                OnPropertyChanged();
-            }
+            this.currentPrice = value;
+            this.OnPropertyChanged();
         }
+    }
 
-        public decimal UnrealizedGainLoss
+    public decimal UnrealizedGainLoss
+    {
+        get => this.unrealizedGainLoss;
+        set
         {
-            get => unrealizedGainLoss;
-            set
-            {
-                unrealizedGainLoss = value;
-                OnPropertyChanged();
-            }
+            this.unrealizedGainLoss = value;
+            this.OnPropertyChanged();
         }
+    }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -3,6 +3,5 @@
     Personal,
     Auto,
     Mortgage,
-    Student
-
+    Student,
 }

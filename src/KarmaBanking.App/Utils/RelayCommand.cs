@@ -1,95 +1,94 @@
+namespace KarmaBanking.App.Utils;
+
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace KarmaBanking.App.Utils
+public class RelayCommand : ICommand
 {
-    public class RelayCommand : ICommand
+    private readonly Func<bool>? canExecute;
+    private readonly Func<Task> executeAsync;
+    private bool isExecuting;
+
+    public RelayCommand(Func<Task> executeAsync, Func<bool>? canExecute = null)
     {
-        private readonly Func<Task> executeAsync;
-        private readonly Func<bool>? canExecute;
-        private bool isExecuting;
+        this.executeAsync = executeAsync;
+        this.canExecute = canExecute;
+    }
 
-        public RelayCommand(Func<Task> executeAsync, Func<bool>? canExecute = null)
+    public event EventHandler? CanExecuteChanged;
+
+    public bool CanExecute(object? parameter)
+    {
+        return !this.isExecuting && (this.canExecute == null || this.canExecute());
+    }
+
+    public async void Execute(object? parameter)
+    {
+        this.isExecuting = true;
+        this.RaiseCanExecuteChanged();
+        try
         {
-            this.executeAsync = executeAsync;
-            this.canExecute = canExecute;
+            await this.executeAsync();
         }
-
-        public event EventHandler? CanExecuteChanged;
-
-        public bool CanExecute(object? parameter)
+        finally
         {
-            return !isExecuting && (canExecute == null || canExecute());
-        }
-
-        public async void Execute(object? parameter)
-        {
-            isExecuting = true;
-            RaiseCanExecuteChanged();
-            try
-            {
-                await executeAsync();
-            }
-            finally
-            {
-                isExecuting = false;
-                RaiseCanExecuteChanged();
-            }
-        }
-
-        public void RaiseCanExecuteChanged()
-        {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            this.isExecuting = false;
+            this.RaiseCanExecuteChanged();
         }
     }
 
-    public class RelayCommand<T> : ICommand
+    public void RaiseCanExecuteChanged()
     {
-        private readonly Action<T?> execute;
-        private readonly Func<T?, bool>? canExecute;
+        this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    }
+}
 
-        public RelayCommand(Action<T?> execute, Func<T?, bool>? canExecute = null)
+public class RelayCommand<T> : ICommand
+{
+    private readonly Func<T?, bool>? canExecute;
+    private readonly Action<T?> execute;
+
+    public RelayCommand(Action<T?> execute, Func<T?, bool>? canExecute = null)
+    {
+        this.execute = execute;
+        this.canExecute = canExecute;
+    }
+
+    public event EventHandler? CanExecuteChanged;
+
+    public bool CanExecute(object? parameter)
+    {
+        if (this.canExecute == null)
         {
-            this.execute = execute;
-            this.canExecute = canExecute;
+            return true;
         }
 
-        public event EventHandler? CanExecuteChanged;
+        return this.canExecute(ConvertParameter(parameter));
+    }
 
-        public bool CanExecute(object? parameter)
+    public void Execute(object? parameter)
+    {
+        this.execute(ConvertParameter(parameter));
+    }
+
+    public void RaiseCanExecuteChanged()
+    {
+        this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private static T? ConvertParameter(object? parameter)
+    {
+        if (parameter == null)
         {
-            if (canExecute == null)
-            {
-                return true;
-            }
-
-            return canExecute(ConvertParameter(parameter));
+            return default;
         }
 
-        public void Execute(object? parameter)
+        if (parameter is T value)
         {
-            execute(ConvertParameter(parameter));
+            return value;
         }
 
-        public void RaiseCanExecuteChanged()
-        {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        private static T? ConvertParameter(object? parameter)
-        {
-            if (parameter == null)
-            {
-                return default;
-            }
-
-            if (parameter is T value)
-            {
-                return value;
-            }
-
-            return (T?)Convert.ChangeType(parameter, typeof(T));
-        }
+        return (T?)Convert.ChangeType(parameter, typeof(T));
     }
 }

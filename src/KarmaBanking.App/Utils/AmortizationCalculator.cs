@@ -1,12 +1,12 @@
-using KarmaBanking.App.Models;
 using System;
 using System.Collections.Generic;
+using KarmaBanking.App.Models;
 
 public class AmortizationCalculator
 {
     public LoanEstimate computeEstimate(decimal amount, decimal annualRate, int termMonths)
     {
-        decimal monthlyRate = annualRate / 12m / 100m;
+        var monthlyRate = annualRate / 12m / 100m;
         decimal monthlyInstallment;
 
         if (monthlyRate == 0)
@@ -15,12 +15,12 @@ public class AmortizationCalculator
         }
         else
         {
-            monthlyInstallment = amount * (monthlyRate * (decimal)Math.Pow(1 + (double)monthlyRate, termMonths)) /
+            monthlyInstallment = amount * monthlyRate * (decimal)Math.Pow(1 + (double)monthlyRate, termMonths) /
                                  ((decimal)Math.Pow(1 + (double)monthlyRate, termMonths) - 1);
         }
 
         monthlyInstallment = Math.Round(monthlyInstallment, 2);
-        decimal totalRepayable = Math.Round(monthlyInstallment * termMonths, 2);
+        var totalRepayable = Math.Round(monthlyInstallment * termMonths, 2);
 
         return new LoanEstimate
         {
@@ -34,13 +34,13 @@ public class AmortizationCalculator
     {
         var rows = new List<AmortizationRow>();
 
-        decimal principal = loan.Principal;
-        decimal annualRate = loan.InterestRate;
-        int termInMonths = loan.TermInMonths;
-        DateTime startDate = loan.StartDate;
+        var principal = loan.Principal;
+        var annualRate = loan.InterestRate;
+        var termInMonths = loan.TermInMonths;
+        var startDate = loan.StartDate;
 
-        decimal monthlyRate = annualRate / 12m / 100m;
-        decimal remainingBalance = principal;
+        var monthlyRate = annualRate / 12m / 100m;
+        var remainingBalance = principal;
         decimal monthlyInstallment;
 
         if (monthlyRate == 0)
@@ -49,19 +49,20 @@ public class AmortizationCalculator
         }
         else
         {
-            monthlyInstallment = remainingBalance * (monthlyRate * (decimal)Math.Pow(1 + (double)monthlyRate, termInMonths)) /
+            monthlyInstallment = remainingBalance * monthlyRate *
+                                 (decimal)Math.Pow(1 + (double)monthlyRate, termInMonths) /
                                  ((decimal)Math.Pow(1 + (double)monthlyRate, termInMonths) - 1);
         }
 
         monthlyInstallment = Math.Round(monthlyInstallment, 2);
 
-        bool isCurrentMarked = false;
+        var isCurrentMarked = false;
 
-        for (int i = 1; i <= termInMonths; i++)
+        for (var i = 1; i <= termInMonths; i++)
         {
-            DateTime dueDate = startDate.AddMonths(i);
-            decimal interestPortion = Math.Round(remainingBalance * monthlyRate, 2);
-            decimal principalPortion = monthlyInstallment - interestPortion;
+            var dueDate = startDate.AddMonths(i);
+            var interestPortion = Math.Round(remainingBalance * monthlyRate, 2);
+            var principalPortion = monthlyInstallment - interestPortion;
 
             if (i == termInMonths)
             {
@@ -112,6 +113,6 @@ public class AmortizationCalculator
             return 0;
         }
 
-        return ((principal - outstandingBalance) / principal) * 100;
+        return (principal - outstandingBalance) / principal * 100;
     }
 }

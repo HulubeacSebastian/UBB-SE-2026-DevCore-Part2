@@ -15,5 +15,4 @@
     public LoanApplicationStatus ApplicationStatus { get; set; }
 
     public string? RejectionReason { get; set; }
-
 }

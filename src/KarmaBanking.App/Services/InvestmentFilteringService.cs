@@ -1,51 +1,50 @@
-namespace KarmaBanking.App.Services
+namespace KarmaBanking.App.Services;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using KarmaBanking.App.Models;
+
+public class InvestmentFilteringService
 {
-    using KarmaBanking.App.Models;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    public class InvestmentFilteringService
+    public IEnumerable<InvestmentHolding> FilterHoldingsByAssetType(
+        IEnumerable<InvestmentHolding> holdings,
+        string filterType)
     {
-        public IEnumerable<InvestmentHolding> FilterHoldingsByAssetType(
-            IEnumerable<InvestmentHolding> holdings,
-            string filterType)
+        if (holdings == null)
         {
-            if (holdings == null)
-            {
-                return Enumerable.Empty<InvestmentHolding>();
-            }
-
-            return holdings.Where(holding => MatchesFilter(holding, filterType));
+            return Enumerable.Empty<InvestmentHolding>();
         }
 
-        private bool MatchesFilter(InvestmentHolding holding, string filterType)
+        return holdings.Where(holding => this.MatchesFilter(holding, filterType));
+    }
+
+    private bool MatchesFilter(InvestmentHolding holding, string filterType)
+    {
+        if (holding == null)
         {
-            if (holding == null)
-            {
-                return false;
-            }
-
-            string assetType = holding.AssetType?.Trim() ?? string.Empty;
-
-            return filterType switch
-            {
-                "Stocks" => assetType.Equals("Stock", StringComparison.OrdinalIgnoreCase)
-                    || assetType.Equals("Stocks", StringComparison.OrdinalIgnoreCase),
-                "ETFs" => assetType.Equals("ETF", StringComparison.OrdinalIgnoreCase)
-                    || assetType.Equals("ETFs", StringComparison.OrdinalIgnoreCase),
-                "Bonds" => assetType.Equals("Bond", StringComparison.OrdinalIgnoreCase)
-                    || assetType.Equals("Bonds", StringComparison.OrdinalIgnoreCase),
-                "Crypto" => assetType.Equals("Crypto", StringComparison.OrdinalIgnoreCase),
-                "Other" => !assetType.Equals("Stock", StringComparison.OrdinalIgnoreCase)
-                    && !assetType.Equals("Stocks", StringComparison.OrdinalIgnoreCase)
-                    && !assetType.Equals("ETF", StringComparison.OrdinalIgnoreCase)
-                    && !assetType.Equals("ETFs", StringComparison.OrdinalIgnoreCase)
-                    && !assetType.Equals("Bond", StringComparison.OrdinalIgnoreCase)
-                    && !assetType.Equals("Bonds", StringComparison.OrdinalIgnoreCase)
-                    && !assetType.Equals("Crypto", StringComparison.OrdinalIgnoreCase),
-                _ => true,
-            };
+            return false;
         }
+
+        var assetType = holding.AssetType?.Trim() ?? string.Empty;
+
+        return filterType switch
+        {
+            "Stocks" => assetType.Equals("Stock", StringComparison.OrdinalIgnoreCase)
+                        || assetType.Equals("Stocks", StringComparison.OrdinalIgnoreCase),
+            "ETFs" => assetType.Equals("ETF", StringComparison.OrdinalIgnoreCase)
+                      || assetType.Equals("ETFs", StringComparison.OrdinalIgnoreCase),
+            "Bonds" => assetType.Equals("Bond", StringComparison.OrdinalIgnoreCase)
+                       || assetType.Equals("Bonds", StringComparison.OrdinalIgnoreCase),
+            "Crypto" => assetType.Equals("Crypto", StringComparison.OrdinalIgnoreCase),
+            "Other" => !assetType.Equals("Stock", StringComparison.OrdinalIgnoreCase)
+                       && !assetType.Equals("Stocks", StringComparison.OrdinalIgnoreCase)
+                       && !assetType.Equals("ETF", StringComparison.OrdinalIgnoreCase)
+                       && !assetType.Equals("ETFs", StringComparison.OrdinalIgnoreCase)
+                       && !assetType.Equals("Bond", StringComparison.OrdinalIgnoreCase)
+                       && !assetType.Equals("Bonds", StringComparison.OrdinalIgnoreCase)
+                       && !assetType.Equals("Crypto", StringComparison.OrdinalIgnoreCase),
+            _ => true
+        };
     }
 }

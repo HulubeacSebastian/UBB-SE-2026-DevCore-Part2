@@ -1,86 +1,86 @@
-namespace KarmaBanking.App.Services
+namespace KarmaBanking.App.Services;
+
+using System;
+using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+
+public class DialogService
 {
-    using Microsoft.UI.Xaml;
-    using Microsoft.UI.Xaml.Controls;
-    using System.Threading.Tasks;
-
-    public class DialogService
+    public async Task<ContentDialogResult> ShowConfirmDialogAsync(
+        string title,
+        string message,
+        string primaryButtonText,
+        string closeButtonText,
+        XamlRoot xamlRoot)
     {
-        public async Task<ContentDialogResult> ShowConfirmDialogAsync(
-            string title,
-            string message,
-            string primaryButtonText,
-            string closeButtonText,
-            XamlRoot xamlRoot)
+        var dialog = new ContentDialog
         {
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = message,
-                PrimaryButtonText = primaryButtonText,
-                CloseButtonText = closeButtonText,
-                XamlRoot = xamlRoot,
-            };
+            Title = title,
+            Content = message,
+            PrimaryButtonText = primaryButtonText,
+            CloseButtonText = closeButtonText,
+            XamlRoot = xamlRoot
+        };
 
-            var result = await System.WindowsRuntimeSystemExtensions.AsTask(dialog.ShowAsync());
-            return result;
-        }
+        var result = await WindowsRuntimeSystemExtensions.AsTask(dialog.ShowAsync());
+        return result;
+    }
 
-        public async Task ShowErrorDialogAsync(
-            string title,
-            string message,
-            XamlRoot xamlRoot)
+    public async Task ShowErrorDialogAsync(
+        string title,
+        string message,
+        XamlRoot xamlRoot)
+    {
+        var dialog = new ContentDialog
         {
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = message,
-                CloseButtonText = "OK",
-                XamlRoot = xamlRoot,
-            };
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = xamlRoot
+        };
 
-            await System.WindowsRuntimeSystemExtensions.AsTask(dialog.ShowAsync());
-        }
+        await WindowsRuntimeSystemExtensions.AsTask(dialog.ShowAsync());
+    }
 
-        public async Task<(ContentDialogResult Result, string InputText)> ShowInputDialogAsync(
-            string title,
-            string placeholder,
-            string primaryButtonText,
-            string closeButtonText,
-            XamlRoot xamlRoot)
+    public async Task<(ContentDialogResult Result, string InputText)> ShowInputDialogAsync(
+        string title,
+        string placeholder,
+        string primaryButtonText,
+        string closeButtonText,
+        XamlRoot xamlRoot)
+    {
+        var inputTextBox = new TextBox
         {
-            var inputTextBox = new TextBox
-            {
-                PlaceholderText = placeholder,
-            };
+            PlaceholderText = placeholder
+        };
 
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = inputTextBox,
-                PrimaryButtonText = primaryButtonText,
-                CloseButtonText = closeButtonText,
-                XamlRoot = xamlRoot,
-            };
-
-            var result = await System.WindowsRuntimeSystemExtensions.AsTask(dialog.ShowAsync());
-            return (result, inputTextBox.Text);
-        }
-
-        public async Task ShowInfoDialogAsync(
-            string title,
-            string message,
-            XamlRoot xamlRoot)
+        var dialog = new ContentDialog
         {
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = message,
-                CloseButtonText = "OK",
-                XamlRoot = xamlRoot,
-            };
+            Title = title,
+            Content = inputTextBox,
+            PrimaryButtonText = primaryButtonText,
+            CloseButtonText = closeButtonText,
+            XamlRoot = xamlRoot
+        };
 
-            await System.WindowsRuntimeSystemExtensions.AsTask(dialog.ShowAsync());
-        }
+        var result = await WindowsRuntimeSystemExtensions.AsTask(dialog.ShowAsync());
+        return (result, inputTextBox.Text);
+    }
+
+    public async Task ShowInfoDialogAsync(
+        string title,
+        string message,
+        XamlRoot xamlRoot)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = xamlRoot
+        };
+
+        await WindowsRuntimeSystemExtensions.AsTask(dialog.ShowAsync());
     }
 }

@@ -2,5 +2,4 @@
 {
     Active,
     Passed
-
 }
