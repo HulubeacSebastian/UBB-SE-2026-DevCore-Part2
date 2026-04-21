@@ -4,9 +4,18 @@
 
 namespace KarmaBanking.App.Models;
 
+/// <summary>
+/// Represents a selectable funding source for savings operations.
+/// </summary>
 public class FundingSourceOption
 {
+    /// <summary>
+    /// Gets or sets the option identifier.
+    /// </summary>
     public int Id { get; set; }
 
+    /// <summary>
+    /// Gets or sets the display label shown to users.
+    /// </summary>
     public string DisplayName { get; set; } = string.Empty;
 }

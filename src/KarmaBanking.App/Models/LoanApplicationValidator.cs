@@ -4,8 +4,15 @@
 
 using System;
 
+/// <summary>
+/// Provides validation rules for incoming loan application requests.
+/// </summary>
 public class LoanApplicationValidator
 {
+    /// <summary>
+    /// Validates a loan application request and throws when invalid.
+    /// </summary>
+    /// <param name="request">The request to validate.</param>
     public void Validate(LoanApplicationRequest request)
     {
         if (request == null)

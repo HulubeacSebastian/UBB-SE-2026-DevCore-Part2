@@ -2,10 +2,10 @@
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
+namespace KarmaBanking.App.Utils;
+
 using System;
 using Microsoft.UI.Xaml.Data;
-
-namespace KarmaBanking.App.Utils;
 
 public class FilterMatchToBooleanConverter : IValueConverter
 {

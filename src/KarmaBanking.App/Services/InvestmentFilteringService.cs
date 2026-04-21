@@ -48,7 +48,7 @@ public class InvestmentFilteringService
                        && !assetType.Equals("Bond", StringComparison.OrdinalIgnoreCase)
                        && !assetType.Equals("Bonds", StringComparison.OrdinalIgnoreCase)
                        && !assetType.Equals("Crypto", StringComparison.OrdinalIgnoreCase),
-            _ => true
+            _ => true,
         };
     }
 }

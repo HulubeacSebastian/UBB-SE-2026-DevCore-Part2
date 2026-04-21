@@ -24,5 +24,5 @@ public enum AccountStatus
     /// <summary>
     ///     Represents a matured savings account that has reached its maturity date and can no longer accrue interest.
     /// </summary>
-    Matured
+    Matured,
 }

@@ -13,6 +13,9 @@ using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
 
+/// <summary>
+/// SQL-backed investment repository implementation.
+/// </summary>
 public class InvestmentRepository : IInvestmentRepository
 {
     private const string ActionTypeBuy = "BUY";
@@ -20,6 +23,16 @@ public class InvestmentRepository : IInvestmentRepository
     private const string AssetTypeCrypto = "Crypto";
     private const string OrderTypeMarket = "Market";
 
+    /// <summary>
+    /// Records a crypto trade and updates the affected holding in a transaction.
+    /// </summary>
+    /// <param name="portfolioIdentificationNumber">The portfolio identifier.</param>
+    /// <param name="ticker">The traded symbol.</param>
+    /// <param name="actionType">The action type (buy or sell).</param>
+    /// <param name="quantity">The traded quantity.</param>
+    /// <param name="pricePerUnit">The execution price per unit.</param>
+    /// <param name="fees">The trade fees.</param>
+    /// <returns>A task that completes when all records are persisted.</returns>
     public async Task RecordCryptoTradeAsync(
         int portfolioIdentificationNumber,
         string ticker,
@@ -137,6 +150,11 @@ public class InvestmentRepository : IInvestmentRepository
         }
     }
 
+    /// <summary>
+    /// Gets a user's portfolio and current holdings.
+    /// </summary>
+    /// <param name="userIdentificationNumber">The user identifier.</param>
+    /// <returns>The user's portfolio snapshot.</returns>
     public Portfolio GetPortfolio(int userIdentificationNumber)
     {
         const string selectPortfolioSqlQuery = @"
@@ -152,7 +170,7 @@ public class InvestmentRepository : IInvestmentRepository
 
         var userPortfolio = new Portfolio
         {
-            UserIdentificationNumber = userIdentificationNumber
+            UserIdentificationNumber = userIdentificationNumber,
         };
 
         using var sqlConnection = new SqlConnection(DatabaseConfig.DatabaseConnectionString);
@@ -192,13 +210,21 @@ public class InvestmentRepository : IInvestmentRepository
                     Quantity = holdingsDataReader.GetDecimal(3),
                     AveragePurchasePrice = holdingsDataReader.GetDecimal(4),
                     CurrentPrice = holdingsDataReader.GetDecimal(5),
-                    UnrealizedGainLoss = holdingsDataReader.GetDecimal(6)
+                    UnrealizedGainLoss = holdingsDataReader.GetDecimal(6),
                 });
         }
 
         return userPortfolio;
     }
 
+    /// <summary>
+    /// Gets investment transaction logs filtered by optional date range and ticker.
+    /// </summary>
+    /// <param name="portfolioIdentificationNumber">The portfolio identifier.</param>
+    /// <param name="startDate">The optional start date filter.</param>
+    /// <param name="endDate">The optional end date filter.</param>
+    /// <param name="ticker">The optional ticker filter.</param>
+    /// <returns>The matching investment transactions ordered descending by execution time.</returns>
     public async Task<List<InvestmentTransaction>> GetInvestmentLogsAsync(
         int portfolioIdentificationNumber,
         DateTime? startDate = null,
@@ -266,7 +292,7 @@ public class InvestmentRepository : IInvestmentRepository
                     PricePerUnit = transactionLogDataReader.GetDecimal(5),
                     Fees = transactionLogDataReader.GetDecimal(6),
                     OrderType = transactionLogDataReader.GetString(7),
-                    ExecutedAt = transactionLogDataReader.GetDateTime(8)
+                    ExecutedAt = transactionLogDataReader.GetDateTime(8),
                 });
         }
 

@@ -66,7 +66,7 @@ public class FileValidationService
                 FileName = file.Name,
                 FilePath = file.Path,
                 FileType = Path.GetExtension(file.Name).ToLowerInvariant(),
-                FileSizeBytes = (long)properties.Size
+                FileSizeBytes = (long)properties.Size,
             };
         }
         catch (Exception ex)

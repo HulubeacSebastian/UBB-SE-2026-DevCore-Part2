@@ -64,7 +64,7 @@ public class SavingsService : ISavingsService
             "FixedDeposit" => FIXED_DEPOSIT_APY,
             "GoalSavings" => GOAL_SAVINGS_APY,
             "HighYield" => HIGH_YIELD_APY,
-            _ => DEFAULT_APY
+            _ => DEFAULT_APY,
         };
 
         return await this.savingsRepository.CreateSavingsAccountAsync(dto, apy);
@@ -247,7 +247,7 @@ public class SavingsService : ISavingsService
         {
             "EarlyWithdrawal" => DECIMAL_EARLY_WITHDRAWAL_PENALTY,
             "EarlyClosure" => DECIMAL_EARLY_CLOSURE_PENALTY,
-            _ => throw new ArgumentException("Invalid penalty case.")
+            _ => throw new ArgumentException("Invalid penalty case."),
         };
     }
 }

@@ -52,7 +52,7 @@ public class MockApiService : ApiService
                 SessionIdentificationNumber = sessionId,
                 SenderType = "USER",
                 Content = "Hi, I need help with my account.",
-                SentAt = DateTime.Now.AddMinutes(-15)
+                SentAt = DateTime.Now.AddMinutes(-15),
             },
             new()
             {
@@ -60,7 +60,7 @@ public class MockApiService : ApiService
                 SessionIdentificationNumber = sessionId,
                 SenderType = "CONSULTANT",
                 Content = "Hello! How can I assist you today?",
-                SentAt = DateTime.Now.AddMinutes(-14)
+                SentAt = DateTime.Now.AddMinutes(-14),
             },
             new()
             {
@@ -68,7 +68,7 @@ public class MockApiService : ApiService
                 SessionIdentificationNumber = sessionId,
                 SenderType = "USER",
                 Content = "I want to check my balance.",
-                SentAt = DateTime.Now.AddMinutes(-10)
+                SentAt = DateTime.Now.AddMinutes(-10),
             },
             new()
             {
@@ -76,7 +76,7 @@ public class MockApiService : ApiService
                 SessionIdentificationNumber = sessionId,
                 SenderType = "CONSULTANT",
                 Content = "Sure! Your current balance is $1,245.50.",
-                SentAt = DateTime.Now.AddMinutes(-8)
+                SentAt = DateTime.Now.AddMinutes(-8),
             },
             new()
             {
@@ -84,7 +84,7 @@ public class MockApiService : ApiService
                 SessionIdentificationNumber = sessionId,
                 SenderType = "USER",
                 Content = "Thanks!",
-                SentAt = DateTime.Now.AddMinutes(-5)
+                SentAt = DateTime.Now.AddMinutes(-5),
             },
             new()
             {
@@ -92,8 +92,8 @@ public class MockApiService : ApiService
                 SessionIdentificationNumber = sessionId,
                 SenderType = "CONSULTANT",
                 Content = "You're welcome! Anything else I can help with?",
-                SentAt = DateTime.Now.AddMinutes(-2)
-            }
+                SentAt = DateTime.Now.AddMinutes(-2),
+            },
         };
 
         return Task.FromResult<List<ChatMessage>?>(messages);

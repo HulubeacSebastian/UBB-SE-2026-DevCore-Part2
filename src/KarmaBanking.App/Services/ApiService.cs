@@ -92,7 +92,7 @@ public class ApiService
         var dto = new
         {
             destinationAccountId,
-            confirmClosure = true
+            confirmClosure = true,
         };
 
         var body = new StringContent(

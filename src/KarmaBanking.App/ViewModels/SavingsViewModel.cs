@@ -136,9 +136,12 @@ public partial class SavingsViewModel : BaseViewModel
     [NotifyPropertyChangedFor(nameof(WithdrawNetAmountText))]
     private string withdrawAmountText = string.Empty;
 
-    [ObservableProperty] private FundingSourceOption? withdrawDestination;
-    [ObservableProperty] private string withdrawResultMessage = string.Empty;
-    [ObservableProperty] private bool withdrawSuccess;
+    [ObservableProperty]
+    private FundingSourceOption? withdrawDestination;
+    [ObservableProperty]
+    private string withdrawResultMessage = string.Empty;
+    [ObservableProperty]
+    private bool withdrawSuccess;
 
     // ── Constructor ──────────────────────────────────────────────────────
     public SavingsViewModel(ISavingsService savingsService)
@@ -325,7 +328,7 @@ public partial class SavingsViewModel : BaseViewModel
             Amount = amount,
             Frequency = freq,
             NextRunDate = this.AutoDepositStartDate?.DateTime ?? DateTime.Now.AddDays(1),
-            IsActive = this.AutoDepositIsActive
+            IsActive = this.AutoDepositIsActive,
         };
 
         await this.savingsService.SaveAutoDepositAsync(autoDeposit);

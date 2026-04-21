@@ -4,9 +4,17 @@
 
 namespace KarmaBanking.App.Models.Enums;
 
+/// <summary>
+/// Defines recurrence intervals for scheduled deposits.
+/// </summary>
 public enum DepositFrequency
 {
+    /// <summary>Execute every day.</summary>
     Daily,
+
+    /// <summary>Execute once per week.</summary>
     Weekly,
-    Monthly
+
+    /// <summary>Execute once per month.</summary>
+    Monthly,
 }

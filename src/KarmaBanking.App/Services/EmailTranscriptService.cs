@@ -56,7 +56,7 @@ public class EmailTranscriptService
         // Note: In a production environment, these credentials would be moved to a secure configuration file
         var mailMessage = new MailMessage
         {
-            From = new MailAddress("noreply@karmabanking.com")
+            From = new MailAddress("noreply@karmabanking.com"),
         };
 
         mailMessage.To.Add(recipientEmailAddress);
