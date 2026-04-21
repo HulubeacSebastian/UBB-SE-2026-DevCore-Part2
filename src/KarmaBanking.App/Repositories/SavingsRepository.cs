@@ -346,7 +346,7 @@ public class SavingsRepository : ISavingsRepository
                 Message = earlyWithdrawalPenalty > 0
                     ? $"Withdrawal successful. Early penalty of {earlyWithdrawalPenalty:C2} applied."
                     : "Withdrawal successful.",
-                ProcessedAt = DateTime.UtcNow
+                ProcessedAt = DateTime.UtcNow,
             };
         }
         catch (Exception exception)
@@ -356,7 +356,7 @@ public class SavingsRepository : ISavingsRepository
             {
                 Success = false,
                 Message = exception.Message,
-                ProcessedAt = DateTime.UtcNow
+                ProcessedAt = DateTime.UtcNow,
             };
         }
     }
@@ -387,7 +387,7 @@ public class SavingsRepository : ISavingsRepository
             Amount = (decimal)reader["amount"],
             Frequency = Enum.Parse<DepositFrequency>(reader["frequency"].ToString()!),
             NextRunDate = (DateTime)reader["nextRunDate"],
-            IsActive = (bool)reader["isActive"]
+            IsActive = (bool)reader["isActive"],
         };
     }
 
@@ -434,7 +434,7 @@ public class SavingsRepository : ISavingsRepository
             new List<FundingSourceOption>
             {
                 new() { Id = 1, DisplayName = "Checking Account ****1234" },
-                new() { Id = 2, DisplayName = "Checking Account ****5678" }
+                new() { Id = 2, DisplayName = "Checking Account ****5678" },
             });
     }
 
@@ -501,7 +501,7 @@ public class SavingsRepository : ISavingsRepository
                     BalanceAfter = (decimal)reader["balanceAfter"],
                     Source = reader["source"].ToString(),
                     Description = reader["description"] as string,
-                    CreatedAt = (DateTime)reader["createdAt"]
+                    CreatedAt = (DateTime)reader["createdAt"],
                 });
         }
 
@@ -524,7 +524,7 @@ public class SavingsRepository : ISavingsRepository
             AccountName = r["accountName"] as string,
             FundingAccountId = r["fundingAccountId"] as int?,
             TargetAmount = r["targetAmount"] as decimal?,
-            TargetDate = r["targetDate"] as DateTime?
+            TargetDate = r["targetDate"] as DateTime?,
         };
     }
 }

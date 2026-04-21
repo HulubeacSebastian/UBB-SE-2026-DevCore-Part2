@@ -35,7 +35,7 @@ public sealed partial class LoansView : Page
         {
             var dialog = new LoanApplicationDialog(this._viewModel)
             {
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
             };
             await dialog.ShowAsync();
         }
@@ -54,7 +54,7 @@ public sealed partial class LoansView : Page
                 this._viewModel.SelectedLoan = loan;
                 var dialog = new PayInstallmentDialog(this._viewModel)
                 {
-                    XamlRoot = this.XamlRoot
+                    XamlRoot = this.XamlRoot,
                 };
                 await dialog.ShowAsync();
             }

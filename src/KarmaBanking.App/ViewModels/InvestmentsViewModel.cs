@@ -20,7 +20,6 @@ using KarmaBanking.App.Utils;
 using Microsoft.UI.Dispatching;
 
 // Ensure this is present
-
 public class InvestmentsViewModel : INotifyPropertyChanged
 {
     private const string RefreshPricesEventName = "refreshPrices";

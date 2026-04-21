@@ -19,7 +19,7 @@ public class AccountStatusToBrushConverter : IValueConverter
             "Active" => new SolidColorBrush(Color.FromArgb(255, 29, 185, 84)), // green
             "Closed" => new SolidColorBrush(Color.FromArgb(255, 229, 57, 53)), // red
             "Matured" => new SolidColorBrush(Color.FromArgb(255, 30, 136, 229)), // blue
-            _ => new SolidColorBrush(Colors.Gray)
+            _ => new SolidColorBrush(Colors.Gray),
         };
     }
 

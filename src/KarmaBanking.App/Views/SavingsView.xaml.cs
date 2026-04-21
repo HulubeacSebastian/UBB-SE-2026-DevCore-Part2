@@ -516,7 +516,7 @@ public sealed partial class SavingsView : Page
             Title = title,
             Content = msg,
             CloseButtonText = "OK",
-            XamlRoot = this.XamlRoot
+            XamlRoot = this.XamlRoot,
         };
         await contentDialog.ShowAsync();
     }

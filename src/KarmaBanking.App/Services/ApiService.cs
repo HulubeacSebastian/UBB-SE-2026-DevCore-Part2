@@ -249,7 +249,7 @@ public class ApiService
             ".png" => "image/png",
             ".jpg" => "image/jpeg",
             ".jpeg" => "image/jpeg",
-            _ => "application/octet-stream"
+            _ => "application/octet-stream",
         };
     }
 
