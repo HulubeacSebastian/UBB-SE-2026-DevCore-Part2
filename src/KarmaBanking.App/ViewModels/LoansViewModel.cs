@@ -17,6 +17,7 @@ public partial class LoansViewModel : ObservableObject
     private readonly ApiService _apiService;
     private readonly AmortizationCalculator _calculator;
     private readonly PdfExporter _pdfExporter;
+    private readonly LoanDialogStateService _loanDialogStateService;
     public IEnumerable<LoanType> LoanTypes => Enum.GetValues<LoanType>();
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
@@ -40,8 +41,8 @@ public partial class LoansViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ApplicationWasApproved))]
     private string applicationResult = string.Empty;
-
-    public bool ApplicationWasApproved => ApplicationResult.Contains("approved", StringComparison.OrdinalIgnoreCase);
+    [ObservableProperty]
+    private bool applicationWasApproved;
     [ObservableProperty] private LoanViewModel selectedLoan;
     [ObservableProperty] private double? customAmount;
 
@@ -73,6 +74,7 @@ public partial class LoansViewModel : ObservableObject
         _apiService = new ApiService(new LoanService(new LoanRepository()));
         _calculator = new AmortizationCalculator();
         _pdfExporter = new PdfExporter();
+        _loanDialogStateService = new LoanDialogStateService();
         _ = LoadLoansAsync();
     }
 
@@ -118,12 +120,14 @@ public partial class LoansViewModel : ObservableObject
             if (rejectionReason == null)
             {
                 ApplicationResult = "Your loan application has been approved!";
+                ApplicationWasApproved = true;
                 await LoadLoansAsync();
                 OnPropertyChanged(nameof(FilteredLoans));
             }
             else
             {
                 ApplicationResult = $"Application rejected: {rejectionReason}";
+                ApplicationWasApproved = false;
             }
         }
         catch (Exception ex)
@@ -240,15 +244,22 @@ public partial class LoansViewModel : ObservableObject
 
         if (!CustomAmount.HasValue)
         {
-            CustomAmount = (double)SelectedLoan.Loan.MonthlyInstallment;
+            decimal initialCustomAmount = _paymentCalculationService.GetInitialCustomAmount(
+                SelectedLoan.Loan.MonthlyInstallment,
+                SelectedLoan.Loan.OutstandingBalance,
+                CustomAmount);
+            CustomAmount = (double)initialCustomAmount;
         }
-
-        if (CustomAmount > (double)SelectedLoan.Loan.OutstandingBalance)
+        else
         {
-            CustomAmount = (double)SelectedLoan.Loan.OutstandingBalance;
+            decimal normalizedCustomAmount = _paymentCalculationService.GetInitialCustomAmount(
+                SelectedLoan.Loan.MonthlyInstallment,
+                SelectedLoan.Loan.OutstandingBalance,
+                CustomAmount);
+            CustomAmount = (double)normalizedCustomAmount;
         }
 
-        string currentText = CustomAmount?.ToString("0.##", System.Globalization.CultureInfo.CurrentCulture) ?? string.Empty;
+        string currentText = _paymentCalculationService.FormatCustomAmount((decimal)(CustomAmount ?? 0d));
         UpdatePaymentPreview(isStandardPayment: false, currentText);
         return currentText;
     }
@@ -325,6 +336,7 @@ public partial class LoansViewModel : ObservableObject
         DialogTitle = "Apply for Loan";
         DialogActionText = "Continue";
         ApplicationResult = string.Empty;
+        ApplicationWasApproved = false;
 
         DesiredAmount = 0;
         PreferredTermMonths = 0;
@@ -340,9 +352,10 @@ public partial class LoansViewModel : ObservableObject
 
     private void TryComputeEstimate()
     {
-        bool isFullyFilled = DesiredAmount > 0 &&
-                             PreferredTermMonths > 0 &&
-                             !string.IsNullOrWhiteSpace(Purpose);
+        bool isFullyFilled = _loanDialogStateService.ShouldComputeEstimate(
+            DesiredAmount,
+            PreferredTermMonths,
+            Purpose);
 
         if (isFullyFilled)
         {

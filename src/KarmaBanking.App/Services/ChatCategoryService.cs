@@ -1,0 +1,32 @@
+using System;
+
+namespace KarmaBanking.App.Services
+{
+    public class ChatCategoryService
+    {
+        public string InferCategory(string question)
+        {
+            if (question.Contains("password", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Account";
+            }
+
+            if (question.Contains("card", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Cards";
+            }
+
+            if (question.Contains("transfer", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Transfers";
+            }
+
+            if (question.Contains("technical", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Technical Issue";
+            }
+
+            return "Other";
+        }
+    }
+}

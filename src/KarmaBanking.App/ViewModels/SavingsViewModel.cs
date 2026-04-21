@@ -197,14 +197,13 @@ namespace KarmaBanking.App.ViewModels
             ErrorMessage = string.Empty;
             AutoDepositSaveMessage = string.Empty;
 
-            if (!decimal.TryParse(AutoDepositAmountText, NumberStyles.Any,
-                    CultureInfo.InvariantCulture, out decimal amount) || amount <= 0)
+            if (!savingsUiRulesService.TryParsePositiveAmount(AutoDepositAmountText, out decimal amount))
             { ErrorMessage = "Auto deposit amount must be positive."; return; }
 
             if (string.IsNullOrWhiteSpace(AutoDepositFrequency))
             { ErrorMessage = "Please select a frequency."; return; }
 
-            if (!Enum.TryParse<DepositFrequency>(AutoDepositFrequency, out var freq))
+            if (!savingsUiRulesService.TryParseDepositFrequency(AutoDepositFrequency, out var freq))
             { ErrorMessage = "Invalid frequency."; return; }
 
             var autoDeposit = new AutoDeposit
@@ -402,7 +401,7 @@ namespace KarmaBanking.App.ViewModels
                     TargetAmount = IsGoalSavings ? TargetAmount : null,
                     TargetDate = IsGoalSavings ? TargetDate?.DateTime : null,
                     MaturityDate = MaturityDate?.DateTime,
-                    DepositFrequency = Enum.TryParse<DepositFrequency>(SelectedFrequency, out var selectedFrequency) ? selectedFrequency : null
+                    DepositFrequency = savingsUiRulesService.TryParseDepositFrequency(SelectedFrequency, out var selectedFrequency) ? selectedFrequency : null
                 };
                 await savingsService.CreateAccountAsync(createSavingsAccountDto);
                 ShowCreateConfirmation = true;
@@ -487,7 +486,7 @@ namespace KarmaBanking.App.ViewModels
                 foreach (var tx in result.Items)
                     transactions.Add(tx);
 
-                totalPages = (int)Math.Ceiling((double)result.TotalCount / 10);
+                totalPages = savingsUiRulesService.CalculateTotalPages(result.TotalCount, 10);
             }
             catch (Exception ex)
             {

@@ -2,6 +2,7 @@ using KarmaBanking.App.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using KarmaBanking.App.Models.Enums;
 
 namespace KarmaBanking.App.Services
 {
@@ -30,6 +31,21 @@ namespace KarmaBanking.App.Services
 
         public decimal CalculateWithdrawNetAmount(decimal requestedAmount, decimal penalty)
             => requestedAmount - penalty;
+
+        public bool TryParseDepositFrequency(string frequencyText, out DepositFrequency frequency)
+        {
+            return Enum.TryParse(frequencyText, out frequency);
+        }
+
+        public int CalculateTotalPages(int totalCount, int pageSize)
+        {
+            if (pageSize <= 0)
+            {
+                return 0;
+            }
+
+            return (int)Math.Ceiling((double)totalCount / pageSize);
+        }
 
         public Dictionary<string, string> ValidateCreateAccount(
             string selectedSavingsType,

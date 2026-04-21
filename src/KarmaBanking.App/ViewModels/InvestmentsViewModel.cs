@@ -21,6 +21,7 @@ namespace KarmaBanking.App.ViewModels
         private readonly IMarketDataService marketDataService; // Changed to Interface
         private readonly DispatcherQueue? dispatcherQueue;
         private readonly InvestmentFilteringService filteringService;
+        private readonly PortfolioValuationService portfolioValuationService;
 
         private Portfolio userPortfolio;
         private bool isPortfolioLoading;
@@ -33,6 +34,7 @@ namespace KarmaBanking.App.ViewModels
             this.investmentRepository = investmentRepository;
             marketDataService = new MarketDataService();
             filteringService = new InvestmentFilteringService();
+            portfolioValuationService = new PortfolioValuationService();
             dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             SelectFilterCommand = new RelayCommand<string>(ApplyFilter);
 
@@ -156,15 +158,10 @@ namespace KarmaBanking.App.ViewModels
                     continue;
                 }
 
-                holding.CurrentPrice = updatedPrice;
-                holding.UnrealizedGainLoss = (holding.CurrentPrice - holding.AveragePurchasePrice) * holding.Quantity;
+                portfolioValuationService.UpdateHoldingValuation(holding, updatedPrice);
             }
 
-            UserPortfolio.TotalValue = UserPortfolio.Holdings.Sum(holding => holding.CurrentPrice * holding.Quantity);
-            UserPortfolio.TotalGainLoss = UserPortfolio.Holdings.Sum(holding => holding.UnrealizedGainLoss);
-
-            decimal totalCost = UserPortfolio.Holdings.Sum(holding => holding.AveragePurchasePrice * holding.Quantity);
-            UserPortfolio.GainLossPercent = totalCost > 0 ? (UserPortfolio.TotalGainLoss / totalCost) * 100 : 0;
+            portfolioValuationService.UpdatePortfolioTotals(UserPortfolio);
 
             RefreshDisplayedHoldings();
             OnPropertyChanged(nameof(UserPortfolio));

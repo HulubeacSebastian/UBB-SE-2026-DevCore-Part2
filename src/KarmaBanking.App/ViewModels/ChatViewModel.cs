@@ -19,6 +19,7 @@
         private readonly ApiService apiService = new MockApiService();
         private readonly FileValidationService fileValidationService = new();
         private readonly DialogService dialogService = new();
+        private readonly ChatCategoryService chatCategoryService = new();
         private ObservableCollection<ChatSession> chatSessions = [];
         private ObservableCollection<ChatMessage> chatMessages = [];
         private ObservableCollection<string> presetQuestions = [];
@@ -229,7 +230,7 @@
 
             EnsureSession();
             ChatSession session = CurrentSession!;
-            session.IssueCategory = InferCategory(question);
+            session.IssueCategory = chatCategoryService.InferCategory(question);
 
             session.Messages.Add(new ChatMessage
             {
@@ -519,29 +520,5 @@
             session.LastUpdatedAt = DateTime.Now;
         }
 
-        private string InferCategory(string question)
-        {
-            if (question.Contains("password", StringComparison.OrdinalIgnoreCase))
-            {
-                return "Account";
-            }
-
-            if (question.Contains("card", StringComparison.OrdinalIgnoreCase))
-            {
-                return "Cards";
-            }
-
-            if (question.Contains("transfer", StringComparison.OrdinalIgnoreCase))
-            {
-                return "Transfers";
-            }
-
-            if (question.Contains("technical", StringComparison.OrdinalIgnoreCase))
-            {
-                return "Technical Issue";
-            }
-
-            return "Other";
-        }
     }
 }

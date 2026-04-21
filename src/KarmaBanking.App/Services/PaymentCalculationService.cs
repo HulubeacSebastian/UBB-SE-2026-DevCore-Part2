@@ -57,5 +57,16 @@ namespace KarmaBanking.App.Services
 
             return (true, string.Empty);
         }
+
+        public decimal GetInitialCustomAmount(decimal monthlyInstallment, decimal outstandingBalance, double? currentCustomAmount)
+        {
+            decimal amount = currentCustomAmount.HasValue ? (decimal)currentCustomAmount.Value : monthlyInstallment;
+            return amount > outstandingBalance ? outstandingBalance : amount;
+        }
+
+        public string FormatCustomAmount(decimal amount)
+        {
+            return amount.ToString("0.##", CultureInfo.CurrentCulture);
+        }
     }
 }
