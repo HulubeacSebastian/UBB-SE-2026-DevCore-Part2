@@ -8,8 +8,16 @@ using System.Collections.Generic;
 using System.Text;
 using KarmaBanking.App.Models;
 
+/// <summary>
+/// Provides utility methods for exporting data to Comma-Separated Values (CSV) format.
+/// </summary>
 public static class CsvExportUtility
 {
+    /// <summary>
+    /// Exports a collection of investment transactions to a CSV formatted string.
+    /// </summary>
+    /// <param name="transactions">The collection of investment transactions to export.</param>
+    /// <returns>A string containing the CSV representation of the transactions.</returns>
     public static string ExportTransactionsToCsv(IEnumerable<InvestmentTransaction> transactions)
     {
         var builder = new StringBuilder();

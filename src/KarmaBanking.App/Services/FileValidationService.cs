@@ -7,13 +7,47 @@ namespace KarmaBanking.App.Services;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using KarmaBanking.App.Models;
 using Windows.Storage;
 
-using KarmaBanking.App.Models;
+/// <summary>
+/// Provides services for validating files and mapping them to attachment models.
+/// </summary>
 public class FileValidationService
 {
+    /// <summary>
+    /// The maximum allowed file size in bytes (10 MB).
+    /// </summary>
     private const long MaxFileSize = 10 * 1024 * 1024;
 
+    /// <summary>
+    /// Converts a file size in bytes to a human-readable formatted string (e.g., KB or MB).
+    /// </summary>
+    /// <param name="sizeInBytes">The file size in bytes.</param>
+    /// <returns>A formatted string representing the file size.</returns>
+    public static string GetFileSizeDisplay(long sizeInBytes)
+    {
+        const long kb = 1024;
+        const long mb = kb * 1024;
+
+        if (sizeInBytes >= mb)
+        {
+            return $"{sizeInBytes / (double)mb:0.##} MB";
+        }
+
+        if (sizeInBytes >= kb)
+        {
+            return $"{sizeInBytes / (double)kb:0.##} KB";
+        }
+
+        return $"{sizeInBytes} B";
+    }
+
+    /// <summary>
+    /// Validates a storage file based on its size and file extension.
+    /// </summary>
+    /// <param name="file">The storage file to validate.</param>
+    /// <returns>A tuple containing a boolean indicating if the file is valid, and an error message if it is not.</returns>
     public async Task<(bool IsValid, string ErrorMessage)> ValidateFileAsync(StorageFile file)
     {
         try
@@ -55,6 +89,12 @@ public class FileValidationService
         }
     }
 
+    /// <summary>
+    /// Maps a <see cref="StorageFile"/> to a <see cref="SelectedAttachment"/> model containing its metadata.
+    /// </summary>
+    /// <param name="file">The storage file to map.</param>
+    /// <returns>A <see cref="SelectedAttachment"/> populated with the file's details.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the file mapping process fails.</exception>
     public async Task<SelectedAttachment> MapStorageFileToAttachmentAsync(StorageFile file)
     {
         try
@@ -73,23 +113,5 @@ public class FileValidationService
         {
             throw new InvalidOperationException($"Failed to map file to attachment: {ex.Message}", ex);
         }
-    }
-
-    public static string GetFileSizeDisplay(long sizeInBytes)
-    {
-        const long kb = 1024;
-        const long mb = kb * 1024;
-
-        if (sizeInBytes >= mb)
-        {
-            return $"{sizeInBytes / (double)mb:0.##} MB";
-        }
-
-        if (sizeInBytes >= kb)
-        {
-            return $"{sizeInBytes / (double)kb:0.##} KB";
-        }
-
-        return $"{sizeInBytes} B";
     }
 }

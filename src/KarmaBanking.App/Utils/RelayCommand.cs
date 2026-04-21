@@ -8,25 +8,45 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+/// <summary>
+/// A command whose sole purpose is to relay its functionality to other objects by invoking delegates.
+/// </summary>
 public class RelayCommand : ICommand
 {
     private readonly Func<bool>? canExecute;
     private readonly Func<Task> executeAsync;
     private bool isExecuting;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RelayCommand"/> class.
+    /// </summary>
+    /// <param name="executeAsync">The execution logic.</param>
+    /// <param name="canExecute">The execution status logic.</param>
     public RelayCommand(Func<Task> executeAsync, Func<bool>? canExecute = null)
     {
         this.executeAsync = executeAsync;
         this.canExecute = canExecute;
     }
 
+    /// <summary>
+    /// Occurs when changes occur that affect whether or not the command should execute.
+    /// </summary>
     public event EventHandler? CanExecuteChanged;
 
+    /// <summary>
+    /// Defines the method that determines whether the command can execute in its current state.
+    /// </summary>
+    /// <param name="parameter">Data used by the command. If the command does not require data to be passed, this object can be set to null.</param>
+    /// <returns>True if this command can be executed; otherwise, false.</returns>
     public bool CanExecute(object? parameter)
     {
         return !this.isExecuting && (this.canExecute == null || this.canExecute());
     }
 
+    /// <summary>
+    /// Defines the method to be called when the command is invoked.
+    /// </summary>
+    /// <param name="parameter">Data used by the command. If the command does not require data to be passed, this object can be set to null.</param>
     public async void Execute(object? parameter)
     {
         this.isExecuting = true;
@@ -42,57 +62,11 @@ public class RelayCommand : ICommand
         }
     }
 
+    /// <summary>
+    /// Raises the <see cref="CanExecuteChanged"/> event to instruct the UI to re-evaluate the command execution status.
+    /// </summary>
     public void RaiseCanExecuteChanged()
     {
         this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-    }
-}
-
-public class RelayCommand<T> : ICommand
-{
-    private readonly Func<T?, bool>? canExecute;
-    private readonly Action<T?> execute;
-
-    public RelayCommand(Action<T?> execute, Func<T?, bool>? canExecute = null)
-    {
-        this.execute = execute;
-        this.canExecute = canExecute;
-    }
-
-    public event EventHandler? CanExecuteChanged;
-
-    public bool CanExecute(object? parameter)
-    {
-        if (this.canExecute == null)
-        {
-            return true;
-        }
-
-        return this.canExecute(ConvertParameter(parameter));
-    }
-
-    public void Execute(object? parameter)
-    {
-        this.execute(ConvertParameter(parameter));
-    }
-
-    public void RaiseCanExecuteChanged()
-    {
-        this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    private static T? ConvertParameter(object? parameter)
-    {
-        if (parameter == null)
-        {
-            return default;
-        }
-
-        if (parameter is T value)
-        {
-            return value;
-        }
-
-        return (T?)Convert.ChangeType(parameter, typeof(T));
     }
 }
