@@ -4,6 +4,8 @@
 
 namespace KarmaBanking.App.Services;
 
+using KarmaBanking.App.Utils;
+
 public class LoanPresentationService
 {
     public double GetRepaymentProgress(Loan loan)

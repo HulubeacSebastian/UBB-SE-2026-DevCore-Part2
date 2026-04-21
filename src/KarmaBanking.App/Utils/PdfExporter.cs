@@ -2,13 +2,19 @@
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
+namespace KarmaBanking.App.Utils;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using KarmaBanking.App.Models;
 
+/// <summary>
+/// Provides utility methods to generate and export data to PDF documents.
+/// </summary>
 public class PdfExporter
 {
     private const float PageWidth = 595f;
@@ -17,7 +23,12 @@ public class PdfExporter
     private const float TopMargin = 54f;
     private const float RowHeight = 18f;
 
-    public byte[] exportAmortization(IEnumerable<AmortizationRow> rows)
+    /// <summary>
+    /// Exports a collection of amortization rows to a byte array representing a PDF document.
+    /// </summary>
+    /// <param name="rows">The amortization rows to export.</param>
+    /// <returns>A byte array containing the generated PDF file.</returns>
+    public byte[] ExportAmortization(IEnumerable<AmortizationRow> rows)
     {
         var amortizationRows = rows?.ToList() ?? [];
         var pageContents = BuildAmortizationPages(amortizationRows);
@@ -25,7 +36,13 @@ public class PdfExporter
         return BuildPdfDocument(pageContents);
     }
 
-    public byte[] exportTransactions(IEnumerable<object> rows)
+    /// <summary>
+    /// Exports a collection of transactions to a byte array representing a PDF document.
+    /// </summary>
+    /// <param name="rows">The transaction rows to export.</param>
+    /// <returns>A byte array containing the generated PDF file.</returns>
+    /// <exception cref="NotImplementedException">Thrown because transaction export is not yet implemented.</exception>
+    public byte[] ExportTransactions(IEnumerable<object> rows)
     {
         throw new NotImplementedException("Transaction PDF export is not implemented yet.");
     }

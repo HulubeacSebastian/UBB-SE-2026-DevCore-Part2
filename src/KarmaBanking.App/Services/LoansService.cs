@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using KarmaBanking.App.Utils;
 
 public class LoanService : ILoanService
 {
@@ -86,7 +87,7 @@ public class LoanService : ILoanService
     public async Task<int> AddLoanAsync(LoanApplication application)
     {
         var rate = this.GetInterestRateForType(application.LoanType);
-        var estimate = this._calculator.computeEstimate(
+        var estimate = AmortizationCalculator.ComputeEstimate(
             application.DesiredAmount,
             rate,
             application.PreferredTermMonths);
@@ -113,7 +114,7 @@ public class LoanService : ILoanService
 
         var rate = this.GetInterestRateForType(request.LoanType);
 
-        return this._calculator.computeEstimate(
+        return AmortizationCalculator.ComputeEstimate(
             request.DesiredAmount,
             rate,
             request.PreferredTermMonths);
@@ -210,7 +211,7 @@ public class LoanService : ILoanService
     public async Task GenerateAmortizationAsync(int loanId)
     {
         var loan = await this._loanRepository.GetLoanByIdAsync(loanId);
-        var rows = this._calculator.generate(loan);
+        var rows = this._calculator.Generate(loan);
         await this._loanRepository.SaveAmortizationAsync(rows);
     }
 

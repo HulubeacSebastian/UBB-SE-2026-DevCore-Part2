@@ -4,6 +4,8 @@
 
 namespace KarmaBanking.App.ViewModels;
 
+
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +17,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Services;
+using KarmaBanking.App.Utils;
 
 public partial class LoansViewModel : ObservableObject
 {
@@ -326,7 +329,7 @@ public partial class LoansViewModel : ObservableObject
         try
         {
             var rows = await this.apiService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
-            var pdfBytes = this.pdfExporter.exportAmortization(rows);
+            var pdfBytes = this.pdfExporter.ExportAmortization(rows);
             var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             var fileName = $"amortization_schedule_{this.SelectedLoan.Loan.Id}.pdf";
             var filePath = Path.Combine(desktopPath, fileName);
