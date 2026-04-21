@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
 using KarmaBanking.App.Models.Enums;
+using KarmaBanking.App.Services;
 using KarmaBanking.App.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace KarmaBanking.App.ViewModels
     public partial class SavingsViewModel : BaseViewModel
     {
         private readonly ISavingsService savingsService;
+        private readonly SavingsUiRulesService savingsUiRulesService;
         private const int CurrentUserId = 1;
 
         // ── My Accounts ──────────────────────────────────────────────────────
@@ -81,11 +83,7 @@ namespace KarmaBanking.App.ViewModels
         {
             get
             {
-                if (decimal.TryParse(DepositAmountText, NumberStyles.Any,
-                        CultureInfo.InvariantCulture, out decimal amount)
-                    && amount > 0 && SelectedAccount != null)
-                    return $"New balance will be: ${(SelectedAccount.Balance + amount):N2}";
-                return string.Empty;
+                return savingsUiRulesService.BuildDepositPreview(DepositAmountText, SelectedAccount);
             }
         }
 
@@ -109,7 +107,7 @@ namespace KarmaBanking.App.ViewModels
             get
             {
                 if (!WithdrawHasEarlyRisk) return 0;
-                if (!decimal.TryParse(WithdrawAmountText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal withdrawAmount) || withdrawAmount <= 0) return 0;
+                if (!savingsUiRulesService.TryParsePositiveAmount(WithdrawAmountText, out decimal withdrawAmount)) return 0;
                 return savingsService.ComputeWithdrawalPenalty(withdrawAmount);
             }
         }
@@ -118,8 +116,8 @@ namespace KarmaBanking.App.ViewModels
         {
             get
             {
-                if (!decimal.TryParse(WithdrawAmountText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal withdrawAmount) || withdrawAmount <= 0) return 0;
-                return withdrawAmount - WithdrawEstimatedPenalty;
+                if (!savingsUiRulesService.TryParsePositiveAmount(WithdrawAmountText, out decimal withdrawAmount)) return 0;
+                return savingsUiRulesService.CalculateWithdrawNetAmount(withdrawAmount, WithdrawEstimatedPenalty);
             }
         }
 
@@ -137,7 +135,7 @@ namespace KarmaBanking.App.ViewModels
         {
             WithdrawResultMessage = string.Empty;
             WithdrawSuccess = false;
-            if (!decimal.TryParse(WithdrawAmountText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal amount) || amount <= 0)
+            if (!savingsUiRulesService.TryParsePositiveAmount(WithdrawAmountText, out decimal amount))
             { WithdrawResultMessage = "Please enter a valid amount."; return false; }
             if (WithdrawDestination == null)
             { WithdrawResultMessage = "Please select a destination account."; return false; }
@@ -229,6 +227,7 @@ namespace KarmaBanking.App.ViewModels
         public SavingsViewModel(ISavingsService savingsService)
         {
             this.savingsService = savingsService;
+            savingsUiRulesService = new SavingsUiRulesService();
         }
 
         // ── Commands: My Accounts ────────────────────────────────────────────
@@ -353,9 +352,9 @@ namespace KarmaBanking.App.ViewModels
             AccountName = accountName;
             InitialDepositText = initialDepositText;
             SelectedFundingSource = fundingSource;
+            TargetAmount = null;
 
-            if (IsGoalSavings
-                && decimal.TryParse(targetAmountText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal parsedTargetAmount))
+            if (IsGoalSavings && savingsUiRulesService.TryParsePositiveAmount(targetAmountText, out decimal parsedTargetAmount))
             {
                 TargetAmount = parsedTargetAmount;
             }
@@ -371,29 +370,24 @@ namespace KarmaBanking.App.ViewModels
             ErrorMessage = string.Empty;
             ShowCreateConfirmation = false;
 
-            if (string.IsNullOrWhiteSpace(SelectedSavingsType))
-                FieldErrors["SavingsType"] = "Please select an account type.";
-            if (string.IsNullOrWhiteSpace(AccountName))
-                FieldErrors["AccountName"] = "Account name is required.";
-            if (!decimal.TryParse(InitialDepositText, NumberStyles.Any,
-                    CultureInfo.InvariantCulture, out decimal deposit) || deposit <= 0)
-                FieldErrors["InitialDeposit"] = "Initial deposit must be a positive number.";
-            if (SelectedFundingSource == null)
-                FieldErrors["FundingSource"] = "Please select a funding source.";
-            if (string.IsNullOrWhiteSpace(SelectedFrequency))
-                FieldErrors["Frequency"] = "Please select a deposit frequency.";
-            if (IsGoalSavings)
+            var errors = savingsUiRulesService.ValidateCreateAccount(
+                SelectedSavingsType,
+                AccountName,
+                InitialDepositText,
+                SelectedFundingSource != null,
+                SelectedFrequency,
+                TargetAmount,
+                TargetDate,
+                IsGoalSavings);
+
+            foreach (var error in errors)
             {
-                if (!TargetAmount.HasValue || TargetAmount.Value <= 0)
-                    FieldErrors["TargetAmount"] = "Target amount is required.";
-                if (!TargetDate.HasValue)
-                    FieldErrors["TargetDate"] = "Target date is required.";
-                else if (TargetDate.Value.Date <= DateTime.Today)
-                    FieldErrors["TargetDate"] = "Target date must be in the future.";
+                FieldErrors[error.Key] = error.Value;
             }
 
             OnPropertyChanged(nameof(FieldErrors));
             if (FieldErrors.Count > 0) return;
+            savingsUiRulesService.TryParsePositiveAmount(InitialDepositText, out decimal deposit);
 
             IsLoading = true;
             try
@@ -439,8 +433,7 @@ namespace KarmaBanking.App.ViewModels
 
             if (SelectedAccount == null) { ErrorMessage = "No account selected."; return; }
 
-            if (!decimal.TryParse(DepositAmountText, NumberStyles.Any,
-                    CultureInfo.InvariantCulture, out decimal amount) || amount <= 0)
+            if (!savingsUiRulesService.TryParsePositiveAmount(DepositAmountText, out decimal amount))
             {
                 ErrorMessage = "Please enter a valid positive amount.";
                 return;

@@ -5,12 +5,14 @@
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using KarmaBanking.App.Models;
+    using KarmaBanking.App.Services;
     using KarmaBanking.App.Services.Interfaces;
     using KarmaBanking.App.Utils;
 
     public class CryptoTradingViewModel : INotifyPropertyChanged
     {
         private readonly IInvestmentService investmentService;
+        private readonly CryptoTradeCalculationService tradeCalculationService;
 
         private string selectedTicker = "BTC";
         private string selectedActionType = "BUY";
@@ -25,6 +27,7 @@
         public CryptoTradingViewModel(IInvestmentService investmentService)
         {
             this.investmentService = investmentService;
+            tradeCalculationService = new CryptoTradeCalculationService();
             SubmitTradeCommand = new RelayCommand(async () => await ExecuteTradeAsync(), CanExecuteTrade);
             LoadWalletBalance();
         }
@@ -138,52 +141,26 @@
 
         private void UpdateCalculations()
         {
-            if (string.IsNullOrWhiteSpace(QuantityText) || !decimal.TryParse(QuantityText, out decimal quantity) || quantity <= 0)
+            if (!tradeCalculationService.TryParsePositiveQuantity(QuantityText, out decimal quantity))
             {
                 EstimatedFee = 0;
                 TotalAmount = 0;
                 return;
             }
 
-            // Simulam pretul curent (intr-un scenariu real, acesta vine dintr-un serviciu de Market Data)
-            decimal currentMarketPrice = SelectedTicker == "BTC" ? 65000m : 3000m;
-            decimal tradeValue = quantity * currentMarketPrice;
-
-            // Logica de calcul a comisionului (1.5% cu minim 0.50$)
-            decimal calculatedFee = Math.Round(tradeValue * 0.015m, 2);
-            EstimatedFee = calculatedFee < 0.50m ? 0.50m : calculatedFee;
-
-            if (ActionType == "BUY")
-            {
-                TotalAmount = tradeValue + EstimatedFee;
-            }
-            else
-            {
-                TotalAmount = tradeValue - EstimatedFee;
-            }
+            var (estimatedFee, totalAmount) = tradeCalculationService.CalculateTradePreview(SelectedTicker, ActionType, quantity);
+            EstimatedFee = estimatedFee;
+            TotalAmount = totalAmount;
         }
 
         private bool CanExecuteTrade()
         {
-            bool hasValidQuantity = decimal.TryParse(QuantityText, out decimal quantity) && quantity > 0;
-
-            if (IsSubmitting || !hasValidQuantity)
-            {
-                return false;
-            }
-
-            // Validare de baza pentru fonduri insuficiente la cumparare
-            if (ActionType == "BUY" && TotalAmount > CurrentBalance)
-            {
-                return false;
-            }
-
-            return true;
+            return tradeCalculationService.CanExecuteTrade(IsSubmitting, QuantityText, ActionType, TotalAmount, CurrentBalance);
         }
 
         private async Task ExecuteTradeAsync()
         {
-            if (!decimal.TryParse(QuantityText, out decimal quantity))
+            if (!tradeCalculationService.TryParsePositiveQuantity(QuantityText, out decimal quantity))
             {
                 return;
             }
@@ -193,7 +170,7 @@
 
             try
             {
-                decimal mockPrice = SelectedTicker == "BTC" ? 65000m : 3000m;
+                decimal mockPrice = tradeCalculationService.GetMockMarketPrice(SelectedTicker);
 
                 await investmentService.ExecuteCryptoTradeAsync(1, SelectedTicker, ActionType, quantity, mockPrice);
 
