@@ -22,6 +22,11 @@ public class ChatSession : INotifyPropertyChanged
     private string title = "New chat";
 
     /// <summary>
+    /// Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
     /// Gets or sets the unique session identifier.
     /// </summary>
     public int IdentificationNumber { get; set; }
@@ -153,11 +158,6 @@ public class ChatSession : INotifyPropertyChanged
             }
         }
     }
-
-    /// <summary>
-    /// Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     /// Raises the property changed notification for bound UI listeners.

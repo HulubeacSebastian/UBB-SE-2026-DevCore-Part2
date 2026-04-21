@@ -16,6 +16,11 @@ public class InvestmentHolding : INotifyPropertyChanged
     private decimal unrealizedGainLoss;
 
     /// <summary>
+    /// Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
     /// Gets or sets the holding identifier.
     /// </summary>
     public int IdentificationNumber { get; set; }
@@ -70,11 +75,6 @@ public class InvestmentHolding : INotifyPropertyChanged
             this.OnPropertyChanged();
         }
     }
-
-    /// <summary>
-    /// Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     /// Raises property changed notifications for bound UI.
