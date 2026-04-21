@@ -14,12 +14,12 @@ public class ChatMessage
     /// <summary>
     /// Gets or sets the unique message identifier.
     /// </summary>
-    public int IdentificationNumber { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Gets or sets the parent session identifier.
     /// </summary>
-    public int SessionIdentificationNumber { get; set; }
+    public int SessionId { get; set; }
 
     /// <summary>
     /// Gets or sets the sender role (for example user or bot).
