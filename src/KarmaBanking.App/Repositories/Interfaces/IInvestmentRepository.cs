@@ -1,8 +1,4 @@
-﻿// <copyright file="IInvestmentRepository.cs" company="Dev Core">
-// Copyright (c) Dev Core. All rights reserved.
-// </copyright>
-
-namespace KarmaBanking.App.Repositories.Interfaces;
+﻿namespace KarmaBanking.App.Repositories.Interfaces;
 
 using System;
 using System.Collections.Generic;
@@ -21,17 +17,8 @@ public interface IInvestmentRepository
     /// <returns>The portfolio data.</returns>
     Portfolio GetPortfolio(int userIdentificationNumber);
 
-        Task RecordCryptoTradeAsync(
-            int portfolioIdentificationNumber,
-            string ticker,
-            string actionType,
-            decimal quantity,
-            decimal pricePerUnit,
-            decimal fees,
-            decimal finalQuantity,
-            decimal finalAveragePrice);
     /// <summary>
-    /// Records a crypto buy or sell trade and updates holdings.
+    /// Records a crypto buy or sell trade and updates holdings using final calculated values.
     /// </summary>
     /// <param name="portfolioIdentificationNumber">The portfolio identifier.</param>
     /// <param name="ticker">The traded ticker symbol.</param>
@@ -39,6 +26,8 @@ public interface IInvestmentRepository
     /// <param name="quantity">The traded quantity.</param>
     /// <param name="pricePerUnit">The execution price per unit.</param>
     /// <param name="fees">The applied trade fees.</param>
+    /// <param name="finalQuantity">The post-trade total quantity calculated by the service.</param>
+    /// <param name="finalAveragePrice">The post-trade average price calculated by the service.</param>
     /// <returns>A task that completes when the trade is persisted.</returns>
     Task RecordCryptoTradeAsync(
         int portfolioIdentificationNumber,
@@ -46,7 +35,9 @@ public interface IInvestmentRepository
         string actionType,
         decimal quantity,
         decimal pricePerUnit,
-        decimal fees);
+        decimal fees,
+        decimal finalQuantity,
+        decimal finalAveragePrice);
 
     /// <summary>
     /// Gets paginated investment transaction logs with optional filters.

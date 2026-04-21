@@ -1,52 +1,22 @@
-﻿// <copyright file="InvestmentRepository.cs" company="Dev Core">
-// Copyright (c) Dev Core. All rights reserved.
-// </copyright>
-
-namespace KarmaBanking.App.Repositories;
-
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading.Tasks;
-using KarmaBanking.App.Data;
-using KarmaBanking.App.Models;
-using KarmaBanking.App.Repositories.Interfaces;
-using Microsoft.Data.SqlClient;
-
-/// <summary>
-/// SQL-backed investment repository implementation.
-/// </summary>
-public class InvestmentRepository : IInvestmentRepository
+﻿namespace KarmaBanking.App.Repositories
 {
-    private const string ActionTypeBuy = "BUY";
-    private const string ActionTypeSell = "SELL";
-    private const string AssetTypeCrypto = "Crypto";
-    private const string OrderTypeMarket = "Market";
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Threading.Tasks;
+    using KarmaBanking.App.Data;
+    using KarmaBanking.App.Models;
+    using KarmaBanking.App.Repositories.Interfaces;
+    using Microsoft.Data.SqlClient;
+
     public class InvestmentRepository : IInvestmentRepository
     {
         private const string AssetTypeCrypto = "Crypto";
         private const string OrderTypeMarket = "Market";
 
-    /// <summary>
-    /// Records a crypto trade and updates the affected holding in a transaction.
-    /// </summary>
-    /// <param name="portfolioIdentificationNumber">The portfolio identifier.</param>
-    /// <param name="ticker">The traded symbol.</param>
-    /// <param name="actionType">The action type (buy or sell).</param>
-    /// <param name="quantity">The traded quantity.</param>
-    /// <param name="pricePerUnit">The execution price per unit.</param>
-    /// <param name="fees">The trade fees.</param>
-    /// <returns>A task that completes when all records are persisted.</returns>
-    public async Task RecordCryptoTradeAsync(
-        int portfolioIdentificationNumber,
-        string ticker,
-        string actionType,
-        decimal quantity,
-        decimal pricePerUnit,
-        decimal fees)
-    {
-        using var sqlConnection = DatabaseConfig.GetDatabaseConnection();
-        await sqlConnection.OpenAsync();
+        /// <summary>
+        /// Records a crypto trade and updates the holding with final values calculated by the Service.
+        /// </summary>
         public async Task RecordCryptoTradeAsync(
             int portfolioIdentificationNumber,
             string ticker,
@@ -80,7 +50,7 @@ public class InvestmentRepository : IInvestmentRepository
                     }
                 }
 
-                // 2. Update existing holding or Insert new holding using FINAL values from Service
+                // 2. Update existing holding or Insert new holding using FINAL values provided by the Service
                 if (holdingIdentificationNumber.HasValue)
                 {
                     var updateHoldingSqlQuery = "UPDATE InvestmentHolding SET quantity = @FinalQuantity, avgPurchasePrice = @FinalAveragePrice WHERE id = @HoldingId";
@@ -125,41 +95,23 @@ public class InvestmentRepository : IInvestmentRepository
 
                 await transactionLogCommand.ExecuteNonQueryAsync();
 
-            await sqlTransaction.CommitAsync();
+                await sqlTransaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await sqlTransaction.RollbackAsync();
+                throw;
+            }
         }
-        catch (Exception)
-        {
-            await sqlTransaction.RollbackAsync();
-            throw;
-        }
-    }
 
-    /// <summary>
-    /// Gets a user's portfolio and current holdings.
-    /// </summary>
-    /// <param name="userIdentificationNumber">The user identifier.</param>
-    /// <returns>The user's portfolio snapshot.</returns>
-    public Portfolio GetPortfolio(int userIdentificationNumber)
-    {
-        const string selectPortfolioSqlQuery = @"
-                SELECT id, userId, totalValue, totalGainLoss, gainLossPercent
-                FROM Portfolio
-                WHERE userId = @UserId";
-
-        const string selectHoldingsSqlQuery = @"
-                SELECT id, ticker, assetType, quantity, avgPurchasePrice, currentPrice, unrealizedGainLoss
-                FROM InvestmentHolding
-                WHERE portfolioId = @PortfolioId
-                ORDER BY id";
+        /// <summary>
+        /// Retrieves a user's portfolio and associated holdings.
+        /// </summary>
         public Portfolio GetPortfolio(int userIdentificationNumber)
         {
             const string selectPortfolioSqlQuery = "SELECT id, userId, totalValue, totalGainLoss, gainLossPercent FROM Portfolio WHERE userId = @UserId";
             const string selectHoldingsSqlQuery = "SELECT id, ticker, assetType, quantity, avgPurchasePrice, currentPrice, unrealizedGainLoss FROM InvestmentHolding WHERE portfolioId = @PortfolioId ORDER BY id";
 
-        var userPortfolio = new Portfolio
-        {
-            UserIdentificationNumber = userIdentificationNumber,
-        };
             var userPortfolio = new Portfolio { UserIdentificationNumber = userIdentificationNumber };
 
             using var sqlConnection = new SqlConnection(DatabaseConfig.DatabaseConnectionString);
@@ -182,24 +134,6 @@ public class InvestmentRepository : IInvestmentRepository
                 }
             }
 
-        using var selectHoldingsCommand = new SqlCommand(selectHoldingsSqlQuery, sqlConnection);
-        selectHoldingsCommand.Parameters.Add("@PortfolioId", SqlDbType.Int).Value = userPortfolio.IdentificationNumber;
-
-        using var holdingsDataReader = selectHoldingsCommand.ExecuteReader();
-        while (holdingsDataReader.Read())
-        {
-            userPortfolio.Holdings.Add(
-                new InvestmentHolding
-                {
-                    IdentificationNumber = holdingsDataReader.GetInt32(0),
-                    Ticker = holdingsDataReader.IsDBNull(1) ? string.Empty : holdingsDataReader.GetString(1),
-                    AssetType = holdingsDataReader.IsDBNull(2) ? string.Empty : holdingsDataReader.GetString(2),
-                    Quantity = holdingsDataReader.GetDecimal(3),
-                    AveragePurchasePrice = holdingsDataReader.GetDecimal(4),
-                    CurrentPrice = holdingsDataReader.GetDecimal(5),
-                    UnrealizedGainLoss = holdingsDataReader.GetDecimal(6),
-                });
-        }
             using (var selectHoldingsCommand = new SqlCommand(selectHoldingsSqlQuery, sqlConnection))
             {
                 selectHoldingsCommand.Parameters.Add("@PortfolioId", SqlDbType.Int).Value = userPortfolio.IdentificationNumber;
@@ -219,24 +153,12 @@ public class InvestmentRepository : IInvestmentRepository
                 }
             }
 
-        return userPortfolio;
-    }
+            return userPortfolio;
+        }
 
-    /// <summary>
-    /// Gets investment transaction logs filtered by optional date range and ticker.
-    /// </summary>
-    /// <param name="portfolioIdentificationNumber">The portfolio identifier.</param>
-    /// <param name="startDate">The optional start date filter.</param>
-    /// <param name="endDate">The optional end date filter.</param>
-    /// <param name="ticker">The optional ticker filter.</param>
-    /// <returns>The matching investment transactions ordered descending by execution time.</returns>
-    public async Task<List<InvestmentTransaction>> GetInvestmentLogsAsync(
-        int portfolioIdentificationNumber,
-        DateTime? startDate = null,
-        DateTime? endDate = null,
-        string? ticker = null)
-    {
-        var investmentLogs = new List<InvestmentTransaction>();
+        /// <summary>
+        /// Retrieves transaction logs with optional filtering.
+        /// </summary>
         public async Task<List<InvestmentTransaction>> GetInvestmentLogsAsync(
             int portfolioIdentificationNumber,
             DateTime? startDate = null,
@@ -258,7 +180,7 @@ public class InvestmentRepository : IInvestmentRepository
             if (endDate.HasValue) filterLogsSqlQuery += " AND t.executedAt <= @EndDate";
             if (!string.IsNullOrWhiteSpace(ticker)) filterLogsSqlQuery += " AND t.ticker = @Ticker";
 
-        filterLogsSqlQuery += " ORDER BY t.executedAt DESC";
+            filterLogsSqlQuery += " ORDER BY t.executedAt DESC";
 
             using var filterCommand = new SqlCommand(filterLogsSqlQuery, sqlConnection);
             filterCommand.Parameters.AddWithValue("@PortfolioId", portfolioIdentificationNumber);
@@ -279,10 +201,11 @@ public class InvestmentRepository : IInvestmentRepository
                     PricePerUnit = transactionLogDataReader.GetDecimal(5),
                     Fees = transactionLogDataReader.GetDecimal(6),
                     OrderType = transactionLogDataReader.GetString(7),
-                    ExecutedAt = transactionLogDataReader.GetDateTime(8),
+                    ExecutedAt = transactionLogDataReader.GetDateTime(8)
                 });
-        }
+            }
 
-        return investmentLogs;
+            return investmentLogs;
+        }
     }
 }
