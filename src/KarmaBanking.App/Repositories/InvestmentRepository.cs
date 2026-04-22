@@ -179,7 +179,6 @@
                     INNER JOIN InvestmentHolding h ON t.holdingId = h.id
                     WHERE h.portfolioId = @PortfolioId";
 
-            // Fixed omitted braces
             if (startDate.HasValue)
             {
                 filterLogsSqlQuery += " AND t.executedAt >= @StartDate";
@@ -199,8 +198,6 @@
 
             using var filterCommand = new SqlCommand(filterLogsSqlQuery, sqlConnection);
             filterCommand.Parameters.AddWithValue("@PortfolioId", portfolioIdentificationNumber);
-
-            // Fixed omitted braces
             if (startDate.HasValue)
             {
                 filterCommand.Parameters.AddWithValue("@StartDate", startDate.Value);
