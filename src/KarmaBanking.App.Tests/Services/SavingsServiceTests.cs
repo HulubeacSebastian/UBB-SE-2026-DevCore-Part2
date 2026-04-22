@@ -766,6 +766,7 @@ namespace KarmaBanking.App.Tests.Services
 
             var ex = await Assert.ThrowsAsync<ArgumentException>(async () => await service.WithdrawAsync(accountId, -100m, "Destination", userId));
             Assert.Equal("Withdrawal amount must be positive.", ex.Message);
+            await repository.DidNotReceive().GetSavingsAccountsByUserIdAsync(userId, true);
             await repository.DidNotReceive().WithdrawAsync(Arg.Any<int>(), Arg.Any<decimal>(), Arg.Any<string>(), Arg.Any<decimal>());
         }
 
@@ -780,10 +781,19 @@ namespace KarmaBanking.App.Tests.Services
             var inexistentDestinationAccountId = 999;
 
             repository.GetSavingsAccountsByUserIdAsync(userId, true)
-                .Returns(Task.FromResult(new List<SavingsAccount> { new SavingsAccount { Id = accountId, UserId = userId, AccountStatus = AccountStatus.Active.ToString() } }));
+                .Returns(Task.FromResult(new List<SavingsAccount>
+                {
+                    new SavingsAccount
+                    {
+                        IdentificationNumber = accountId,
+                        UserIdentificationNumber = userId,
+                        AccountStatus = AccountStatus.Active.ToString()
+                    }
+                }));
 
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.WithdrawAsync(inexistentDestinationAccountId, 100m, "Destination label", userId));
             Assert.Equal("Account not found or does not belong to you.", ex.Message);
+            await repository.Received(1).GetSavingsAccountsByUserIdAsync(userId, true);
             await repository.DidNotReceive().WithdrawAsync(Arg.Any<int>(), Arg.Any<decimal>(), Arg.Any<string>(), Arg.Any<decimal>());
         }
 
@@ -801,14 +811,15 @@ namespace KarmaBanking.App.Tests.Services
                 {
                     new SavingsAccount
                     {
-                        Id = accountId,
-                        UserId = userId,
+                        IdentificationNumber = accountId,
+                        UserIdentificationNumber = userId,
                         AccountStatus = AccountStatus.Closed.ToString(),
                     }
                 }));
 
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.WithdrawAsync(accountId, 100m, "Destination label", userId));
             Assert.Equal("Cannot withdraw from a closed account.", ex.Message);
+            await repository.Received(1).GetSavingsAccountsByUserIdAsync(userId, true);
             await repository.DidNotReceive().WithdrawAsync(Arg.Any<int>(), Arg.Any<decimal>(), Arg.Any<string>(), Arg.Any<decimal>());
         }
 
@@ -826,8 +837,8 @@ namespace KarmaBanking.App.Tests.Services
                 {
                     new SavingsAccount
                     {
-                        Id = accountId,
-                        UserId = userId,
+                        IdentificationNumber = accountId,
+                        UserIdentificationNumber = userId,
                         AccountStatus = AccountStatus.Active.ToString(),
                         Balance = 50m,
                     }
@@ -835,7 +846,258 @@ namespace KarmaBanking.App.Tests.Services
 
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.WithdrawAsync(accountId, 100m, "Destination label", userId));
             Assert.Equal("Insufficient balance.", ex.Message);
+            await repository.Received(1).GetSavingsAccountsByUserIdAsync(userId, true);
             await repository.DidNotReceive().WithdrawAsync(Arg.Any<int>(), Arg.Any<decimal>(), Arg.Any<string>(), Arg.Any<decimal>());
+        }
+
+        [Fact]
+        public async Task WithdrawAsync_FixedDepositPenaltyAndInsufficientBalanceAfterPenalty_ThrowsInvalidOperationException()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+
+            var accountId = 1;
+            var userId = 1;
+
+            repository.GetSavingsAccountsByUserIdAsync(userId, true)
+                .Returns(Task.FromResult(new List<SavingsAccount>
+                {
+                    new SavingsAccount
+                    {
+                        IdentificationNumber = accountId,
+                        UserIdentificationNumber = userId,
+                        AccountStatus = AccountStatus.Active.ToString(),
+                        Balance = 100m,
+                        SavingsType = "FixedDeposit",
+                        MaturityDate = DateTime.UtcNow.AddDays(30),
+                    }
+                }));
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.WithdrawAsync(accountId, 100m, "Destination label", userId));
+            Assert.Equal("Insufficient balance after penalty.", ex.Message);
+            await repository.Received(1).GetSavingsAccountsByUserIdAsync(userId, true);
+            await repository.DidNotReceive().WithdrawAsync(Arg.Any<int>(), Arg.Any<decimal>(), Arg.Any<string>(), Arg.Any<decimal>());
+        }
+
+        [Fact]
+        public async Task WithdrawAsync_FixedDepositWithoutMaturityDate_ReturnsWithdrawResponseDto()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+
+            var accountId = 1;
+            var userId = 1;
+
+            var expectedResponse = new WithdrawResponseDto
+            {
+                Success = true,
+                AmountWithdrawn = 50m,
+                ProcessedAt = DateTime.UtcNow,
+                NewBalance = 0m,
+                Message = "Withdrawal successful without penalty.",
+                PenaltyApplied = 0m,
+            };
+
+            repository.GetSavingsAccountsByUserIdAsync(userId, true)
+                .Returns(Task.FromResult(new List<SavingsAccount>
+                {
+                    new SavingsAccount
+                    {
+                        IdentificationNumber = accountId,
+                        UserIdentificationNumber = userId,
+                        AccountStatus = AccountStatus.Active.ToString(),
+                        Balance = 100m,
+                        SavingsType = "FixedDeposit",
+                    }
+                }));
+            repository.WithdrawAsync(accountId, 50m, "Destination label", 0m).Returns(Task.FromResult(expectedResponse));
+
+            var response = await service.WithdrawAsync(accountId, 50m, "Destination label", userId);
+            Assert.Equal(expectedResponse, response);
+            await repository.Received(1).GetSavingsAccountsByUserIdAsync(userId, true);
+            await repository.Received(1).WithdrawAsync(accountId, 50m, "Destination label", 0m);
+        }
+
+        [Fact]
+        public async Task WithdrawAsync_MaturedFixedDeposit_ReturnsWithdrawResponseDto()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+
+            var accountId = 1;
+            var userId = 1;
+
+            var expectedResponse = new WithdrawResponseDto
+            {
+                Success = true,
+                AmountWithdrawn = 50m,
+                ProcessedAt = DateTime.UtcNow,
+                NewBalance = 0m,
+                Message = "Withdrawal successful without penalty.",
+                PenaltyApplied = 0m,
+            };
+
+            repository.GetSavingsAccountsByUserIdAsync(userId, true)
+                .Returns(Task.FromResult(new List<SavingsAccount>
+                {
+                    new SavingsAccount
+                    {
+                        IdentificationNumber = accountId,
+                        UserIdentificationNumber = userId,
+                        AccountStatus = AccountStatus.Matured.ToString(),
+                        Balance = 100m,
+                        SavingsType = "FixedDeposit",
+                        MaturityDate = DateTime.UtcNow.AddDays(-1),
+                    }
+                }));
+            repository.WithdrawAsync(accountId, 50m, "Destination label", 0m).Returns(Task.FromResult(expectedResponse));
+
+            var response = await service.WithdrawAsync(accountId, 50m, "Destination label", userId);
+            Assert.Equal(expectedResponse, response);
+            await repository.Received(1).GetSavingsAccountsByUserIdAsync(userId, true);
+            await repository.Received(1).WithdrawAsync(accountId, 50m, "Destination label", 0m);
+        }
+
+        [Fact]
+        public async Task WithdrawAsync_StandardSavingsAccount_ReturnsWithdrawResponseDto()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+
+            var accountId = 1;
+            var userId = 1;
+
+            var expectedResponse = new WithdrawResponseDto
+            {
+                Success = true,
+                AmountWithdrawn = 50m,
+                ProcessedAt = DateTime.UtcNow,
+                NewBalance = 0m,
+                Message = "Withdrawal successful without penalty.",
+                PenaltyApplied = 0m,
+            };
+
+            repository.GetSavingsAccountsByUserIdAsync(userId, true)
+                .Returns(Task.FromResult(new List<SavingsAccount>
+                {
+                    new SavingsAccount
+                    {
+                        IdentificationNumber = accountId,
+                        UserIdentificationNumber = userId,
+                        AccountStatus = AccountStatus.Matured.ToString(),
+                        Balance = 100m,
+                        SavingsType = "Standard",
+                    }
+                }));
+            repository.WithdrawAsync(accountId, 50m, "Destination label", 0m).Returns(Task.FromResult(expectedResponse));
+
+            var response = await service.WithdrawAsync(accountId, 50m, "Destination label", userId);
+            Assert.Equal(expectedResponse, response);
+            await repository.Received(1).GetSavingsAccountsByUserIdAsync(userId, true);
+            await repository.Received(1).WithdrawAsync(accountId, 50m, "Destination label", 0m);
+        }
+
+        [Fact]
+        public async Task WithdrawAsync_GoalSavingsAccount_ReturnsWithdrawResponseDto()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+
+            var accountId = 1;
+            var userId = 1;
+
+            var expectedResponse = new WithdrawResponseDto
+            {
+                Success = true,
+                AmountWithdrawn = 50m,
+                ProcessedAt = DateTime.UtcNow,
+                NewBalance = 0m,
+                Message = "Withdrawal successful without penalty.",
+                PenaltyApplied = 0m,
+            };
+
+            repository.GetSavingsAccountsByUserIdAsync(userId, true)
+                .Returns(Task.FromResult(new List<SavingsAccount>
+                {
+                    new SavingsAccount
+                    {
+                        IdentificationNumber = accountId,
+                        UserIdentificationNumber = userId,
+                        AccountStatus = AccountStatus.Matured.ToString(),
+                        Balance = 100m,
+                        SavingsType = "GoalSavings",
+                    }
+                }));
+            repository.WithdrawAsync(accountId, 50m, "Destination label", 0m).Returns(Task.FromResult(expectedResponse));
+
+            var response = await service.WithdrawAsync(accountId, 50m, "Destination label", userId);
+            Assert.Equal(expectedResponse, response);
+            await repository.Received(1).GetSavingsAccountsByUserIdAsync(userId, true);
+            await repository.Received(1).WithdrawAsync(accountId, 50m, "Destination label", 0m);
+        }
+
+        [Fact]
+        public async Task WithdrawAsync_HighYieldSavingsAccount_ReturnsWithdrawResponseDto()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+
+            var accountId = 1;
+            var userId = 1;
+
+            var expectedResponse = new WithdrawResponseDto
+            {
+                Success = true,
+                AmountWithdrawn = 50m,
+                ProcessedAt = DateTime.UtcNow,
+                NewBalance = 0m,
+                Message = "Withdrawal successful without penalty.",
+                PenaltyApplied = 0m,
+            };
+
+            repository.GetSavingsAccountsByUserIdAsync(userId, true)
+                .Returns(Task.FromResult(new List<SavingsAccount>
+                {
+                    new SavingsAccount
+                    {
+                        IdentificationNumber = accountId,
+                        UserIdentificationNumber = userId,
+                        AccountStatus = AccountStatus.Matured.ToString(),
+                        Balance = 100m,
+                        SavingsType = "HighYield",
+                    }
+                }));
+            repository.WithdrawAsync(accountId, 50m, "Destination label", 0m).Returns(Task.FromResult(expectedResponse));
+
+            var response = await service.WithdrawAsync(accountId, 50m, "Destination label", userId);
+            Assert.Equal(expectedResponse, response);
+            await repository.Received(1).GetSavingsAccountsByUserIdAsync(userId, true);
+            await repository.Received(1).WithdrawAsync(accountId, 50m, "Destination label", 0m);
+        }
+
+        [Fact]
+        public async Task GetAutoDepositAsync_ValidCase_ReturnsAutoDeposit()
+        {
+            var repository = Substitute.For<ISavingsRepository>();
+            var service = new SavingsService(repository);
+
+            var accountId = 1;
+
+            var expectedAutoDeposit = new AutoDeposit
+            {
+                Id = 1,
+                Amount = 100m,
+                Frequency = DepositFrequency.Monthly,
+                NextRunDate = DateTime.UtcNow.AddDays(30),
+                SavingsAccountId = accountId,
+                IsActive = true,
+            };
+
+            repository.GetAutoDepositAsync(accountId).Returns(Task.FromResult<AutoDeposit?>(expectedAutoDeposit));
+
+            var result = await service.GetAutoDepositAsync(accountId);
+            Assert.Equal(expectedAutoDeposit, result);
+            await repository.Received(1).GetAutoDepositAsync(accountId);
         }
     }
 }
