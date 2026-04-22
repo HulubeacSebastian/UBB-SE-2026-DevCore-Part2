@@ -44,9 +44,10 @@
                     checkCommand.Parameters.AddWithValue("@Ticker", ticker);
 
                     var result = await checkCommand.ExecuteScalarAsync();
-                    if (result != null)
+                    if (result != null && result != DBNull.Value)
                     {
-                        holdingIdentificationNumber = (int)result;
+                        // Fixed CS8605 using Convert.ToInt32 to avoid unboxing a possibly null value
+                        holdingIdentificationNumber = Convert.ToInt32(result);
                     }
                 }
 
@@ -75,7 +76,9 @@
                     insertCommand.Parameters.AddWithValue("@Quantity", finalQuantity);
                     insertCommand.Parameters.AddWithValue("@AveragePrice", finalAveragePrice);
 
-                    holdingIdentificationNumber = (int)await insertCommand.ExecuteScalarAsync();
+                    // Fixed CS8605 using Convert.ToInt32
+                    var insertResult = await insertCommand.ExecuteScalarAsync();
+                    holdingIdentificationNumber = insertResult != null ? Convert.ToInt32(insertResult) : 0;
                 }
 
                 // 3. Log the transaction details
@@ -176,17 +179,42 @@
                     INNER JOIN InvestmentHolding h ON t.holdingId = h.id
                     WHERE h.portfolioId = @PortfolioId";
 
-            if (startDate.HasValue) filterLogsSqlQuery += " AND t.executedAt >= @StartDate";
-            if (endDate.HasValue) filterLogsSqlQuery += " AND t.executedAt <= @EndDate";
-            if (!string.IsNullOrWhiteSpace(ticker)) filterLogsSqlQuery += " AND t.ticker = @Ticker";
+            // Fixed omitted braces
+            if (startDate.HasValue)
+            {
+                filterLogsSqlQuery += " AND t.executedAt >= @StartDate";
+            }
+
+            if (endDate.HasValue)
+            {
+                filterLogsSqlQuery += " AND t.executedAt <= @EndDate";
+            }
+
+            if (!string.IsNullOrWhiteSpace(ticker))
+            {
+                filterLogsSqlQuery += " AND t.ticker = @Ticker";
+            }
 
             filterLogsSqlQuery += " ORDER BY t.executedAt DESC";
 
             using var filterCommand = new SqlCommand(filterLogsSqlQuery, sqlConnection);
             filterCommand.Parameters.AddWithValue("@PortfolioId", portfolioIdentificationNumber);
-            if (startDate.HasValue) filterCommand.Parameters.AddWithValue("@StartDate", startDate.Value);
-            if (endDate.HasValue) filterCommand.Parameters.AddWithValue("@EndDate", endDate.Value);
-            if (!string.IsNullOrWhiteSpace(ticker)) filterCommand.Parameters.AddWithValue("@Ticker", ticker);
+
+            // Fixed omitted braces
+            if (startDate.HasValue)
+            {
+                filterCommand.Parameters.AddWithValue("@StartDate", startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                filterCommand.Parameters.AddWithValue("@EndDate", endDate.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(ticker))
+            {
+                filterCommand.Parameters.AddWithValue("@Ticker", ticker);
+            }
 
             using var transactionLogDataReader = await filterCommand.ExecuteReaderAsync();
             while (await transactionLogDataReader.ReadAsync())
