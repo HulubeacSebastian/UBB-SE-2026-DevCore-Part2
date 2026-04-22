@@ -188,7 +188,7 @@
         }
 
         [Fact]
-        public async Task ExecuteCryptoTradeAsync_ValidatesInputs_ThrowsOnInvalidValues()
+        public async Task ExecuteCryptoTradeAsyncValidatesInputsThrowsOnInvalidValues()
         {
             await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, string.Empty, "BUY", 1, 100));
             await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, "BTC", "BUY", 0, 100));
@@ -197,7 +197,7 @@
         }
 
         [Fact]
-        public async Task GetInvestmentLogsAsync_ReturnsDataFromRepository()
+        public async Task GetInvestmentLogsAsyncReturnsDataFromRepository()
         {
             // Arrange
             int portfolioId = 1;
@@ -219,7 +219,7 @@
         public async Task ExecuteCryptoTradeAsync_ValidatesInputs_ThrowsOnInvalidValues()
         {
             // Ticker validation
-            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, "", "BUY", 1, 100));
+            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, string.Empty, "BUY", 1, 100));
             await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, null!, "BUY", 1, 100));
 
             // Quantity validation
