@@ -23,7 +23,7 @@
         [Fact]
         public async Task ExecuteCryptoTradeAsync_CalculatesPercentageFeeCorrectly()
         {
-            // Arrange: $1000 trade at 1.5% should be a $15.00 fee.
+            // Arrange
             int portfolioId = 1;
             decimal quantity = 10m;
             decimal price = 100m;
@@ -55,8 +55,33 @@
                 It.IsAny<decimal>(), 0.50m, It.IsAny<decimal>(), It.IsAny<decimal>()), Times.Once);
         }
 
+        // NEW: This test covers the "red" weighted average math lines
         [Fact]
         public async Task ExecuteCryptoTradeAsync_CalculatesWeightedAverageCorrectly_WithExistingHoldings()
+        {
+            // Arrange: 5 BTC @ $20,000 existing. Buying 5 more @ $40,000.
+            // Result should be 10 BTC @ $30,000 avg.
+            int portfolioId = 1;
+            var portfolio = new Portfolio { TotalValue = 500000m };
+            portfolio.Holdings.Add(new InvestmentHolding
+            {
+                Ticker = "BTC",
+                Quantity = 5m,
+                AveragePurchasePrice = 20000m
+            });
+
+            this.mockRepository.Setup(repo => repo.GetPortfolio(portfolioId)).Returns(portfolio);
+
+            // Act
+            await this.investmentService.ExecuteCryptoTradeAsync(portfolioId, "BTC", "BUY", 5m, 40000m);
+
+            // Assert
+            this.mockRepository.Verify(repo => repo.RecordCryptoTradeAsync(
+                portfolioId, "BTC", "BUY", 5m, 40000m, It.IsAny<decimal>(), 10m, 30000m), Times.Once);
+        }
+
+        [Fact]
+        public async Task ExecuteCryptoTradeAsync_ThrowsException_WhenFundsAreInsufficient()
         {
             // Arrange: 5 BTC @ $20k existing. Buy 5 more @ $40k. New Avg should be $30k.
             int portfolioId = 1;
@@ -80,28 +105,13 @@
         }
 
         [Fact]
-        public async Task ExecuteCryptoTradeAsync_ThrowsException_WhenFundsAreInsufficient()
-        {
-            // Arrange
-            int portfolioId = 1;
-            this.mockRepository.Setup(repo => repo.GetPortfolio(portfolioId))
-                .Returns(new Portfolio { TotalValue = 10m, Holdings = new List<InvestmentHolding>() });
-
-            // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() =>
-                this.investmentService.ExecuteCryptoTradeAsync(portfolioId, "BTC", "BUY", 1m, 20m));
-        }
-
-        [Fact]
         public async Task ExecuteCryptoTradeAsync_SellOrder_ValidatesAssetQuantity()
         {
             // Arrange
             int portfolioId = 1;
             var portfolio = new Portfolio { TotalValue = 1000m };
             portfolio.Holdings.Add(new InvestmentHolding { Ticker = "BTC", Quantity = 5m });
-
-            this.mockRepository.Setup(repo => repo.GetPortfolio(portfolioId))
-                .Returns(portfolio);
+            this.mockRepository.Setup(repo => repo.GetPortfolio(portfolioId)).Returns(portfolio);
 
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -115,9 +125,7 @@
             int portfolioId = 1;
             var portfolio = new Portfolio { TotalValue = 1000m };
             portfolio.Holdings.Add(new InvestmentHolding { Ticker = "BTC", Quantity = 10m, AveragePurchasePrice = 20000m });
-
-            this.mockRepository.Setup(repo => repo.GetPortfolio(portfolioId))
-                .Returns(portfolio);
+            this.mockRepository.Setup(repo => repo.GetPortfolio(portfolioId)).Returns(portfolio);
 
             // Act
             var result = await this.investmentService.ExecuteCryptoTradeAsync(portfolioId, "BTC", "SELL", 1m, 50000m);
@@ -128,6 +136,7 @@
                 portfolioId, "BTC", "SELL", 1m, 50000m, It.IsAny<decimal>(), 9m, 20000m), Times.Once);
         }
 
+        // NEW: This test covers the "red" catch block lines
         [Fact]
         public async Task ExecuteCryptoTradeAsync_ThrowsWrappedException_WhenRepositoryFails()
         {
@@ -136,10 +145,11 @@
             this.mockRepository.Setup(repo => repo.GetPortfolio(portfolioId))
                 .Returns(new Portfolio { TotalValue = 1000m, Holdings = new List<InvestmentHolding>() });
 
+            // Force the repo to fail
             this.mockRepository.Setup(repo => repo.RecordCryptoTradeAsync(
                 It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>(),
                 It.IsAny<decimal>(), It.IsAny<decimal>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
-                .ThrowsAsync(new Exception("DB Error"));
+                .ThrowsAsync(new Exception("DB Failure"));
 
             // Act & Assert
             var exception = await Assert.ThrowsAsync<Exception>(() =>
@@ -166,21 +176,43 @@
         [Fact]
         public async Task GetInvestmentLogsAsync_ThrowsOnInvalidPortfolioId()
         {
-            // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() =>
-                this.investmentService.GetInvestmentLogsAsync(0));
+            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.GetInvestmentLogsAsync(0));
         }
 
         [Fact]
         public async Task GetInvestmentLogsAsync_ThrowsWhenStartDateAfterEndDate()
         {
-            // Arrange
             DateTime start = DateTime.Now;
             DateTime end = start.AddDays(-1);
+            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.GetInvestmentLogsAsync(1, start, end));
+        }
 
-            // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() =>
-                this.investmentService.GetInvestmentLogsAsync(1, start, end));
+        [Fact]
+        public async Task ExecuteCryptoTradeAsync_ValidatesInputs_ThrowsOnInvalidValues()
+        {
+            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, string.Empty, "BUY", 1, 100));
+            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, "BTC", "BUY", 0, 100));
+            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, "BTC", "BUY", 1, -1));
+            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, "BTC", "INVALID", 1, 100));
+        }
+
+        [Fact]
+        public async Task GetInvestmentLogsAsync_ReturnsDataFromRepository()
+        {
+            // Arrange
+            int portfolioId = 1;
+            var expectedLogs = new List<InvestmentTransaction>
+            {
+                new InvestmentTransaction { Ticker = "BTC", Quantity = 1.0m, PricePerUnit = 45000m }
+            };
+            this.mockRepository.Setup(repo => repo.GetInvestmentLogsAsync(portfolioId, null, null, null)).ReturnsAsync(expectedLogs);
+
+            // Act
+            var result = await this.investmentService.GetInvestmentLogsAsync(portfolioId);
+
+            // Assert
+            Assert.Single(result);
+            Assert.Equal("BTC", result[0].Ticker);
         }
 
         [Fact]

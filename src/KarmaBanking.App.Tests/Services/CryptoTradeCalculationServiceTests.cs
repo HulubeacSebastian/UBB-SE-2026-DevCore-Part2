@@ -108,5 +108,36 @@
             var result = service.CanExecuteTrade(false, "1", "SELL", 10000m, 5000m);
             Assert.True(result);
         }
+        [Fact]
+        public void CalculateTradePreview_BuyActionBelowMinimumFee_AppliesMinimumFee()
+        {
+            var service = new CryptoTradeCalculationService();
+
+            var (estimatedFee, totalAmount) = service.CalculateTradePreview("ETH", "BUY", 0.001m);
+
+            Assert.Equal(0.50m, estimatedFee);
+            Assert.Equal(3.50m, totalAmount);
+        }
+
+        [Fact]
+        public void CalculateTradePreview_SellActionAboveMinimumFee_CalculatesCorrectly()
+        {
+            var service = new CryptoTradeCalculationService();
+
+            var (estimatedFee, totalAmount) = service.CalculateTradePreview("BTC", "SELL", 1m);
+
+            Assert.Equal(975m, estimatedFee);
+            Assert.Equal(64025m, totalAmount);
+        }
+
+        [Fact]
+        public void CanExecuteTrade_OtherActionType_ReturnsTrue()
+        {
+            var service = new CryptoTradeCalculationService();
+
+            var result = service.CanExecuteTrade(false, "1", "CONVERT", 10000m, 5000m);
+
+            Assert.True(result);
+        }
     }
 }
