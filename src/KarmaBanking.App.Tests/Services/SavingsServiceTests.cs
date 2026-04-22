@@ -456,8 +456,14 @@ namespace KarmaBanking.App.Tests.Services
             var destinationAccountId = 2;
 
             repository.GetSavingsAccountsByUserIdAsync(userId, true)
-                .Returns(Task.FromResult(new List<SavingsAccount> { new SavingsAccount { Id = accountId, UserId = userId, AccountStatus = AccountStatus.Active.ToString() },
-                                                         new SavingsAccount { Id = destinationAccountId, UserId = userId, AccountStatus = AccountStatus.Closed.ToString() }, }));
+                .Returns(Task.FromResult(new List<SavingsAccount>
+                {
+                    new SavingsAccount
+                    {
+                        Id = accountId, UserId = userId, AccountStatus = AccountStatus.Active.ToString()
+                    },
+                                                         new SavingsAccount { Id = destinationAccountId, UserId = userId, AccountStatus = AccountStatus.Closed.ToString() },
+                }));
 
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await service.CloseAccountAsync(accountId, destinationAccountId, userId));
             Assert.Equal("Cannot transfer to a closed account.", ex.Message);
