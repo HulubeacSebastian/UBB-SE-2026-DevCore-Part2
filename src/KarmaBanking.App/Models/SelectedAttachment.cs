@@ -1,4 +1,4 @@
-﻿// <copyright file="SelectedAttachments.cs" company="Dev Core">
+﻿// <copyright file="SelectedAttachment.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 

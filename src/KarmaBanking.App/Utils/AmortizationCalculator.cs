@@ -2,13 +2,25 @@
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
+namespace KarmaBanking.App.Utils;
+
 using System;
 using System.Collections.Generic;
 using KarmaBanking.App.Models;
 
+/// <summary>
+/// Provides utility methods for calculating loan amortization schedules and estimates.
+/// </summary>
 public class AmortizationCalculator
 {
-    public LoanEstimate ComputeEstimate(decimal amount, decimal annualRate, int termMonths)
+    /// <summary>
+    /// Computes a loan estimate based on the requested amount, annual rate, and term.
+    /// </summary>
+    /// <param name="amount">The desired loan amount.</param>
+    /// <param name="annualRate">The annual interest rate as a percentage.</param>
+    /// <param name="termMonths">The term of the loan in months.</param>
+    /// <returns>A <see cref="LoanEstimate"/> containing the indicative rate, monthly installment, and total repayable amount.</returns>
+    public static LoanEstimate ComputeEstimate(decimal amount, decimal annualRate, int termMonths)
     {
         var monthlyRate = annualRate / 12m / 100m;
         decimal monthlyInstallment;
@@ -30,10 +42,31 @@ public class AmortizationCalculator
         {
             IndicativeRate = annualRate,
             MonthlyInstallment = monthlyInstallment,
-            TotalRepayable = totalRepayable
+            TotalRepayable = totalRepayable,
         };
     }
 
+    /// <summary>
+    /// Computes the repayment progress percentage based on the principal and outstanding balance.
+    /// </summary>
+    /// <param name="principal">The original principal amount of the loan.</param>
+    /// <param name="outstandingBalance">The current outstanding balance of the loan.</param>
+    /// <returns>A percentage representing the repayment progress.</returns>
+    public static decimal ComputeRepaymentProgress(decimal principal, decimal outstandingBalance)
+    {
+        if (principal == 0)
+        {
+            return 0;
+        }
+
+        return (principal - outstandingBalance) / principal * 100;
+    }
+
+    /// <summary>
+    /// Generates an amortization schedule for a given loan.
+    /// </summary>
+    /// <param name="loan">The loan details used to generate the schedule.</param>
+    /// <returns>A list of <see cref="AmortizationRow"/> representing the amortization schedule.</returns>
     public List<AmortizationRow> Generate(Loan loan)
     {
         var rows = new List<AmortizationRow>();
@@ -90,7 +123,7 @@ public class AmortizationCalculator
                 PrincipalPortion = principalPortion,
                 InterestPortion = interestPortion,
                 RemainingBalance = remainingBalance,
-                IsCurrent = false
+                IsCurrent = false,
             };
 
             if (!isCurrentMarked && dueDate.Date >= DateTime.Today)
@@ -105,18 +138,13 @@ public class AmortizationCalculator
         return rows;
     }
 
-    public decimal ComputePenalty(SavingsAccount acc)
+    /// <summary>
+    /// Computes the penalty for early withdrawal or specific savings account actions.
+    /// </summary>
+    /// <param name="account">The savings account to compute the penalty for.</param>
+    /// <returns>The calculated penalty amount.</returns>
+    public decimal ComputePenalty(SavingsAccount account)
     {
         return 0;
-    }
-
-    public static decimal ComputeRepaymentProgress(decimal principal, decimal outstandingBalance)
-    {
-        if (principal == 0)
-        {
-            return 0;
-        }
-
-        return (principal - outstandingBalance) / principal * 100;
     }
 }

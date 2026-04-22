@@ -4,6 +4,8 @@
 
 namespace KarmaBanking.App.ViewModels;
 
+
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +17,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Services;
+using KarmaBanking.App.Utils;
 
 public partial class LoansViewModel : ObservableObject
 {
