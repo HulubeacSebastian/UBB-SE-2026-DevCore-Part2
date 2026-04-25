@@ -17,14 +17,14 @@
         [Fact]
         public async Task GetChatbotPresetQuestionsAsync_ReturnsExpectedQuestions()
         {
-            var service = new ApiService();
+            var chatbotQuestionGetter = new ApiService();
 
-            var result = await service.GetChatbotPresetQuestionsAsync();
+            var chatbotQuestionList = await chatbotQuestionGetter.GetChatbotPresetQuestionsAsync();
 
-            Assert.Contains("How do I reset my password?", result);
-            Assert.Contains("Why was my card declined?", result);
-            Assert.Contains("How long does a transfer take?", result);
-            Assert.True(result.Count >= 5);
+            Assert.Contains("How do I reset my password?", chatbotQuestionList);
+            Assert.Contains("Why was my card declined?", chatbotQuestionList);
+            Assert.Contains("How long does a transfer take?", chatbotQuestionList);
+            Assert.True(chatbotQuestionList.Count >= 5);
         }
 
         [Theory]
@@ -32,42 +32,42 @@
         [InlineData("Why was my card declined?", "A card can be declined because of insufficient funds, an expired card, a blocked card, or a merchant validation issue. Please check the card status in the app first.")]
         public async Task GetChatbotPresetAnswerAsync_KnownQuestion_ReturnsExpectedAnswer(string question, string expectedAnswer)
         {
-            var service = new ApiService();
+            var chatbotQuestionGetter = new ApiService();
 
-            var result = await service.GetChatbotPresetAnswerAsync(question);
+            var chatbotProvidedAnswear = await chatbotQuestionGetter.GetChatbotPresetAnswerAsync(question);
 
-            Assert.Equal(expectedAnswer, result);
+            Assert.Equal(expectedAnswer, chatbotProvidedAnswear);
         }
 
         [Fact]
         public async Task GetChatbotPresetAnswerAsync_UnknownQuestion_ReturnsFallbackMessage()
         {
-            var service = new ApiService();
+            var chatbotQuestionGetter = new ApiService();
 
-            var result = await service.GetChatbotPresetAnswerAsync("What is the meaning of life?");
+            var chatbotProvidedAnswear = await chatbotQuestionGetter.GetChatbotPresetAnswerAsync("What is the meaning of life?");
 
-            Assert.Equal("Please contact the team for more help with this topic.", result);
+            Assert.Equal("Please contact the team for more help with this topic.", chatbotProvidedAnswear);
         }
 
         [Fact]
         public async Task SendChatToSupportAsync_WithContent_ReturnsTrue()
         {
-            var service = new ApiService();
-            var attachment = new SelectedAttachment { FileName = "test.png" };
+            var supportChatManager = new ApiService();
+            var testAttachment = new SelectedAttachment { FileName = "test.png" };
 
-            var result = await service.SendChatToSupportAsync("Transcript data", "User message", attachment);
+            var chatSentSuccesfully = await supportChatManager.SendChatToSupportAsync("Transcript data", "User message", testAttachment);
 
-            Assert.True(result);
+            Assert.True(chatSentSuccesfully);
         }
 
         [Fact]
         public async Task SendChatToSupportAsync_NoContent_ReturnsFalse()
         {
-            var service = new ApiService();
+            var supportChatManager = new ApiService();
 
-            var result = await service.SendChatToSupportAsync(string.Empty, string.Empty, null);
+            var chatSentSuccesfully = await supportChatManager.SendChatToSupportAsync(string.Empty, string.Empty, null);
 
-            Assert.False(result);
+            Assert.False(chatSentSuccesfully);
         }
 
         [Fact]
@@ -78,10 +78,10 @@
             var expectedLoans = new List<Loan> { new Loan { IdentificationNumber = 1 } };
             mockLoanService.GetAllLoansAsync().Returns(Task.FromResult(expectedLoans));
 
-            var service = new ApiService(mockLoanService, mockChatRepo);
-            var result = await service.GetAllLoansAsync();
+            var loansGetter = new ApiService(mockLoanService, mockChatRepo);
+            var loanListInRepo = await loansGetter.GetAllLoansAsync();
 
-            Assert.Equal(expectedLoans, result);
+            Assert.Equal(expectedLoans, loanListInRepo);
             await mockLoanService.Received(1).GetAllLoansAsync();
         }
 
@@ -91,22 +91,20 @@
             var mockLoanService = Substitute.For<ILoanService>();
             var mockChatRepo = Substitute.For<IChatRepository>();
 
-            // FIX 1: Added the required 'Purpose' property
-            var request = new LoanApplicationRequest
+            var applicationRequest = new LoanApplicationRequest
             {
                 DesiredAmount = 5000,
                 Purpose = "Home Renovation"
             };
 
-            // FIX 2: Replaced 'false' with 'LoanApplicationStatus.Rejected'
-            mockLoanService.SubmitLoanApplicationAsync(request)
+            mockLoanService.SubmitLoanApplicationAsync(applicationRequest)
                 .Returns(Task.FromResult((LoanApplicationStatus.Rejected, "Credit score too low")));
 
-            var service = new ApiService(mockLoanService, mockChatRepo);
-            var result = await service.ApplyForLoanAsync(request);
+            var loanApplier = new ApiService(mockLoanService, mockChatRepo);
+            var reveivedMessageForAppliedLoan = await loanApplier.ApplyForLoanAsync(applicationRequest);
 
-            Assert.Equal("Credit score too low", result);
-            await mockLoanService.Received(1).SubmitLoanApplicationAsync(request);
+            Assert.Equal("Credit score too low", reveivedMessageForAppliedLoan);
+            await mockLoanService.Received(1).SubmitLoanApplicationAsync(applicationRequest);
         }
 
         [Fact]
@@ -116,10 +114,10 @@
             var mockChatRepo = Substitute.For<IChatRepository>();
             mockChatRepo.CreateChatSessionAsync(1, "Account").Returns(Task.FromResult(99));
 
-            var service = new ApiService(mockLoanService, mockChatRepo);
-            var result = await service.CreateChatSessionAsync(1, "Account");
+            var chatSessionCreator = new ApiService(mockLoanService, mockChatRepo);
+            var userIdForCreatedSession = await chatSessionCreator.CreateChatSessionAsync(1, "Account");
 
-            Assert.Equal(99, result);
+            Assert.Equal(99, userIdForCreatedSession);
             await mockChatRepo.Received(1).CreateChatSessionAsync(1, "Account");
         }
 
@@ -129,8 +127,8 @@
             var mockLoanService = Substitute.For<ILoanService>();
             var mockChatRepo = Substitute.For<IChatRepository>();
 
-            var service = new ApiService(mockLoanService, mockChatRepo);
-            service.SubmitFeedback(1, 5, "Great service");
+            var chatFeedbackSubmitter = new ApiService(mockLoanService, mockChatRepo);
+            chatFeedbackSubmitter.SubmitFeedback(1, 5, "Great service");
 
             mockChatRepo.Received(1).SaveSessionRatingAndFeedback(1, 5, "Great service");
         }
@@ -140,13 +138,13 @@
         {
             var mockLoanService = Substitute.For<ILoanService>();
             var mockChatRepo = Substitute.For<IChatRepository>();
-            var expectedRows = new List<AmortizationRow> { new AmortizationRow { InstallmentNumber = 1 } };
+            var expectedRowsForAmortization = new List<AmortizationRow> { new AmortizationRow { InstallmentNumber = 1 } };
             mockLoanService.GetAmortizationAsync(1).Returns(Task.FromResult(expectedRows));
 
-            var service = new ApiService(mockLoanService, mockChatRepo);
-            var result = await service.GetAmortizationAsync(1);
+            var amortizationGetter = new ApiService(mockLoanService, mockChatRepo);
+            var amortizationRowList = await amortizationGetter.GetAmortizationAsync(1);
 
-            Assert.Equal(expectedRows, result);
+            Assert.Equal(expectedRowsForAmortization, amortizationRowList);
             await mockLoanService.Received(1).GetAmortizationAsync(1);
         }
     }

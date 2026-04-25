@@ -8,13 +8,14 @@
         [Fact]
         public void TryParsePositiveQuantity_ValidPositiveQuantity_ReturnsTrueAndParsedValue()
         {
-            var service = new CryptoTradeCalculationService();
+            var cryptoCalculatorService = new CryptoTradeCalculationService();
             var quantityText = "10.5";
+            var quantityDecimal = 10.5m;
 
-            var success = service.TryParsePositiveQuantity(quantityText, out var quantity);
+            var succesfulyParsedQuantityString = cryptoCalculatorService.TryParsePositiveQuantity(quantityText, out var quantity);
 
-            Assert.True(success);
-            Assert.Equal(10.5m, quantity);
+            Assert.True(succesfulyParsedQuantityString);
+            Assert.Equal(quantityDecimal, quantity);
         }
 
         [Theory]
@@ -25,88 +26,105 @@
         [InlineData(null)]
         public void TryParsePositiveQuantity_InvalidOrNonPositiveQuantity_ReturnsFalseAndZero(string quantityText)
         {
-            var service = new CryptoTradeCalculationService();
+            var cryptoCaluclatorService = new CryptoTradeCalculationService();
 
-            var success = service.TryParsePositiveQuantity(quantityText, out var quantity);
+            var succesfulltParsedQuantityString = cryptoCaluclatorService.TryParsePositiveQuantity(quantityText, out var quantity);
+            var invalidQuantity = 0m;
 
-            Assert.False(success);
-            Assert.Equal(0m, quantity);
+            Assert.False(succesfulltParsedQuantityString);
+            Assert.Equal(invalidQuantity, quantity);
         }
 
         [Fact]
         public void GetMockMarketPrice_BtcTicker_Returns65000()
         {
-            var service = new CryptoTradeCalculationService();
-            var price = service.GetMockMarketPrice("BTC");
-            Assert.Equal(65000m, price);
+            var cryptoCaluclatorService = new CryptoTradeCalculationService();
+            var expectedPrice = cryptoCaluclatorService.GetMockMarketPrice("BTC");
+            var priceBTC = 65000m;
+            Assert.Equal(priceBTC, expectedPrice);
         }
 
         [Fact]
         public void GetMockMarketPrice_OtherTicker_Returns3000()
         {
-            var service = new CryptoTradeCalculationService();
-            var price = service.GetMockMarketPrice("ETH");
-            Assert.Equal(3000m, price);
+            var cryptoCaluclatorService = new CryptoTradeCalculationService();
+            var expectedPrice = cryptoCaluclatorService.GetMockMarketPrice("ETH");
+            var priceETH = 65000m;
+            Assert.Equal(priceETH, expectedPrice);
         }
 
         [Fact]
         public void CalculateTradePreview_BuyActionAboveMinimumFee_CalculatesCorrectly()
         {
-            var service = new CryptoTradeCalculationService();
-            var (estimatedFee, totalAmount) = service.CalculateTradePreview("BTC", "BUY", 1m);
-
-            Assert.Equal(975m, estimatedFee);
-            Assert.Equal(65975m, totalAmount);
+            var cryptoCaluclatorService = new CryptoTradeCalculationService();
+            var amountBoughtBTC = 1m;
+            var (estimatedFee, totalAmount) = cryptoCaluclatorService.CalculateTradePreview("BTC", "BUY", amountBoughtBTC);
+            var feeForBuyingBTC = 975m;
+            var totalPriceOfBTC = 65975m;
+            Assert.Equal(feeForBuyingBTC, estimatedFee);
+            Assert.Equal(totalPriceOfBTC, totalAmount);
         }
 
         [Fact]
         public void CalculateTradePreview_SellActionBelowMinimumFee_AppliesMinimumFee()
         {
-            var service = new CryptoTradeCalculationService();
-            var (estimatedFee, totalAmount) = service.CalculateTradePreview("ETH", "SELL", 0.001m);
-
-            Assert.Equal(0.50m, estimatedFee);
-            Assert.Equal(2.50m, totalAmount);
+            var cryptoCaluclatorService = new CryptoTradeCalculationService();
+            var amountBoughtETH = 0.001m;
+            var (estimatedFee, totalAmount) = cryptoCaluclatorService.CalculateTradePreview("ETH", "SELL", amountBoughtETH);
+            var feeForBuyingETH = 0.50m;
+            var totalPriceOfEth = 2.50m;
+            Assert.Equal(feeForBuyingETH, estimatedFee);
+            Assert.Equal(totalPriceOfEth, totalAmount);
         }
 
         [Fact]
         public void CanExecuteTrade_IsSubmittingTrue_ReturnsFalse()
         {
-            var service = new CryptoTradeCalculationService();
-            var result = service.CanExecuteTrade(true, "1", "BUY", 1000m, 5000m);
-            Assert.False(result);
+            var cryptoCaluclatorServiceservice = new CryptoTradeCalculationService();
+            var priceToBePaid = 1000m;
+            var userBalance = 5000m;
+            var canExecuteTrade = cryptoCaluclatorServiceservice.CanExecuteTrade(true, "1", "BUY", priceToBePaid, userBalance);
+            Assert.False(canExecuteTrade);
         }
 
         [Fact]
         public void CanExecuteTrade_InvalidQuantity_ReturnsFalse()
         {
-            var service = new CryptoTradeCalculationService();
-            var result = service.CanExecuteTrade(false, "abc", "BUY", 1000m, 5000m);
-            Assert.False(result);
+            var cryptoCaluclatorService = new CryptoTradeCalculationService();
+            var priceToBePaid = 1000m;
+            var userBalance = 5000m;
+            var canExecuteTrade = cryptoCaluclatorService.CanExecuteTrade(false, "abc", "BUY", priceToBePaid, userBalance);
+            Assert.False(canExecuteTrade);
         }
 
         [Fact]
         public void CanExecuteTrade_BuyWithInsufficientFunds_ReturnsFalse()
         {
-            var service = new CryptoTradeCalculationService();
-            var result = service.CanExecuteTrade(false, "1", "BUY", 6000m, 5000m);
-            Assert.False(result);
+            var cryptoCaluclatorService = new CryptoTradeCalculationService();
+            var priceToBePaid = 6000m;
+            var userBalance = 5000m;
+            var canExecuteTrade = cryptoCaluclatorService.CanExecuteTrade(false, "1", "BUY", priceToBePaid, userBalance);
+            Assert.False(canExecuteTrade);
         }
 
         [Fact]
         public void CanExecuteTrade_BuyWithSufficientFunds_ReturnsTrue()
         {
-            var service = new CryptoTradeCalculationService();
-            var result = service.CanExecuteTrade(false, "1", "BUY", 4000m, 5000m);
-            Assert.True(result);
+            var cryptoCaluclatorService = new CryptoTradeCalculationService();
+            var priceToBePaid = 4000m;
+            var userBalance = 5000m;
+            var canExecuteTrade = cryptoCaluclatorService.CanExecuteTrade(false, "1", "BUY", priceToBePaid, userBalance);
+            Assert.True(canExecuteTrade);
         }
 
         [Fact]
         public void CanExecuteTrade_SellAction_ReturnsTrueRegardlessOfBalance()
         {
-            var service = new CryptoTradeCalculationService();
-            var result = service.CanExecuteTrade(false, "1", "SELL", 10000m, 5000m);
-            Assert.True(result);
+            var cryptoCaluclatorService = new CryptoTradeCalculationService();
+            var sellingAmount = 10000m;
+            var userBalance = 5000m;
+            var canExecuteTrade = cryptoCaluclatorService.CanExecuteTrade(false, "1", "SELL", sellingAmount, userBalance);
+            Assert.True(canExecuteTrade);
         }
     }
 }

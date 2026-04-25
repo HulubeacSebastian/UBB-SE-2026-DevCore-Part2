@@ -12,9 +12,9 @@
         [InlineData("PassWord")]
         public void InferCategory_ContainsPassword_ReturnsAccount(string question)
         {
-            var service = new ChatCategoryService();
-            var result = service.InferCategory(question);
-            Assert.Equal("Account", result);
+            var chatCategoryService = new ChatCategoryService();
+            var questionCategory = chatCategoryService.InferCategory(question);
+            Assert.Equal("Account", questionCategory);
         }
 
         [Theory]
@@ -22,9 +22,9 @@
         [InlineData("CARD delivery status")]
         public void InferCategory_ContainsCard_ReturnsCards(string question)
         {
-            var service = new ChatCategoryService();
-            var result = service.InferCategory(question);
-            Assert.Equal("Cards", result);
+            var chatCategoryService = new ChatCategoryService();
+            var questionCategory = chatCategoryService.InferCategory(question);
+            Assert.Equal("Cards", questionCategory);
         }
 
         [Theory]
@@ -32,9 +32,9 @@
         [InlineData("Wire TRANSFER")]
         public void InferCategory_ContainsTransfer_ReturnsTransfers(string question)
         {
-            var service = new ChatCategoryService();
-            var result = service.InferCategory(question);
-            Assert.Equal("Transfers", result);
+            var chatCategoryService = new ChatCategoryService();
+            var questionCategory = chatCategoryService.InferCategory(question);
+            Assert.Equal("Transfers", questionCategory);
         }
 
         [Theory]
@@ -42,9 +42,9 @@
         [InlineData("TECHNICAL support")]
         public void InferCategory_ContainsTechnical_ReturnsTechnicalIssue(string question)
         {
-            var service = new ChatCategoryService();
-            var result = service.InferCategory(question);
-            Assert.Equal("Technical Issue", result);
+            var chatCategoryService = new ChatCategoryService();
+            var questionCategory = chatCategoryService.InferCategory(question);
+            Assert.Equal("Technical Issue", questionCategory);
         }
 
         [Theory]
@@ -53,9 +53,9 @@
         [InlineData("")]
         public void InferCategory_NoMatch_ReturnsOther(string question)
         {
-            var service = new ChatCategoryService();
-            var result = service.InferCategory(question);
-            Assert.Equal("Other", result);
+            var chatCategoryService = new ChatCategoryService();
+            var questionCategory = chatCategoryService.InferCategory(question);
+            Assert.Equal("Other", questionCategory);
         }
     }
 }

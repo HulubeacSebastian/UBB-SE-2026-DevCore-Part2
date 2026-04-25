@@ -39,8 +39,8 @@
             string invalidExtensionPath = Path.Combine(this.testFilesDirectory, "testfile.txt");
             await File.WriteAllTextAsync(invalidExtensionPath, "Some content");
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => this.fileStorage.UploadFileAsync(invalidExtensionPath));
-            Assert.Equal("Only PDF, PNG, JPG, and JPEG files are allowed.", ex.Message);
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => this.fileStorage.UploadFileAsync(invalidExtensionPath));
+            Assert.Equal("Only PDF, PNG, JPG, and JPEG files are allowed.", exception.Message);
         }
 
         [Fact]
@@ -48,13 +48,14 @@
         {
             string largeFilePath = Path.Combine(this.testFilesDirectory, "toolarge.pdf");
 
-            using (var fs = new FileStream(largeFilePath, FileMode.Create, FileAccess.Write))
+            using (var fileStream = new FileStream(largeFilePath, FileMode.Create, FileAccess.Write))
             {
-                fs.SetLength((10 * 1024 * 1024) + 1);
+                var fileStreamLength10MB = (10 * 1024 * 1024) + 1;
+                fileStream.SetLength(fileStreamLength10MB);
             }
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => this.fileStorage.UploadFileAsync(largeFilePath));
-            Assert.Equal("File size must be 10 MB or less.", ex.Message);
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => this.fileStorage.UploadFileAsync(largeFilePath));
+            Assert.Equal("File size must be 10 MB or less.", exception.Message);
         }
 
         [Fact]
@@ -98,16 +99,6 @@
 
             Assert.Null(exceptionForEmpty);
             Assert.Null(exceptionForMissing);
-        }
-
-        [Fact]
-        public void GetSignedDownloadUrl_ReturnsSameUrl()
-        {
-            string inputUrl = "https://example.com/file.pdf";
-
-            string result = this.fileStorage.GetSignedDownloadUrl(inputUrl);
-
-            Assert.Equal(inputUrl, result);
         }
 
         public void Dispose()

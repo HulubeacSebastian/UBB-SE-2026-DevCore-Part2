@@ -11,20 +11,20 @@
         [Fact]
         public void FilterHoldingsByAssetType_NullHoldings_ReturnsEmpty()
         {
-            var service = new InvestmentFilteringService();
-            var result = service.FilterHoldingsByAssetType(null, "Stocks");
-            Assert.Empty(result);
+            var investmentFilter = new InvestmentFilteringService();
+            var holdingsEnumerable = investmentFilter.FilterHoldingsByAssetType(null, "Stocks");
+            Assert.Empty(holdingsEnumerable);
         }
 
         [Fact]
         public void FilterHoldingsByAssetType_NullHoldingElement_IgnoresNull()
         {
-            var service = new InvestmentFilteringService();
-            var holdings = new List<InvestmentHolding> { null };
+            var investmentFilter = new InvestmentFilteringService();
+            var holdingListEmpty = new List<InvestmentHolding> { null };
 
-            var result = service.FilterHoldingsByAssetType(holdings, "Stocks");
+            var holdingsEnumerable = investmentFilter.FilterHoldingsByAssetType(holdingListEmpty, "Stocks");
 
-            Assert.Empty(result);
+            Assert.Empty(holdingsEnumerable);
         }
 
         [Theory]
@@ -41,21 +41,21 @@
         [InlineData("Commodities", "All", true)]
         public void FilterHoldingsByAssetType_VariousFilters_ReturnsExpectedMatch(string assetType, string filter, bool shouldMatch)
         {
-            var service = new InvestmentFilteringService();
-            var holdings = new List<InvestmentHolding>
+            var investmentFilter = new InvestmentFilteringService();
+            var holdingListPopulated = new List<InvestmentHolding>
             {
                 new InvestmentHolding { AssetType = assetType }
             };
 
-            var result = service.FilterHoldingsByAssetType(holdings, filter);
+            var holdingsEnumerable = investmentFilter.FilterHoldingsByAssetType(holdingListPopulated, filter);
 
             if (shouldMatch)
             {
-                Assert.Single(result);
+                Assert.Single(holdingsEnumerable);
             }
             else
             {
-                Assert.Empty(result);
+                Assert.Empty(holdingsEnumerable);
             }
         }
     }

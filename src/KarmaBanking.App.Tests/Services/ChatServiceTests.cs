@@ -29,32 +29,36 @@
             int userId = 1;
             string category = "Technical Support";
             int expectedSessionId = 100;
-            this.mockChatRepository.Setup(repo => repo.CreateChatSessionAsync(userId, category))
+            this.mockChatRepository.Setup(chatRepo => chatRepo.CreateChatSessionAsync(userId, category))
                 .ReturnsAsync(expectedSessionId);
 
-            int result = await this.apiService.CreateChatSessionAsync(userId, category);
+            int createdSessionId = await this.apiService.CreateChatSessionAsync(userId, category);
 
-            Assert.Equal(expectedSessionId, result);
-            this.mockChatRepository.Verify(repo => repo.CreateChatSessionAsync(userId, category), Times.Once);
+            Assert.Equal(expectedSessionId, createdSessionId);
+            this.mockChatRepository.Verify(chatRepo => chatRepo.CreateChatSessionAsync(userId, category), Times.Once);
         }
 
         [Fact]
         public async Task SendMessageAsync_CallsRepositoryWithCorrectData()
         {
-            var message = new ChatMessage
+            var newMessage = new ChatMessage
             {
-                SessionId = 100, // You defined it as 100 here
+                SessionId = 100,
                 Content = "Test message",
                 SenderType = "User",
                 SentAt = DateTime.Now
             };
 
-            await this.apiService.SendMessageAsync(message);
+            await this.apiService.SendMessageAsync(newMessage);
 
-            this.mockChatRepository.Verify(repo => repo.AddChatMessageAsync(It.Is<ChatMessage>(m =>
-                m.SessionId == 100 &&
-                m.Content == "Test message" &&
-                m.SenderType == "User")), Times.Once);
+            var expectedSessionIdOfMessage = 100;
+            var expectedContent = "Test message";
+            var expectedMessageSenderType = "User";
+
+            this.mockChatRepository.Verify(chatRepo => chatRepo.AddChatMessageAsync(It.Is<ChatMessage>(message =>
+                message.SessionId == expectedSessionIdOfMessage &&
+                message.Content == expectedContent &&
+                message.SenderType == expectedMessageSenderType)), Times.Once);
         }
 
         [Fact]
@@ -65,14 +69,14 @@
                 new ChatSession { Id = 1, IssueCategory = "Billing" },
                 new ChatSession { Id = 2, IssueCategory = "Security" }
             };
-            this.mockChatRepository.Setup(repo => repo.GetChatSessionsAsync())
+            this.mockChatRepository.Setup(chatRepo => chatRepo.GetChatSessionsAsync())
                 .ReturnsAsync(expectedSessions);
 
-            var result = await this.apiService.GetUserChatSessionsAsync();
+            var chatSessionList = await this.apiService.GetUserChatSessionsAsync();
 
-            Assert.Equal(2, result.Count);
-            Assert.Equal("Billing", result[0].IssueCategory);
-            this.mockChatRepository.Verify(repo => repo.GetChatSessionsAsync(), Times.Once);
+            Assert.Equal(2, chatSessionList.Count);
+            Assert.Equal("Billing", chatSessionList[0].IssueCategory);
+            this.mockChatRepository.Verify(chatRepo => chatRepo.GetChatSessionsAsync(), Times.Once);
         }
 
         [Fact]
@@ -84,18 +88,18 @@
 
             this.apiService.SubmitFeedback(sessionId, rating, feedback);
 
-            this.mockChatRepository.Verify(repo => repo.SaveSessionRatingAndFeedback(
+            this.mockChatRepository.Verify(chatRepo => chatRepo.SaveSessionRatingAndFeedback(
                 sessionId, rating, feedback), Times.Once);
         }
 
         [Fact]
         public async Task GetChatbotPresetQuestionsAsync_ReturnsKeysFromDefaultDictionary()
         {
-            var questions = await this.apiService.GetChatbotPresetQuestionsAsync();
+            var chatbotPresetQuestionList = await this.apiService.GetChatbotPresetQuestionsAsync();
 
-            Assert.Contains("How do I reset my password?", questions);
-            Assert.Contains("Why was my card declined?", questions);
-            Assert.True(questions.Count >= 5);
+            Assert.Contains("How do I reset my password?", chatbotPresetQuestionList);
+            Assert.Contains("Why was my card declined?", chatbotPresetQuestionList);
+            Assert.True(chatbotPresetQuestionList.Count >= 5);
         }
 
         [Fact]
@@ -121,17 +125,17 @@
         [Fact]
         public async Task SendChatToSupportAsync_ReturnsTrue_WhenInputIsValid()
         {
-            var result = await this.apiService.SendChatToSupportAsync("Transcript text", "Help me", null);
+            var chatSentSuccesfully = await this.apiService.SendChatToSupportAsync("Transcript text", "Help me", null);
 
-            Assert.True(result);
+            Assert.True(chatSentSuccesfully);
         }
 
         [Fact]
         public async Task SendChatToSupportAsync_ReturnsFalse_WhenInputsAreEmpty()
         {
-            var result = await this.apiService.SendChatToSupportAsync(string.Empty, " ", null);
+            var chatSentSuccesfully = await this.apiService.SendChatToSupportAsync(string.Empty, " ", null);
 
-            Assert.False(result);
+            Assert.False(chatSentSuccesfully);
         }
     }
 }

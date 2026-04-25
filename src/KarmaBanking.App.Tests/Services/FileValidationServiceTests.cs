@@ -10,48 +10,48 @@
         [Fact]
         public void GetFileSizeDisplay_BytesSize_ReturnsBytesFormatted()
         {
-            long size = 500;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("500 B", result);
+            long fileSize = 500;
+            var fileSizeString = FileValidationService.GetFileSizeDisplay(fileSize);
+            Assert.Equal("500 B", fileSizeString);
         }
 
         [Fact]
         public void GetFileSizeDisplay_ExactKilobyte_ReturnsKilobytesFormatted()
         {
-            long size = 1024;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("1 KB", result);
+            long fileSize = 1024;
+            var fileSizeString = FileValidationService.GetFileSizeDisplay(fileSize);
+            Assert.Equal("1 KB", fileSizeString);
         }
 
         [Fact]
         public void GetFileSizeDisplay_KilobytesSize_ReturnsKilobytesFormatted()
         {
-            long size = 1536;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("1.5 KB", result);
+            long fileSize = 1536;
+            var fileSizeString = FileValidationService.GetFileSizeDisplay(fileSize);
+            Assert.Equal("1.5 KB", fileSizeString);
         }
 
         [Fact]
         public void GetFileSizeDisplay_ExactMegabyte_ReturnsMegabytesFormatted()
         {
-            long size = 1048576;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("1 MB", result);
+            long fileSize = 1048576;
+            var fileSizeString = FileValidationService.GetFileSizeDisplay(fileSize);
+            Assert.Equal("1 MB", fileSizeString);
         }
 
         [Fact]
         public void GetFileSizeDisplay_MegabytesSize_ReturnsMegabytesFormatted()
         {
-            long size = 2621440;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("2.5 MB", result);
+            long fileSize = 2621440;
+            var fileSizeString = FileValidationService.GetFileSizeDisplay(fileSize);
+            Assert.Equal("2.5 MB", fileSizeString);
         }
 
         [Fact]
         public async Task ValidateFileAsync_NullFile_ReturnsFalseAndErrorMessage()
         {
-            var service = new FileValidationService();
-            var (isValid, errorMessage) = await service.ValidateFileAsync(null);
+            var fileValidator = new FileValidationService();
+            var (isValid, errorMessage) = await fileValidator.ValidateFileAsync(null);
 
             Assert.False(isValid);
             Assert.Equal("No file selected.", errorMessage);
@@ -60,10 +60,10 @@
         [Fact]
         public async Task MapStorageFileToAttachmentAsync_NullFile_ThrowsInvalidOperationException()
         {
-            var service = new FileValidationService();
+            var fileValidator = new FileValidationService();
 
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await service.MapStorageFileToAttachmentAsync(null));
+                await fileValidator.MapStorageFileToAttachmentAsync(null));
 
             Assert.Contains("Failed to map file to attachment", exception.Message);
         }

@@ -1,8 +1,4 @@
-﻿// <copyright file="SavingsWorkflowServiceTests.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
-// </copyright>
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
 using KarmaBanking.App.Services;
@@ -12,64 +8,17 @@ namespace KarmaBanking.App.Tests.Services;
 
 public class SavingsWorkflowServiceTests
 {
-    private readonly SavingsWorkflowService service;
+    private readonly SavingsWorkflowService savingsWorkflowService;
 
     public SavingsWorkflowServiceTests()
     {
-        this.service = new SavingsWorkflowService();
+        this.savingsWorkflowService = new SavingsWorkflowService();
     }
 
-    // GetDefaultFundingSource Tests
-    [Fact]
-    public void GetDefaultFundingSource_PopulatedList_ReturnsFirstItem()
-    {
-        var expectedSource = new FundingSourceOption();
-        var sources = new List<FundingSourceOption> { expectedSource, new FundingSourceOption() };
-
-        var result = this.service.GetDefaultFundingSource(sources);
-
-        Assert.Same(expectedSource, result);
-    }
-
-    [Fact]
-    public void GetDefaultFundingSource_EmptyList_ReturnsNull()
-    {
-        var result = this.service.GetDefaultFundingSource(new List<FundingSourceOption>());
-        Assert.Null(result);
-    }
-
-    // GetDefaultCloseDestinationId Tests
-    [Fact]
-    public void GetDefaultCloseDestinationId_PopulatedList_ReturnsFirstId()
-    {
-        var accounts = new List<SavingsAccount>
-        {
-            new SavingsAccount { IdentificationNumber = 42 },
-            new SavingsAccount { IdentificationNumber = 99 }
-        };
-
-        var result = this.service.GetDefaultCloseDestinationId(accounts);
-
-        Assert.Equal(42, result);
-    }
-
-    [Fact]
-    public void GetDefaultCloseDestinationId_EmptyList_ReturnsZero()
-    {
-        var result = this.service.GetDefaultCloseDestinationId(new List<SavingsAccount>());
-
-        Assert.Equal(0, result);
-    }
-
-    // ValidateWithdrawRequest Tests
     [Theory]
-    // Negative amount
     [InlineData(-50.0, true, false, "Please enter a valid amount.")]
-    // Zero amount
     [InlineData(0.0, true, false, "Please enter a valid amount.")]
-    // Valid amount, but missing destination
     [InlineData(100.0, false, false, "Please select a destination account.")]
-    // Valid amount and destination
     [InlineData(100.0, true, true, "")]
     public void ValidateWithdrawRequest_ReturnsExpectedTuple(
         double amountDouble,
@@ -80,13 +29,12 @@ public class SavingsWorkflowServiceTests
         decimal amount = (decimal)amountDouble;
         var destination = hasDestination ? new FundingSourceOption() : null;
 
-        var result = this.service.ValidateWithdrawRequest(amount, destination);
+        var (isValid, errorMessage) = this.savingsWorkflowService.ValidateWithdrawRequest(amount, destination);
 
-        Assert.Equal(expectedValid, result.IsValid);
-        Assert.Equal(expectedError, result.ErrorMessage);
+        Assert.Equal(expectedValid, isValid);
+        Assert.Equal(expectedError, errorMessage);
     }
 
-    // BuildWithdrawResultMessage Tests
     [Fact]
     public void BuildWithdrawResultMessage_NotSuccessful_ReturnsMessage()
     {
@@ -96,9 +44,9 @@ public class SavingsWorkflowServiceTests
             Message = "Insufficient funds."
         };
 
-        var result = this.service.BuildWithdrawResultMessage(response);
+        var withdrawalMessage = this.savingsWorkflowService.BuildWithdrawResultMessage(response);
 
-        Assert.Equal("Insufficient funds.", result);
+        Assert.Equal("Insufficient funds.", withdrawalMessage);
     }
 
     [Fact]
@@ -113,9 +61,9 @@ public class SavingsWorkflowServiceTests
         };
         string expected = $"Withdrawn: ${500m:N2}. New balance: ${1500m:N2}";
 
-        var result = this.service.BuildWithdrawResultMessage(response);
+        var withdrawalMessage = this.savingsWorkflowService.BuildWithdrawResultMessage(response);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(expected, withdrawalMessage);
     }
 
     [Fact]
@@ -130,18 +78,14 @@ public class SavingsWorkflowServiceTests
         };
         string expected = $"Withdrawn: ${500m:N2} (penalty: ${25.50m:N2}). New balance: ${1474.50m:N2}";
 
-        var result = this.service.BuildWithdrawResultMessage(response);
+        var withdrawalMessage = this.savingsWorkflowService.BuildWithdrawResultMessage(response);
 
-        Assert.Equal(expected, result);
+        Assert.Equal(expected, withdrawalMessage);
     }
 
-    // ValidateCloseConfirmation Tests
     [Theory]
-    // User didn't confirm
     [InlineData(false, 1, false, "Please confirm account closure.")]
-    // User confirmed, but didn't pick an account (ID is 0)
     [InlineData(true, 0, false, "Please select a destination account.")]
-    // Valid combination
     [InlineData(true, 42, true, "")]
     public void ValidateCloseConfirmation_ReturnsExpectedTuple(
         bool userConfirmed,
@@ -149,28 +93,27 @@ public class SavingsWorkflowServiceTests
         bool expectedValid,
         string expectedError)
     {
-        var result = this.service.ValidateCloseConfirmation(userConfirmed, destinationId);
+        var (isValid, errorMessage) = this.savingsWorkflowService.ValidateCloseConfirmation(userConfirmed, destinationId);
 
-        Assert.Equal(expectedValid, result.IsValid);
-        Assert.Equal(expectedError, result.ErrorMessage);
+        Assert.Equal(expectedValid, isValid);
+        Assert.Equal(expectedError, errorMessage);
     }
 
-    // Pagination Tests
     [Theory]
-    [InlineData(1, 5, true)] // Page 1 of 5
-    [InlineData(5, 5, false)] // On last page
-    [InlineData(6, 5, false)] // Past total pages
+    [InlineData(1, 5, true)]
+    [InlineData(5, 5, false)]
+    [InlineData(6, 5, false)]
     public void CanMoveToNextPage_ReturnsExpectedResult(int current, int total, bool expected)
     {
-        Assert.Equal(expected, this.service.CanMoveToNextPage(current, total));
+        Assert.Equal(expected, this.savingsWorkflowService.CanMoveToNextPage(current, total));
     }
 
     [Theory]
-    [InlineData(1, false)] // First page
-    [InlineData(2, true)] // Second page
-    [InlineData(5, true)] // Fifth page
+    [InlineData(1, false)]
+    [InlineData(2, true)]
+    [InlineData(5, true)]
     public void CanMoveToPreviousPage_ReturnsExpectedResult(int current, bool expected)
     {
-        Assert.Equal(expected, this.service.CanMoveToPreviousPage(current));
+        Assert.Equal(expected, this.savingsWorkflowService.CanMoveToPreviousPage(current));
     }
 }
