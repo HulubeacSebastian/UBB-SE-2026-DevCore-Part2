@@ -170,7 +170,7 @@ namespace KarmaBanking.App.ViewModels
         public RelayCommand StartNewSessionCommand { get; }
         public RelayCommand RemoveAttachmentCommand { get; }
 
-        private ChatViewModel()
+        public ChatViewModel()
         {
             StartNewSessionCommand = new RelayCommand(OnStartNewSessionAsync);
             RemoveAttachmentCommand = new RelayCommand(OnRemoveAttachmentAsync, () => CanRemoveAttachment);

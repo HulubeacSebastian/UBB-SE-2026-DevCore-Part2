@@ -87,7 +87,7 @@ public class LoanService : ILoanService
     public async Task<int> AddLoanAsync(LoanApplication application)
     {
         var rate = this.GetInterestRateForType(application.LoanType);
-        var estimate = this.calculator.ComputeEstimate(
+        var estimate = AmortizationCalculator.ComputeEstimate(
             application.DesiredAmount,
             rate,
             application.PreferredTermMonths);
@@ -114,7 +114,7 @@ public class LoanService : ILoanService
 
         var rate = this.GetInterestRateForType(request.LoanType);
 
-        return this.calculator.ComputeEstimate(
+        return AmortizationCalculator.ComputeEstimate(
             request.DesiredAmount,
             rate,
             request.PreferredTermMonths);
