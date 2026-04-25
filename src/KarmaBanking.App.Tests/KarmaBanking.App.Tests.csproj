@@ -17,10 +17,10 @@
     <IsTestProject>true</IsTestProject>
 		<Platforms>AnyCPU;x64</Platforms>
 	  <EnableDynamicLoading>true</EnableDynamicLoading>
-	  <WindowsAppSdkRuntimeAutoInitialize>false</WindowsAppSdkRuntimeAutoInitialize>
-
 	  <EnableMsixTooling>false</EnableMsixTooling>
-	  <ExecutionEngine>Native</ExecutionEngine>
+	  <WindowsAppSdkRuntimeAutoInitialize>false</WindowsAppSdkRuntimeAutoInitialize>
+	  <WindowsAppSdkBootstrapInitialize>false</WindowsAppSdkBootstrapInitialize>
+	  <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
   </PropertyGroup>
 
   <ItemGroup>
