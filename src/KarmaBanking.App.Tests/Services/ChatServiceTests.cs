@@ -111,7 +111,7 @@
         [Fact]
         public async Task GetChatbotPresetAnswerAsync_ReturnsDefaultMessageForUnknownQuestion()
         {
-            string question = "What is the meaning of life?";
+            string question = "Test message";
 
             var answer = await this.apiService.GetChatbotPresetAnswerAsync(question);
 
