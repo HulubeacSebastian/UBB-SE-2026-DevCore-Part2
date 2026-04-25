@@ -1,4 +1,8 @@
-﻿namespace KarmaBanking.App.Tests.Services
+﻿// <copyright file="LoanPresentationServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
+
+namespace KarmaBanking.App.Tests.Services
 {
     using KarmaBanking.App.Models;
     using KarmaBanking.App.Services;
@@ -10,17 +14,20 @@
         [Fact]
         public void GetRepaymentProgress_ValidLoan_ReturnsExpectedProgress()
         {
-            var service = new LoanPresentationService();
-            var loan = new Loan
+            // Arrange
+            var loanPresentationService = new LoanPresentationService();
+            var loanInstance = new Loan
             {
                 Principal = 10000m,
                 OutstandingBalance = 2500m
             };
 
-            var result = service.GetRepaymentProgress(loan);
-            var expected = (double)AmortizationCalculator.ComputeRepaymentProgress(loan.Principal, loan.OutstandingBalance);
+            // Act
+            double repaymentProgressResult = loanPresentationService.GetRepaymentProgress(loanInstance);
+            double expectedProgressValue = (double)AmortizationCalculator.ComputeRepaymentProgress(loanInstance.Principal, loanInstance.OutstandingBalance);
 
-            Assert.Equal(expected, result);
+            // Assert
+            Assert.Equal(expectedProgressValue, repaymentProgressResult);
         }
     }
 }

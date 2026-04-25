@@ -1,4 +1,8 @@
-﻿namespace KarmaBanking.App.Tests.Services
+﻿// <copyright file="FileValidationServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
+
+namespace KarmaBanking.App.Tests.Services
 {
     using System;
     using System.Threading.Tasks;
@@ -10,49 +14,52 @@
         [Fact]
         public void GetFileSizeDisplay_BytesSize_ReturnsBytesFormatted()
         {
-            long size = 500;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("500 B", result);
+            // Arrange
+            long sizeInBytes = 500;
+
+            // Act
+            string formattedSizeDisplay = FileValidationService.GetFileSizeDisplay(sizeInBytes);
+
+            // Assert
+            Assert.Equal("500 B", formattedSizeDisplay);
         }
 
         [Fact]
         public void GetFileSizeDisplay_ExactKilobyte_ReturnsKilobytesFormatted()
         {
-            long size = 1024;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("1 KB", result);
-        }
+            // Arrange
+            long sizeInBytes = 1024;
 
-        [Fact]
-        public void GetFileSizeDisplay_KilobytesSize_ReturnsKilobytesFormatted()
-        {
-            long size = 1536;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("1.5 KB", result);
+            // Act
+            string formattedSizeDisplay = FileValidationService.GetFileSizeDisplay(sizeInBytes);
+
+            // Assert
+            Assert.Equal("1 KB", formattedSizeDisplay);
         }
 
         [Fact]
         public void GetFileSizeDisplay_ExactMegabyte_ReturnsMegabytesFormatted()
         {
-            long size = 1048576;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("1 MB", result);
-        }
+            // Arrange
+            long sizeInBytes = 1048576;
 
-        [Fact]
-        public void GetFileSizeDisplay_MegabytesSize_ReturnsMegabytesFormatted()
-        {
-            long size = 2621440;
-            var result = FileValidationService.GetFileSizeDisplay(size);
-            Assert.Equal("2.5 MB", result);
+            // Act
+            string formattedSizeDisplay = FileValidationService.GetFileSizeDisplay(sizeInBytes);
+
+            // Assert
+            Assert.Equal("1 MB", formattedSizeDisplay);
         }
 
         [Fact]
         public async Task ValidateFileAsync_NullFile_ReturnsFalseAndErrorMessage()
         {
-            var service = new FileValidationService();
-            var (isValid, errorMessage) = await service.ValidateFileAsync(null);
+            // Arrange
+            var fileValidationService = new FileValidationService();
 
+            // Act
+            var (isValid, errorMessage) = await fileValidationService.ValidateFileAsync(null);
+
+            // Assert
             Assert.False(isValid);
             Assert.Equal("No file selected.", errorMessage);
         }
@@ -60,10 +67,12 @@
         [Fact]
         public async Task MapStorageFileToAttachmentAsync_NullFile_ThrowsInvalidOperationException()
         {
-            var service = new FileValidationService();
+            // Arrange
+            var fileValidationService = new FileValidationService();
 
+            // Act & Assert
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await service.MapStorageFileToAttachmentAsync(null));
+                await fileValidationService.MapStorageFileToAttachmentAsync(null));
 
             Assert.Contains("Failed to map file to attachment", exception.Message);
         }

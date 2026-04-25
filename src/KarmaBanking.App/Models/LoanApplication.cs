@@ -10,12 +10,12 @@ public class LoanApplication
     /// <summary>
     /// Gets or sets the unique application identifier.
     /// </summary>
-    public int Id { get; set; }
+    public int IdentificationNumber { get; set; }
 
     /// <summary>
     /// Gets or sets the applicant user identifier.
     /// </summary>
-    public int UserId { get; set; }
+    public int UserIdentificationNumber { get; set; }
 
     /// <summary>
     /// Gets or sets the requested loan type.

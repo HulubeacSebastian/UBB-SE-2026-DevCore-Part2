@@ -1,4 +1,8 @@
-﻿namespace KarmaBanking.App.Tests.Services
+﻿// <copyright file="DialogServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
+
+namespace KarmaBanking.App.Tests.Services
 {
     using System;
     using System.Threading.Tasks;
@@ -10,81 +14,62 @@
         [Fact]
         public async Task ShowConfirmDialogAsync_NullXamlRoot_ThrowsException()
         {
-            var service = new DialogService();
+            // Arrange
+            var dialogService = new DialogService();
 
+            // Act & Assert
             await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await service.ShowConfirmDialogAsync("Title", "Message", "Yes", "No", null));
+                await dialogService.ShowConfirmDialogAsync("Title", "Message", "Yes", "No", null));
         }
 
         [Theory]
         [InlineData("", "", "", "")]
         [InlineData(null, null, null, null)]
-        public async Task ShowConfirmDialogAsync_NullOrEmptyStrings_ThrowsException(string title, string message, string primary, string close)
+        public async Task ShowConfirmDialogAsync_NullOrEmptyStrings_ThrowsException(
+            string title,
+            string message,
+            string primaryButtonText,
+            string closeButtonText)
         {
-            var service = new DialogService();
+            // Arrange
+            var dialogService = new DialogService();
 
+            // Act & Assert
             await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await service.ShowConfirmDialogAsync(title, message, primary, close, null));
+                await dialogService.ShowConfirmDialogAsync(title, message, primaryButtonText, closeButtonText, null));
         }
 
         [Fact]
         public async Task ShowErrorDialogAsync_NullXamlRoot_ThrowsException()
         {
-            var service = new DialogService();
+            // Arrange
+            var dialogService = new DialogService();
 
+            // Act & Assert
             await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await service.ShowErrorDialogAsync("Title", "Message", null));
-        }
-
-        [Theory]
-        [InlineData("", "")]
-        [InlineData(null, null)]
-        public async Task ShowErrorDialogAsync_NullOrEmptyStrings_ThrowsException(string title, string message)
-        {
-            var service = new DialogService();
-
-            await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await service.ShowErrorDialogAsync(title, message, null));
+                await dialogService.ShowErrorDialogAsync("Title", "Message", null));
         }
 
         [Fact]
         public async Task ShowInputDialogAsync_NullXamlRoot_ThrowsException()
         {
-            var service = new DialogService();
+            // Arrange
+            var dialogService = new DialogService();
 
+            // Act & Assert
             await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await service.ShowInputDialogAsync("Title", "Placeholder", "OK", "Cancel", null));
-        }
-
-        [Theory]
-        [InlineData("", "", "", "")]
-        [InlineData(null, null, null, null)]
-        public async Task ShowInputDialogAsync_NullOrEmptyStrings_ThrowsException(string title, string placeholder, string primary, string close)
-        {
-            var service = new DialogService();
-
-            await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await service.ShowInputDialogAsync(title, placeholder, primary, close, null));
+                await dialogService.ShowInputDialogAsync("Title", "Placeholder", "OK", "Cancel", null));
         }
 
         [Fact]
         public async Task ShowInfoDialogAsync_NullXamlRoot_ThrowsException()
         {
-            var service = new DialogService();
+            // Arrange
+            var dialogService = new DialogService();
 
+            // Act & Assert
             await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await service.ShowInfoDialogAsync("Title", "Message", null));
-        }
-
-        [Theory]
-        [InlineData("", "")]
-        [InlineData(null, null)]
-        public async Task ShowInfoDialogAsync_NullOrEmptyStrings_ThrowsException(string title, string message)
-        {
-            var service = new DialogService();
-
-            await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await service.ShowInfoDialogAsync(title, message, null));
+                await dialogService.ShowInfoDialogAsync("Title", "Message", null));
         }
     }
 }

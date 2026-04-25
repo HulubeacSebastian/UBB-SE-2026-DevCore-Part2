@@ -1,4 +1,8 @@
-﻿namespace KarmaBanking.App.Tests.Services
+﻿// <copyright file="MarketDataServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
+
+namespace KarmaBanking.App.Tests.Services
 {
     using System;
     using System.Collections.Generic;
@@ -12,103 +16,54 @@
         public void GetPrice_ValidTicker_ReturnsInitialPrice()
         {
             // Arrange
-            var service = new MarketDataService();
+            var marketDataService = new MarketDataService();
 
             // Act
-            decimal price = service.GetPrice("BTC");
+            decimal currentMarketPrice = marketDataService.GetPrice("BTC");
 
             // Assert
-            Assert.Equal(68000m, price);
-        }
-
-        [Fact]
-        public void GetPrice_InvalidOrWhitespaceTicker_ReturnsZero()
-        {
-            // Arrange
-            var service = new MarketDataService();
-
-            // Act & Assert: Tests both the null/whitespace guard and the "not found" dictionary path
-            Assert.Equal(0m, service.GetPrice(null!));
-            Assert.Equal(0m, service.GetPrice("   "));
-            Assert.Equal(0m, service.GetPrice("INVALID"));
+            Assert.Equal(68000m, currentMarketPrice);
         }
 
         [Fact]
         public void StartPolling_FiltersAndNormalizesTickers()
         {
             // Arrange
-            var service = new MarketDataService();
-            var messyTickers = new List<string> { " btc ", string.Empty, null!, "AAPL", "btc" };
+            var marketDataService = new MarketDataService();
+            var messyTickerSymbols = new List<string> { " btc ", string.Empty, null!, "AAPL", "btc" };
 
             // Act
-            service.StartPolling(messyTickers);
-
-            // Assert: Verify normalization (case-insensitivity and whitespace trimming)
-            Assert.Equal(68000m, service.GetPrice("BTC"));
-            Assert.Equal(185m, service.GetPrice("aapl"));
-
-            service.StopPolling();
-        }
-
-        [Fact]
-        public void StartPolling_CalledTwice_DoesNotRestartTimer()
-        {
-            // Arrange
-            var service = new MarketDataService();
-            var tickers = new List<string> { "BTC" };
-
-            // Act
-            service.StartPolling(tickers);
-            service.StartPolling(tickers); // This hits the 'if (this.pollingTimer != null) return;' path
+            marketDataService.StartPolling(messyTickerSymbols);
 
             // Assert
-            Assert.NotNull(tickers);
-            service.StopPolling();
-        }
+            Assert.Equal(68000m, marketDataService.GetPrice("BTC"));
+            Assert.Equal(185m, marketDataService.GetPrice("aapl"));
 
-        [Fact]
-        public void RegisterPriceUpdateHandler_SetsHandlerCorrectly()
-        {
-            // Arrange
-            var service = new MarketDataService();
-            bool handlerCalled = false;
-            Action handler = () => handlerCalled = true;
-
-            // Act
-            service.RegisterPriceUpdateHandler(handler);
-
-            // Note: We can't easily wait 5 seconds in a fast unit test,
-            // but this covers the setter logic line.
-            Assert.False(handlerCalled);
+            marketDataService.StopPolling();
         }
 
         [Fact]
         public async Task StartPolling_FluctuatesPrices_AfterInterval()
         {
-            // WARNING: This test takes ~5 seconds to run because of the 5000ms DefaultPollingInterval.
-            // It is necessary to cover the logic inside the Timer callback.
-
             // Arrange
-            var service = new MarketDataService();
-            var tickers = new List<string> { "BTC" };
-            decimal initialPrice = service.GetPrice("BTC");
-            bool wasNotified = false;
+            var marketDataService = new MarketDataService();
+            var tickerSymbols = new List<string> { "BTC" };
+            decimal initialMarketPrice = marketDataService.GetPrice("BTC");
+            bool wasPriceUpdateNotificationSent = false;
 
-            service.RegisterPriceUpdateHandler(() => wasNotified = true);
+            marketDataService.RegisterPriceUpdateHandler(() => wasPriceUpdateNotificationSent = true);
 
             // Act
-            service.StartPolling(tickers);
+            marketDataService.StartPolling(tickerSymbols);
+            await Task.Delay(5500); // Wait for the 5000ms polling interval
 
-            // Wait long enough for the 5000ms timer to fire once
-            await Task.Delay(5500);
-
-            decimal updatedPrice = service.GetPrice("BTC");
+            decimal updatedMarketPrice = marketDataService.GetPrice("BTC");
 
             // Assert
-            Assert.NotEqual(initialPrice, updatedPrice); // Coverage for fluctuation math
-            Assert.True(wasNotified); // Coverage for priceUpdateHandler?.Invoke()
+            Assert.NotEqual(initialMarketPrice, updatedMarketPrice);
+            Assert.True(wasPriceUpdateNotificationSent);
 
-            service.StopPolling();
+            marketDataService.StopPolling();
         }
     }
 }

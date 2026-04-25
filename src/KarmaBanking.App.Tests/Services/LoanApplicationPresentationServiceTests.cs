@@ -1,4 +1,8 @@
-﻿namespace KarmaBanking.App.Tests.Services
+﻿// <copyright file="LoanApplicationPresentationServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
+
+namespace KarmaBanking.App.Tests.Services
 {
     using KarmaBanking.App.Services;
     using Xunit;
@@ -8,24 +12,30 @@
         [Fact]
         public void BuildApplicationOutcome_NullRejectionReason_ReturnsApproved()
         {
-            var service = new LoanApplicationPresentationService();
+            // Arrange
+            var loanApplicationPresentationService = new LoanApplicationPresentationService();
 
-            var (approved, message) = service.BuildApplicationOutcome(null);
+            // Act
+            var (isApproved, applicationMessage) = loanApplicationPresentationService.BuildApplicationOutcome(null);
 
-            Assert.True(approved);
-            Assert.Equal("Your loan application has been approved!", message);
+            // Assert
+            Assert.True(isApproved);
+            Assert.Equal("Your loan application has been approved!", applicationMessage);
         }
 
         [Fact]
         public void BuildApplicationOutcome_WithRejectionReason_ReturnsRejectedWithMessage()
         {
-            var service = new LoanApplicationPresentationService();
-            var reason = "Credit score too low";
+            // Arrange
+            var loanApplicationPresentationService = new LoanApplicationPresentationService();
+            string rejectionReasonMessage = "Credit score too low";
 
-            var (approved, message) = service.BuildApplicationOutcome(reason);
+            // Act
+            var (isApproved, applicationMessage) = loanApplicationPresentationService.BuildApplicationOutcome(rejectionReasonMessage);
 
-            Assert.False(approved);
-            Assert.Equal($"Application rejected: {reason}", message);
+            // Assert
+            Assert.False(isApproved);
+            Assert.Equal($"Application rejected: {rejectionReasonMessage}", applicationMessage);
         }
     }
 }
