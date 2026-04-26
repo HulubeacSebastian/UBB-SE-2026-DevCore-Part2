@@ -23,11 +23,11 @@ namespace KarmaBanking.App.Tests.Services
             };
 
             // Act
-            double repaymentProgressResult = loanPresentationService.GetRepaymentProgress(loanInstance);
-            double expectedProgressValue = (double)AmortizationCalculator.ComputeRepaymentProgress(loanInstance.Principal, loanInstance.OutstandingBalance);
+            double actualRepaymentProgress = loanPresentationService.GetRepaymentProgress(loanInstance);
+            double expectedRepaymentProgress = (double)AmortizationCalculator.ComputeRepaymentProgress(loanInstance.Principal, loanInstance.OutstandingBalance);
 
             // Assert
-            Assert.Equal(expectedProgressValue, repaymentProgressResult);
+            Assert.Equal(expectedRepaymentProgress, actualRepaymentProgress);
         }
     }
 }

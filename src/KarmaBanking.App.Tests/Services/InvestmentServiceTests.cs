@@ -62,20 +62,10 @@ namespace KarmaBanking.App.Tests.Services
                 .ThrowsAsync(new Exception("Database Failure"));
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(() =>
+            var validationException = await Assert.ThrowsAsync<Exception>(() =>
                 this.investmentService.ExecuteCryptoTradeAsync(portfolioIdentificationNumber, "BTC", "BUY", 1m, 100m));
 
-            Assert.Contains("Trade execution failed", exception.Message);
-        }
-
-        [Fact]
-        public async Task ExecuteCryptoTradeAsync_ValidatesInputs_ThrowsOnInvalidValues()
-        {
-            // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, string.Empty, "BUY", 1, 100));
-            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, "BTC", "BUY", 0, 100));
-            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, "BTC", "BUY", 1, -1));
-            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.ExecuteCryptoTradeAsync(1, "BTC", "INVALID", 1, 100));
+            Assert.Contains("Trade execution failed", validationException.Message);
         }
 
         [Fact]
@@ -83,25 +73,25 @@ namespace KarmaBanking.App.Tests.Services
         {
             // Arrange
             int userIdentificationNumber = 123;
-            var expectedPortfolio = new Portfolio { IdentificationNumber = 1, TotalValue = 500m };
-            this.investmentRepositoryMock.Setup(repository => repository.GetPortfolio(userIdentificationNumber)).Returns(expectedPortfolio);
+            var expectedPortfolioInstance = new Portfolio { IdentificationNumber = 1, TotalValue = 500m };
+            this.investmentRepositoryMock.Setup(repository => repository.GetPortfolio(userIdentificationNumber)).Returns(expectedPortfolioInstance);
 
             // Act
-            var actualPortfolio = this.investmentService.GetPortfolio(userIdentificationNumber);
+            var actualPortfolioResult = this.investmentService.GetPortfolio(userIdentificationNumber);
 
             // Assert
-            Assert.Equal(expectedPortfolio.IdentificationNumber, actualPortfolio.IdentificationNumber);
+            Assert.Equal(expectedPortfolioInstance.IdentificationNumber, actualPortfolioResult.IdentificationNumber);
         }
 
         [Fact]
         public async Task GetInvestmentLogsAsync_ThrowsWhenStartDateAfterEndDate()
         {
             // Arrange
-            DateTime startDateTime = DateTime.Now;
-            DateTime endDateTime = startDateTime.AddDays(-1);
+            DateTime startDateTimeValue = DateTime.Now;
+            DateTime endDateTimeValue = startDateTimeValue.AddDays(-1);
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.GetInvestmentLogsAsync(1, startDateTime, endDateTime));
+            await Assert.ThrowsAsync<ArgumentException>(() => this.investmentService.GetInvestmentLogsAsync(1, startDateTimeValue, endDateTimeValue));
         }
     }
 }

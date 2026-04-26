@@ -19,38 +19,132 @@ namespace KarmaBanking.App.Tests.Services
             this.savingsWorkflowService = new SavingsWorkflowService();
         }
 
-        [Fact]
-        public void GetDefaultFundingSource_PopulatedList_ReturnsFirstItem()
+        [Theory]
+        [InlineData(-50.0, true, false, "Please enter a valid amount.")]
+        [InlineData(0.0, true, false, "Please enter a valid amount.")]
+        [InlineData(100.0, false, false, "Please select a destination account.")]
+        [InlineData(100.0, true, true, "")]
+        public void ValidateWithdrawRequest_ReturnsExpectedTuple(
+            double withdrawalAmountValue,
+            bool isDestinationSelected,
+            bool isExpectedToBeValid,
+            string expectedValidationErrorMessage)
         {
             // Arrange
-            var firstFundingSourceOption = new FundingSourceOption();
-            var fundingSourcesList = new List<FundingSourceOption> { firstFundingSourceOption, new FundingSourceOption() };
+            decimal withdrawalAmount = (decimal)withdrawalAmountValue;
+            var fundingSourceOptionInstance = isDestinationSelected ? new FundingSourceOption() : null;
 
             // Act
-            var actualFundingSource = this.savingsWorkflowService.GetDefaultFundingSource(fundingSourcesList);
+            var (isRequestValid, actualErrorMessage) = this.savingsWorkflowService.ValidateWithdrawRequest(
+                withdrawalAmount,
+                fundingSourceOptionInstance);
 
             // Assert
-            Assert.Same(firstFundingSourceOption, actualFundingSource);
+            Assert.Equal(isExpectedToBeValid, isRequestValid);
+            Assert.Equal(expectedValidationErrorMessage, actualErrorMessage);
+        }
+
+        [Fact]
+        public void BuildWithdrawResultMessage_NotSuccessful_ReturnsMessage()
+        {
+            // Arrange
+            var withdrawResponseDataTransferObject = new WithdrawResponseDto
+            {
+                Success = false,
+                Message = "Insufficient funds."
+            };
+
+            // Act
+            string actualWithdrawalResultMessage = this.savingsWorkflowService.BuildWithdrawResultMessage(withdrawResponseDataTransferObject);
+
+            // Assert
+            Assert.Equal("Insufficient funds.", actualWithdrawalResultMessage);
+        }
+
+        [Fact]
+        public void BuildWithdrawResultMessage_SuccessWithoutPenalty_FormatsProperly()
+        {
+            // Arrange
+            var withdrawResponseDataTransferObject = new WithdrawResponseDto
+            {
+                Success = true,
+                AmountWithdrawn = 500m,
+                PenaltyApplied = 0m,
+                NewBalance = 1500m
+            };
+            string expectedResultMessage = $"Withdrawn: ${500m:N2}. New balance: ${1500m:N2}";
+
+            // Act
+            string actualWithdrawalResultMessage = this.savingsWorkflowService.BuildWithdrawResultMessage(withdrawResponseDataTransferObject);
+
+            // Assert
+            Assert.Equal(expectedResultMessage, actualWithdrawalResultMessage);
         }
 
         [Fact]
         public void BuildWithdrawResultMessage_SuccessWithPenalty_FormatsProperly()
         {
             // Arrange
-            var withdrawalResponseDataTransferObject = new WithdrawResponseDto
+            var withdrawResponseDataTransferObject = new WithdrawResponseDto
             {
                 Success = true,
                 AmountWithdrawn = 500m,
                 PenaltyApplied = 25.50m,
                 NewBalance = 1474.50m
             };
-            string expectedWithdrawalMessage = $"Withdrawn: ${500m:N2} (penalty: ${25.50m:N2}). New balance: ${1474.50m:N2}";
+            string expectedResultMessage = $"Withdrawn: ${500m:N2} (penalty: ${25.50m:N2}). New balance: ${1474.50m:N2}";
 
             // Act
-            string actualWithdrawalMessage = this.savingsWorkflowService.BuildWithdrawResultMessage(withdrawalResponseDataTransferObject);
+            string actualWithdrawalResultMessage = this.savingsWorkflowService.BuildWithdrawResultMessage(withdrawResponseDataTransferObject);
 
             // Assert
-            Assert.Equal(expectedWithdrawalMessage, actualWithdrawalMessage);
+            Assert.Equal(expectedResultMessage, actualWithdrawalResultMessage);
+        }
+
+        [Theory]
+        [InlineData(false, 1, false, "Please confirm account closure.")]
+        [InlineData(true, 0, false, "Please select a destination account.")]
+        [InlineData(true, 42, true, "")]
+        public void ValidateCloseConfirmation_ReturnsExpectedTuple(
+            bool isUserConfirmationProvided,
+            int destinationIdentificationNumber,
+            bool isExpectedToBeValid,
+            string expectedValidationErrorMessage)
+        {
+            // Act
+            var (isConfirmationValid, actualErrorMessage) = this.savingsWorkflowService.ValidateCloseConfirmation(
+                isUserConfirmationProvided,
+                destinationIdentificationNumber);
+
+            // Assert
+            Assert.Equal(isExpectedToBeValid, isConfirmationValid);
+            Assert.Equal(expectedValidationErrorMessage, actualErrorMessage);
+        }
+
+        [Theory]
+        [InlineData(1, 5, true)]
+        [InlineData(5, 5, false)]
+        [InlineData(6, 5, false)]
+        public void CanMoveToNextPage_ReturnsExpectedResult(int currentPageIndex, int totalPageCount, bool isExpectedToMove)
+        {
+            // Act
+            bool actualCanMoveResult = this.savingsWorkflowService.CanMoveToNextPage(currentPageIndex, totalPageCount);
+
+            // Assert
+            Assert.Equal(isExpectedToMove, actualCanMoveResult);
+        }
+
+        [Theory]
+        [InlineData(1, false)]
+        [InlineData(2, true)]
+        [InlineData(5, true)]
+        public void CanMoveToPreviousPage_ReturnsExpectedResult(int currentPageIndex, bool isExpectedToMove)
+        {
+            // Act
+            bool actualCanMoveResult = this.savingsWorkflowService.CanMoveToPreviousPage(currentPageIndex);
+
+            // Assert
+            Assert.Equal(isExpectedToMove, actualCanMoveResult);
         }
     }
 }

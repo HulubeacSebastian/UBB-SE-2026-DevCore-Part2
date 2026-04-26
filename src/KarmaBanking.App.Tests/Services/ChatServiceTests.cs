@@ -5,34 +5,41 @@
 namespace KarmaBanking.App.Tests.Services
 {
     using System.Threading.Tasks;
-    using KarmaBanking.App.Repositories.Interfaces;
-    using KarmaBanking.App.Services;
-    using KarmaBanking.App.Services.Interfaces;
+    using global::KarmaBanking.App.Repositories.Interfaces;
+    using global::KarmaBanking.App.Services;
     using Moq;
     using Xunit;
 
     public class ApiServiceChatTests
     {
-        private readonly Mock<IChatRepository> mockChatRepository;
-        private readonly Mock<ILoanService> mockLoanService;
+        private readonly Mock<IChatRepository> chatRepositoryMock;
+        private readonly Mock<ILoanService> loanServiceMock;
         private readonly ApiService apiService;
 
         public ApiServiceChatTests()
         {
-            this.mockChatRepository = new Mock<IChatRepository>();
-            this.mockLoanService = new Mock<ILoanService>();
-            this.apiService = new ApiService(this.mockLoanService.Object, this.mockChatRepository.Object);
+            this.chatRepositoryMock = new Mock<IChatRepository>();
+            this.loanServiceMock = new Mock<ILoanService>();
+            this.apiService = new ApiService(this.loanServiceMock.Object, this.chatRepositoryMock.Object);
         }
 
         [Fact]
-        public async Task CreateChatSessionAsync_CallsRepositoryAndReturnsId()
+        public async Task CreateChatSessionAsync_CallsRepositoryAndReturnsIdentificationNumber()
         {
-            this.mockChatRepository.Setup(repo => repo.CreateChatSessionAsync(1, "Support")).ReturnsAsync(100);
+            // Arrange
+            int userIdentificationNumber = 1;
+            string issueCategoryName = "Support";
+            int expectedSessionIdentificationNumber = 100;
 
-            var result = await this.apiService.CreateChatSessionAsync(1, "Support");
+            this.chatRepositoryMock.Setup(repository => repository.CreateChatSessionAsync(userIdentificationNumber, issueCategoryName))
+                .ReturnsAsync(expectedSessionIdentificationNumber);
 
-            Assert.Equal(100, result);
-            this.mockChatRepository.Verify(repo => repo.CreateChatSessionAsync(1, "Support"), Times.Once);
+            // Act
+            int actualSessionIdentificationNumber = await this.apiService.CreateChatSessionAsync(userIdentificationNumber, issueCategoryName);
+
+            // Assert
+            Assert.Equal(expectedSessionIdentificationNumber, actualSessionIdentificationNumber);
+            this.chatRepositoryMock.Verify(repository => repository.CreateChatSessionAsync(userIdentificationNumber, issueCategoryName), Times.Once);
         }
     }
 }

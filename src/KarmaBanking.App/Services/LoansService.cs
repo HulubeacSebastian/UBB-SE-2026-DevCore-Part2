@@ -111,7 +111,7 @@ public class LoanService : ILoanService
 
         var loan = new Loan
         {
-            UserIdentificationNumber = application.UserIdentificationNumber,
+            UserId = application.UserIdentificationNumber,
             LoanType = application.LoanType,
             Principal = application.DesiredAmount,
             OutstandingBalance = application.DesiredAmount,

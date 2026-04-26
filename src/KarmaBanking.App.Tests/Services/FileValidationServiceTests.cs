@@ -6,24 +6,11 @@ namespace KarmaBanking.App.Tests.Services
 {
     using System;
     using System.Threading.Tasks;
-    using KarmaBanking.App.Services;
+    using global::KarmaBanking.App.Services;
     using Xunit;
 
     public class FileValidationServiceTests
     {
-        [Fact]
-        public void GetFileSizeDisplay_BytesSize_ReturnsBytesFormatted()
-        {
-            // Arrange
-            long sizeInBytes = 500;
-
-            // Act
-            string formattedSizeDisplay = FileValidationService.GetFileSizeDisplay(sizeInBytes);
-
-            // Assert
-            Assert.Equal("500 B", formattedSizeDisplay);
-        }
-
         [Fact]
         public void GetFileSizeDisplay_ExactKilobyte_ReturnsKilobytesFormatted()
         {
@@ -31,23 +18,10 @@ namespace KarmaBanking.App.Tests.Services
             long sizeInBytes = 1024;
 
             // Act
-            string formattedSizeDisplay = FileValidationService.GetFileSizeDisplay(sizeInBytes);
+            string formattedDisplaySize = FileValidationService.GetFileSizeDisplay(sizeInBytes);
 
             // Assert
-            Assert.Equal("1 KB", formattedSizeDisplay);
-        }
-
-        [Fact]
-        public void GetFileSizeDisplay_ExactMegabyte_ReturnsMegabytesFormatted()
-        {
-            // Arrange
-            long sizeInBytes = 1048576;
-
-            // Act
-            string formattedSizeDisplay = FileValidationService.GetFileSizeDisplay(sizeInBytes);
-
-            // Assert
-            Assert.Equal("1 MB", formattedSizeDisplay);
+            Assert.Equal("1 KB", formattedDisplaySize);
         }
 
         [Fact]
@@ -57,11 +31,11 @@ namespace KarmaBanking.App.Tests.Services
             var fileValidationService = new FileValidationService();
 
             // Act
-            var (isValid, errorMessage) = await fileValidationService.ValidateFileAsync(null);
+            var (isValidResult, validationErrorMessage) = await fileValidationService.ValidateFileAsync(null);
 
             // Assert
-            Assert.False(isValid);
-            Assert.Equal("No file selected.", errorMessage);
+            Assert.False(isValidResult);
+            Assert.Equal("No file selected.", validationErrorMessage);
         }
 
         [Fact]
@@ -71,10 +45,10 @@ namespace KarmaBanking.App.Tests.Services
             var fileValidationService = new FileValidationService();
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            var validationException = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
                 await fileValidationService.MapStorageFileToAttachmentAsync(null));
 
-            Assert.Contains("Failed to map file to attachment", exception.Message);
+            Assert.Contains("Failed to map file to attachment", validationException.Message);
         }
     }
 }

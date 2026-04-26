@@ -27,26 +27,26 @@ namespace KarmaBanking.App.Tests.Services
                 new SavingsAccount { Balance = 1500.50m },
                 new SavingsAccount { Balance = 2500.25m }
             };
-            string expectedFormattedBalance = $"${4000.75m:F2}";
+            string expectedFormattedBalanceText = $"${4000.75m:F2}";
 
             // Act
-            string actualFormattedBalance = this.savingsPresentationService.BuildTotalSavedAmount(savingsAccountsList);
+            string actualFormattedBalanceResult = this.savingsPresentationService.BuildTotalSavedAmount(savingsAccountsList);
 
             // Assert
-            Assert.Equal(expectedFormattedBalance, actualFormattedBalance);
+            Assert.Equal(expectedFormattedBalanceText, actualFormattedBalanceResult);
         }
 
         [Theory]
         [InlineData(0, "across 0 accounts")]
         [InlineData(1, "across 1 account")]
         [InlineData(2, "across 2 accounts")]
-        public void BuildNumberOfAccountsText_HandlesPluralization(int accountsCount, string expectedPluralizedText)
+        public void BuildNumberOfAccountsText_HandlesPluralization(int totalAccountsCount, string expectedPluralizedText)
         {
             // Act
-            string actualPluralizedText = this.savingsPresentationService.BuildNumberOfAccountsText(accountsCount);
+            string actualPluralizedResultText = this.savingsPresentationService.BuildNumberOfAccountsText(totalAccountsCount);
 
             // Assert
-            Assert.Equal(expectedPluralizedText, actualPluralizedText);
+            Assert.Equal(expectedPluralizedText, actualPluralizedResultText);
         }
     }
 }

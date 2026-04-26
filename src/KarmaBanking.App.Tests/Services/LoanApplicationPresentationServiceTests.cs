@@ -16,11 +16,11 @@ namespace KarmaBanking.App.Tests.Services
             var loanApplicationPresentationService = new LoanApplicationPresentationService();
 
             // Act
-            var (isApproved, applicationMessage) = loanApplicationPresentationService.BuildApplicationOutcome(null);
+            var (isApprovedResult, applicationOutcomeMessage) = loanApplicationPresentationService.BuildApplicationOutcome(null);
 
             // Assert
-            Assert.True(isApproved);
-            Assert.Equal("Your loan application has been approved!", applicationMessage);
+            Assert.True(isApprovedResult);
+            Assert.Equal("Your loan application has been approved!", applicationOutcomeMessage);
         }
 
         [Fact]
@@ -28,14 +28,14 @@ namespace KarmaBanking.App.Tests.Services
         {
             // Arrange
             var loanApplicationPresentationService = new LoanApplicationPresentationService();
-            string rejectionReasonMessage = "Credit score too low";
+            string rejectionReasonText = "Credit score too low";
 
             // Act
-            var (isApproved, applicationMessage) = loanApplicationPresentationService.BuildApplicationOutcome(rejectionReasonMessage);
+            var (isApprovedResult, applicationOutcomeMessage) = loanApplicationPresentationService.BuildApplicationOutcome(rejectionReasonText);
 
             // Assert
-            Assert.False(isApproved);
-            Assert.Equal($"Application rejected: {rejectionReasonMessage}", applicationMessage);
+            Assert.False(isApprovedResult);
+            Assert.Equal($"Application rejected: {rejectionReasonText}", applicationOutcomeMessage);
         }
     }
 }

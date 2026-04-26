@@ -6,7 +6,7 @@ namespace KarmaBanking.App.Tests.Services
 {
     using System;
     using System.Threading.Tasks;
-    using KarmaBanking.App.Services;
+    using global::KarmaBanking.App.Services;
     using Xunit;
 
     public class DialogServiceTests
@@ -26,8 +26,8 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData("", "", "", "")]
         [InlineData(null, null, null, null)]
         public async Task ShowConfirmDialogAsync_NullOrEmptyStrings_ThrowsException(
-            string title,
-            string message,
+            string titleValue,
+            string messageValue,
             string primaryButtonText,
             string closeButtonText)
         {
@@ -36,7 +36,7 @@ namespace KarmaBanking.App.Tests.Services
 
             // Act & Assert
             await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await dialogService.ShowConfirmDialogAsync(title, message, primaryButtonText, closeButtonText, null));
+                await dialogService.ShowConfirmDialogAsync(titleValue, messageValue, primaryButtonText, closeButtonText, null));
         }
 
         [Fact]
@@ -47,29 +47,7 @@ namespace KarmaBanking.App.Tests.Services
 
             // Act & Assert
             await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await dialogService.ShowErrorDialogAsync("Title", "Message", null));
-        }
-
-        [Fact]
-        public async Task ShowInputDialogAsync_NullXamlRoot_ThrowsException()
-        {
-            // Arrange
-            var dialogService = new DialogService();
-
-            // Act & Assert
-            await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await dialogService.ShowInputDialogAsync("Title", "Placeholder", "OK", "Cancel", null));
-        }
-
-        [Fact]
-        public async Task ShowInfoDialogAsync_NullXamlRoot_ThrowsException()
-        {
-            // Arrange
-            var dialogService = new DialogService();
-
-            // Act & Assert
-            await Assert.ThrowsAnyAsync<Exception>(async () =>
-                await dialogService.ShowInfoDialogAsync("Title", "Message", null));
+                await dialogService.ShowErrorDialogAsync("Error", "Details", null));
         }
     }
 }

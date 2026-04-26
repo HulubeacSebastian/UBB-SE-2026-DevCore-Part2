@@ -25,13 +25,13 @@ namespace KarmaBanking.App.Tests.Services
         [Theory]
         [InlineData(0, 12, "Purpose")]
         [InlineData(-100, 12, "Purpose")]
-        public void ShouldComputeEstimate_InvalidAmount_ReturnsFalse(double loanAmount, int loanTermMonths, string loanPurpose)
+        public void ShouldComputeEstimate_InvalidAmount_ReturnsFalse(double loanAmountValue, int loanTermMonthsCount, string loanPurposeText)
         {
             // Arrange
             var loanDialogStateService = new LoanDialogStateService();
 
             // Act
-            bool result = loanDialogStateService.ShouldComputeEstimate(loanAmount, loanTermMonths, loanPurpose);
+            bool result = loanDialogStateService.ShouldComputeEstimate(loanAmountValue, loanTermMonthsCount, loanPurposeText);
 
             // Assert
             Assert.False(result);
@@ -41,13 +41,13 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData(5000, 12, "")]
         [InlineData(5000, 12, "   ")]
         [InlineData(5000, 12, null)]
-        public void ShouldComputeEstimate_InvalidPurpose_ReturnsFalse(double loanAmount, int loanTermMonths, string loanPurpose)
+        public void ShouldComputeEstimate_InvalidPurpose_ReturnsFalse(double loanAmountValue, int loanTermMonthsCount, string loanPurposeText)
         {
             // Arrange
             var loanDialogStateService = new LoanDialogStateService();
 
             // Act
-            bool result = loanDialogStateService.ShouldComputeEstimate(loanAmount, loanTermMonths, loanPurpose);
+            bool result = loanDialogStateService.ShouldComputeEstimate(loanAmountValue, loanTermMonthsCount, loanPurposeText);
 
             // Assert
             Assert.False(result);

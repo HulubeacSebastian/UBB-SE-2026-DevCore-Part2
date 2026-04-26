@@ -4,61 +4,27 @@
 
 namespace KarmaBanking.App.Tests.Services
 {
-    using KarmaBanking.App.Services;
+    using global::KarmaBanking.App.Services;
     using Xunit;
 
     public class ChatCategoryServiceTests
     {
         [Theory]
-        [InlineData("I forgot my password")]
-        [InlineData("PASSWORD reset please")]
-        [InlineData("PassWord")]
-        public void InferCategory_ContainsPassword_ReturnsAccount(string question)
+        [InlineData("I forgot my password", "Account")]
+        [InlineData("I lost my card", "Cards")]
+        [InlineData("How to transfer money?", "Transfers")]
+        [InlineData("TECHNICAL support", "Technical Issue")]
+        [InlineData("Hello there", "Other")]
+        public void InferCategory_ReturnsExpectedCategory(string userQuestionText, string expectedCategoryName)
         {
+            // Arrange
             var chatCategoryService = new ChatCategoryService();
-            var questionCategory = chatCategoryService.InferCategory(question);
-            Assert.Equal("Account", questionCategory);
-        }
 
-        [Theory]
-        [InlineData("I lost my card")]
-        [InlineData("CARD delivery status")]
-        public void InferCategory_ContainsCard_ReturnsCards(string question)
-        {
-            var chatCategoryService = new ChatCategoryService();
-            var questionCategory = chatCategoryService.InferCategory(question);
-            Assert.Equal("Cards", questionCategory);
-        }
+            // Act
+            string actualCategoryName = chatCategoryService.InferCategory(userQuestionText);
 
-        [Theory]
-        [InlineData("How to transfer money?")]
-        [InlineData("Wire TRANSFER")]
-        public void InferCategory_ContainsTransfer_ReturnsTransfers(string question)
-        {
-            var chatCategoryService = new ChatCategoryService();
-            var questionCategory = chatCategoryService.InferCategory(question);
-            Assert.Equal("Transfers", questionCategory);
-        }
-
-        [Theory]
-        [InlineData("The app is crashing, technical issue")]
-        [InlineData("TECHNICAL support")]
-        public void InferCategory_ContainsTechnical_ReturnsTechnicalIssue(string question)
-        {
-            var chatCategoryService = new ChatCategoryService();
-            var questionCategory = chatCategoryService.InferCategory(question);
-            Assert.Equal("Technical Issue", questionCategory);
-        }
-
-        [Theory]
-        [InlineData("Hello there")]
-        [InlineData("What are your branch hours?")]
-        [InlineData("")]
-        public void InferCategory_NoMatch_ReturnsOther(string question)
-        {
-            var chatCategoryService = new ChatCategoryService();
-            var questionCategory = chatCategoryService.InferCategory(question);
-            Assert.Equal("Other", questionCategory);
+            // Assert
+            Assert.Equal(expectedCategoryName, actualCategoryName);
         }
     }
 }

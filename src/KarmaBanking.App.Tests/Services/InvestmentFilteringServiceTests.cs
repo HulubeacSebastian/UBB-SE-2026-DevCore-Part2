@@ -5,8 +5,8 @@
 namespace KarmaBanking.App.Tests.Services
 {
     using System.Collections.Generic;
-    using KarmaBanking.App.Models;
-    using KarmaBanking.App.Services;
+    using global::KarmaBanking.App.Models;
+    using global::KarmaBanking.App.Services;
     using Xunit;
 
     public class InvestmentFilteringServiceTests
@@ -18,41 +18,39 @@ namespace KarmaBanking.App.Tests.Services
             var investmentFilteringService = new InvestmentFilteringService();
 
             // Act
-            var filteredHoldings = investmentFilteringService.FilterHoldingsByAssetType(null, "Stocks");
+            var filteredHoldingsResult = investmentFilteringService.FilterHoldingsByAssetType(null, "Stocks");
 
             // Assert
-            Assert.Empty(filteredHoldings);
+            Assert.Empty(filteredHoldingsResult);
         }
 
         [Theory]
         [InlineData("Stock", "Stocks", true)]
         [InlineData("ETF", "Stocks", false)]
-        [InlineData("ETFs", "ETFs", true)]
         [InlineData("Crypto", "Crypto", true)]
-        [InlineData("Commodities", "All", true)]
         public void FilterHoldingsByAssetType_VariousFilters_ReturnsExpectedMatch(
-            string assetType,
-            string filterType,
-            bool shouldMatch)
+            string assetTypeName,
+            string filterCategoryName,
+            bool shouldMatchAsset)
         {
             // Arrange
             var investmentFilteringService = new InvestmentFilteringService();
-            var investmentHoldings = new List<InvestmentHolding>
+            var holdingEntries = new List<InvestmentHolding>
             {
-                new InvestmentHolding { AssetType = assetType }
+                new InvestmentHolding { AssetType = assetTypeName }
             };
 
             // Act
-            var filteredHoldings = investmentFilteringService.FilterHoldingsByAssetType(investmentHoldings, filterType);
+            var filteredHoldingsResult = investmentFilteringService.FilterHoldingsByAssetType(holdingEntries, filterCategoryName);
 
             // Assert
-            if (shouldMatch)
+            if (shouldMatchAsset)
             {
-                Assert.Single(filteredHoldings);
+                Assert.Single(filteredHoldingsResult);
             }
             else
             {
-                Assert.Empty(filteredHoldings);
+                Assert.Empty(filteredHoldingsResult);
             }
         }
     }

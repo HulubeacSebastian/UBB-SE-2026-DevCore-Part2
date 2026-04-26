@@ -16,12 +16,20 @@ namespace KarmaBanking.App.Tests.Services
 
     public class LoanServiceTests
     {
+        private readonly Mock<ILoanRepository> loanRepositoryMock;
+        private readonly LoanService loanService;
+
+        public LoanServiceTests()
+        {
+            this.loanRepositoryMock = new Mock<ILoanRepository>();
+            this.loanService = new LoanService(this.loanRepositoryMock.Object);
+        }
+
         [Fact]
         public async Task ProcessApplicationStatusAsync_WhenUserHasFiveActiveLoans_RejectsApplication()
         {
             // Arrange
-            var loanRepositoryMock = new Mock<ILoanRepository>();
-            loanRepositoryMock.Setup(repository => repository.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>
+            this.loanRepositoryMock.Setup(repository => repository.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>
             {
                 new() { LoanStatus = LoanStatus.Active, OutstandingBalance = 1000m },
                 new() { LoanStatus = LoanStatus.Active, OutstandingBalance = 1000m },
@@ -30,7 +38,6 @@ namespace KarmaBanking.App.Tests.Services
                 new() { LoanStatus = LoanStatus.Active, OutstandingBalance = 1000m },
             });
 
-            var loanService = new LoanService(loanRepositoryMock.Object);
             var loanApplicationInstance = new LoanApplication
             {
                 IdentificationNumber = 10,
@@ -42,23 +49,81 @@ namespace KarmaBanking.App.Tests.Services
             };
 
             // Act
-            var (loanApplicationStatus, rejectionReason) = await loanService.ProcessApplicationStatusAsync(loanApplicationInstance);
+            var (applicationStatus, rejectionReason) = await this.loanService.ProcessApplicationStatusAsync(loanApplicationInstance);
 
             // Assert
-            Assert.Equal(LoanApplicationStatus.Rejected, loanApplicationStatus);
+            Assert.Equal(LoanApplicationStatus.Rejected, applicationStatus);
             Assert.Equal("Maximum number of active loans reached.", rejectionReason);
-            loanRepositoryMock.Verify(repository => repository.UpdateLoanApplicationStatusAsync(
+            this.loanRepositoryMock.Verify(repository => repository.UpdateLoanApplicationStatusAsync(
                 10,
                 LoanApplicationStatus.Rejected,
                 "Maximum number of active loans reached."), Times.Once);
         }
 
         [Fact]
+        public async Task ProcessApplicationStatusAsync_WhenDebtLimitExceeded_RejectsApplication()
+        {
+            // Arrange
+            this.loanRepositoryMock.Setup(repository => repository.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>
+            {
+                new() { LoanStatus = LoanStatus.Active, OutstandingBalance = 190000m },
+            });
+
+            var loanApplicationInstance = new LoanApplication
+            {
+                IdentificationNumber = 11,
+                UserIdentificationNumber = 1,
+                LoanType = LoanType.Personal,
+                DesiredAmount = 10000m,
+                PreferredTermMonths = 24,
+                Purpose = "Consolidation",
+            };
+
+            // Act
+            var (applicationStatus, rejectionReason) = await this.loanService.ProcessApplicationStatusAsync(loanApplicationInstance);
+
+            // Assert
+            Assert.Equal(LoanApplicationStatus.Rejected, applicationStatus);
+            Assert.Equal("Total debt limit exceeded.", rejectionReason);
+            this.loanRepositoryMock.Verify(repository => repository.UpdateLoanApplicationStatusAsync(
+                11,
+                LoanApplicationStatus.Rejected,
+                "Total debt limit exceeded."), Times.Once);
+        }
+
+        [Fact]
+        public async Task ProcessApplicationStatusAsync_WhenRulesPass_ApprovesApplication()
+        {
+            // Arrange
+            this.loanRepositoryMock.Setup(repository => repository.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>
+            {
+                new() { LoanStatus = LoanStatus.Active, OutstandingBalance = 5000m },
+            });
+
+            var loanApplicationInstance = new LoanApplication
+            {
+                IdentificationNumber = 12,
+                UserIdentificationNumber = 1,
+                LoanType = LoanType.Auto,
+                DesiredAmount = 10000m,
+                PreferredTermMonths = 36,
+                Purpose = "Car",
+            };
+
+            // Act
+            var (applicationStatus, rejectionReason) = await this.loanService.ProcessApplicationStatusAsync(loanApplicationInstance);
+
+            // Assert
+            Assert.Equal(LoanApplicationStatus.Approved, applicationStatus);
+            Assert.Null(rejectionReason);
+            this.loanRepositoryMock.Verify(repository => repository.UpdateLoanApplicationStatusAsync(12, LoanApplicationStatus.Approved, null), Times.Once);
+        }
+
+        [Fact]
         public async Task PayInstallmentAsync_StandardPayment_UpdatesBalanceAndRemainingMonths()
         {
             // Arrange
-            var loanRepositoryMock = new Mock<ILoanRepository>();
-            loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(20)).ReturnsAsync(new Loan
+            this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(20)).ReturnsAsync(new Loan
             {
                 Id = 20,
                 OutstandingBalance = 1000m,
@@ -67,20 +132,18 @@ namespace KarmaBanking.App.Tests.Services
                 LoanStatus = LoanStatus.Active,
             });
 
-            var loanService = new LoanService(loanRepositoryMock.Object);
-
             // Act
-            await loanService.PayInstallmentAsync(20, null);
+            await this.loanService.PayInstallmentAsync(20, null);
 
             // Assert
-            loanRepositoryMock.Verify(repository => repository.UpdateLoanAfterPaymentAsync(20, 800m, 4, LoanStatus.Active), Times.Once);
+            this.loanRepositoryMock.Verify(repository => repository.UpdateLoanAfterPaymentAsync(20, 800m, 4, LoanStatus.Active), Times.Once);
         }
 
         [Fact]
         public async Task PayInstallmentAsync_CustomPaymentBelowInstallment_Throws()
         {
-            var repository = new Mock<ILoanRepository>();
-            repository.Setup(r => r.GetLoanByIdAsync(21)).ReturnsAsync(new Loan
+            // Arrange
+            this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(21)).ReturnsAsync(new Loan
             {
                 Id = 21,
                 OutstandingBalance = 1000m,
@@ -89,17 +152,16 @@ namespace KarmaBanking.App.Tests.Services
                 LoanStatus = LoanStatus.Active,
             });
 
-            var service = new LoanService(repository.Object);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => service.PayInstallmentAsync(21, 150m));
-            repository.Verify(r => r.UpdateLoanAfterPaymentAsync(It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<LoanStatus>()), Times.Never);
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => this.loanService.PayInstallmentAsync(21, 150m));
+            this.loanRepositoryMock.Verify(repository => repository.UpdateLoanAfterPaymentAsync(It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<LoanStatus>()), Times.Never);
         }
 
         [Fact]
         public async Task PayInstallmentAsync_WhenLoanGetsPaidOff_ClosesLoan()
         {
-            var repository = new Mock<ILoanRepository>();
-            repository.Setup(r => r.GetLoanByIdAsync(22)).ReturnsAsync(new Loan
+            // Arrange
+            this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(22)).ReturnsAsync(new Loan
             {
                 Id = 22,
                 OutstandingBalance = 600m,
@@ -108,19 +170,17 @@ namespace KarmaBanking.App.Tests.Services
                 LoanStatus = LoanStatus.Active,
             });
 
-            var service = new LoanService(repository.Object);
+            // Act
+            await this.loanService.PayInstallmentAsync(22, 600m);
 
-            await service.PayInstallmentAsync(22, 600m);
-
-            repository.Verify(r => r.UpdateLoanAfterPaymentAsync(22, 0m, 0, LoanStatus.Passed), Times.Once);
+            // Assert
+            this.loanRepositoryMock.Verify(repository => repository.UpdateLoanAfterPaymentAsync(22, 0m, 0, LoanStatus.Passed), Times.Once);
         }
 
         [Fact]
         public void CalculatePaymentPreview_WithCustomAmount_ComputesPreviewValues()
         {
             // Arrange
-            var loanRepositoryMock = new Mock<ILoanRepository>();
-            var loanService = new LoanService(loanRepositoryMock.Object);
             var loanInstance = new Loan
             {
                 MonthlyInstallment = 250m,
@@ -129,32 +189,31 @@ namespace KarmaBanking.App.Tests.Services
             };
 
             // Act
-            var (balanceAfterPayment, remainingMonthsValue) = loanService.CalculatePaymentPreview(loanInstance, 500m);
+            var (balanceAfterPayment, remainingMonthsCount) = this.loanService.CalculatePaymentPreview(loanInstance, 500m);
 
             // Assert
             Assert.Equal(500m, balanceAfterPayment);
-            Assert.Equal(4, remainingMonths);
+            Assert.Equal(4, remainingMonthsCount);
         }
 
         [Fact]
         public void ParseCustomPaymentAmount_InvalidInput_ReturnsNull()
         {
-            var repository = new Mock<ILoanRepository>();
-            var service = new LoanService(repository.Object);
+            // Act
+            var parsedAmountValue = this.loanService.ParseCustomPaymentAmount("not-a-number");
 
-            var amount = service.ParseCustomPaymentAmount("not-a-number");
-
-            Assert.Null(amount);
+            // Assert
+            Assert.Null(parsedAmountValue);
         }
 
         [Fact]
         public async Task SubmitLoanApplicationAsync_WhenApproved_CreatesLoanAndAmortization()
         {
-            var repository = new Mock<ILoanRepository>();
-            repository.Setup(r => r.CreateLoanApplicationAsync(It.IsAny<LoanApplicationRequest>())).ReturnsAsync(30);
-            repository.Setup(r => r.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>());
-            repository.Setup(r => r.CreateLoanAsync(It.IsAny<Loan>())).ReturnsAsync(40);
-            repository.Setup(r => r.GetLoanByIdAsync(40)).ReturnsAsync(new Loan
+            // Arrange
+            this.loanRepositoryMock.Setup(repository => repository.CreateLoanApplicationAsync(It.IsAny<LoanApplicationRequest>())).ReturnsAsync(30);
+            this.loanRepositoryMock.Setup(repository => repository.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>());
+            this.loanRepositoryMock.Setup(repository => repository.CreateLoanAsync(It.IsAny<Loan>())).ReturnsAsync(40);
+            this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(40)).ReturnsAsync(new Loan
             {
                 Id = 40,
                 UserId = 1,
@@ -169,8 +228,7 @@ namespace KarmaBanking.App.Tests.Services
                 StartDate = DateTime.Today,
             });
 
-            var service = new LoanService(repository.Object);
-            var request = new LoanApplicationRequest
+            var loanApplicationRequestInstance = new LoanApplicationRequest
             {
                 UserId = 1,
                 LoanType = LoanType.Personal,
@@ -179,27 +237,28 @@ namespace KarmaBanking.App.Tests.Services
                 Purpose = "Renovation",
             };
 
-            var (status, rejectionReason) = await service.SubmitLoanApplicationAsync(request);
+            // Act
+            var (applicationStatus, rejectionReason) = await this.loanService.SubmitLoanApplicationAsync(loanApplicationRequestInstance);
 
-            Assert.Equal(LoanApplicationStatus.Approved, status);
+            // Assert
+            Assert.Equal(LoanApplicationStatus.Approved, applicationStatus);
             Assert.Null(rejectionReason);
-            repository.Verify(r => r.UpdateLoanApplicationStatusAsync(30, LoanApplicationStatus.Approved, null), Times.Once);
-            repository.Verify(r => r.CreateLoanAsync(It.IsAny<Loan>()), Times.Once);
-            repository.Verify(r => r.SaveAmortizationAsync(It.Is<List<AmortizationRow>>(rows => rows.Count == 36)), Times.Once);
+            this.loanRepositoryMock.Verify(repository => repository.UpdateLoanApplicationStatusAsync(30, LoanApplicationStatus.Approved, null), Times.Once);
+            this.loanRepositoryMock.Verify(repository => repository.CreateLoanAsync(It.IsAny<Loan>()), Times.Once);
+            this.loanRepositoryMock.Verify(repository => repository.SaveAmortizationAsync(It.Is<List<AmortizationRow>>(rows => rows.Count == 36)), Times.Once);
         }
 
         [Fact]
         public async Task SubmitLoanApplicationAsync_WhenRejected_DoesNotCreateLoanOrAmortization()
         {
-            var repository = new Mock<ILoanRepository>();
-            repository.Setup(r => r.CreateLoanApplicationAsync(It.IsAny<LoanApplicationRequest>())).ReturnsAsync(31);
-            repository.Setup(r => r.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>
+            // Arrange
+            this.loanRepositoryMock.Setup(repository => repository.CreateLoanApplicationAsync(It.IsAny<LoanApplicationRequest>())).ReturnsAsync(31);
+            this.loanRepositoryMock.Setup(repository => repository.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>
             {
                 new() { LoanStatus = LoanStatus.Active, OutstandingBalance = 199500m },
             });
 
-            var service = new LoanService(repository.Object);
-            var request = new LoanApplicationRequest
+            var loanApplicationRequestInstance = new LoanApplicationRequest
             {
                 UserId = 1,
                 LoanType = LoanType.Personal,
@@ -208,20 +267,22 @@ namespace KarmaBanking.App.Tests.Services
                 Purpose = "Emergency",
             };
 
-            var (status, rejectionReason) = await service.SubmitLoanApplicationAsync(request);
+            // Act
+            var (applicationStatus, rejectionReason) = await this.loanService.SubmitLoanApplicationAsync(loanApplicationRequestInstance);
 
-            Assert.Equal(LoanApplicationStatus.Rejected, status);
+            // Assert
+            Assert.Equal(LoanApplicationStatus.Rejected, applicationStatus);
             Assert.Equal("Total debt limit exceeded.", rejectionReason);
-            repository.Verify(r => r.UpdateLoanApplicationStatusAsync(31, LoanApplicationStatus.Rejected, "Total debt limit exceeded."), Times.Once);
-            repository.Verify(r => r.CreateLoanAsync(It.IsAny<Loan>()), Times.Never);
-            repository.Verify(r => r.SaveAmortizationAsync(It.IsAny<List<AmortizationRow>>()), Times.Never);
+            this.loanRepositoryMock.Verify(repository => repository.UpdateLoanApplicationStatusAsync(31, LoanApplicationStatus.Rejected, "Total debt limit exceeded."), Times.Once);
+            this.loanRepositoryMock.Verify(repository => repository.CreateLoanAsync(It.IsAny<Loan>()), Times.Never);
+            this.loanRepositoryMock.Verify(repository => repository.SaveAmortizationAsync(It.IsAny<List<AmortizationRow>>()), Times.Never);
         }
 
         [Fact]
         public async Task PayInstallmentAsync_WhenPaymentExceedsOutstanding_Throws()
         {
-            var repository = new Mock<ILoanRepository>();
-            repository.Setup(r => r.GetLoanByIdAsync(23)).ReturnsAsync(new Loan
+            // Arrange
+            this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(23)).ReturnsAsync(new Loan
             {
                 Id = 23,
                 OutstandingBalance = 500m,
@@ -230,17 +291,16 @@ namespace KarmaBanking.App.Tests.Services
                 LoanStatus = LoanStatus.Active,
             });
 
-            var service = new LoanService(repository.Object);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => service.PayInstallmentAsync(23, 600m));
-            repository.Verify(r => r.UpdateLoanAfterPaymentAsync(It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<LoanStatus>()), Times.Never);
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => this.loanService.PayInstallmentAsync(23, 600m));
+            this.loanRepositoryMock.Verify(repository => repository.UpdateLoanAfterPaymentAsync(It.IsAny<int>(), It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<LoanStatus>()), Times.Never);
         }
 
         [Fact]
         public async Task PayInstallmentAsync_WhenLoanAlreadyClosed_Throws()
         {
-            var repository = new Mock<ILoanRepository>();
-            repository.Setup(r => r.GetLoanByIdAsync(24)).ReturnsAsync(new Loan
+            // Arrange
+            this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(24)).ReturnsAsync(new Loan
             {
                 Id = 24,
                 OutstandingBalance = 0m,
@@ -249,42 +309,43 @@ namespace KarmaBanking.App.Tests.Services
                 LoanStatus = LoanStatus.Passed,
             });
 
-            var service = new LoanService(repository.Object);
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() => service.PayInstallmentAsync(24, null));
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => this.loanService.PayInstallmentAsync(24, null));
         }
 
         [Fact]
         public void NormalizeCustomPaymentAmount_WhenOverBalance_CapsToOutstanding()
         {
-            var repository = new Mock<ILoanRepository>();
-            var service = new LoanService(repository.Object);
-            var loan = new Loan
+            // Arrange
+            var loanInstance = new Loan
             {
                 MonthlyInstallment = 200m,
                 OutstandingBalance = 150m,
                 RemainingMonths = 1,
             };
 
-            var normalized = service.NormalizeCustomPaymentAmount(loan, 300m);
+            // Act
+            decimal normalizedAmountValue = this.loanService.NormalizeCustomPaymentAmount(loanInstance, 300m);
 
-            Assert.Equal(150m, normalized);
+            // Assert
+            Assert.Equal(150m, normalizedAmountValue);
         }
 
         [Fact]
         public void GetRepaymentProgress_WhenPrincipalIsZero_ReturnsZero()
         {
-            var repository = new Mock<ILoanRepository>();
-            var service = new LoanService(repository.Object);
-            var loan = new Loan
+            // Arrange
+            var loanInstance = new Loan
             {
                 Principal = 0m,
                 OutstandingBalance = 0m,
             };
 
-            var progress = service.GetRepaymentProgress(loan);
+            // Act
+            double progressResult = this.loanService.GetRepaymentProgress(loanInstance);
 
-            Assert.Equal(0d, progress);
+            // Assert
+            Assert.Equal(0d, progressResult);
         }
     }
 }
