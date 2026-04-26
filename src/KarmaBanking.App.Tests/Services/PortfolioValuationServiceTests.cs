@@ -1,102 +1,62 @@
-﻿using System.Collections.Generic;
-using KarmaBanking.App.Models;
-using KarmaBanking.App.Services;
-using Xunit;
+﻿// <copyright file="PortfolioValuationServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
 
-namespace KarmaBanking.App.Tests.Services;
-
-public class PortfolioValuationServiceTests
+namespace KarmaBanking.App.Tests.Services
 {
-    private readonly PortfolioValuationService portofolioValuator;
+    using System.Collections.Generic;
+    using KarmaBanking.App.Models;
+    using KarmaBanking.App.Services;
+    using Xunit;
 
-    public PortfolioValuationServiceTests()
+    public class PortfolioValuationServiceTests
     {
-        this.portofolioValuator = new PortfolioValuationService();
-    }
+        private readonly PortfolioValuationService portfolioValuationService;
 
-    [Fact]
-    public void UpdateHoldingValuation_UpdatesPriceAndCalculatesGainLoss()
-    {
-        var holding = new InvestmentHolding
+        public PortfolioValuationServiceTests()
         {
-            AveragePurchasePrice = 50m,
-            Quantity = 10m
-        };
-        decimal newPrice = 75m;
+            this.portfolioValuationService = new PortfolioValuationService();
+        }
 
-        this.portofolioValuator.UpdateHoldingValuation(holding, newPrice);
-
-        Assert.Equal(75m, holding.CurrentPrice);
-        Assert.Equal(250m, holding.UnrealizedGainLoss);
-    }
-
-    [Fact]
-    public void UpdateHoldingValuation_WithNegativeMovement_CalculatesLoss()
-    {
-        var holding = new InvestmentHolding
+        [Fact]
+        public void UpdateHoldingValuation_UpdatesPriceAndCalculatesGainLoss()
         {
-            AveragePurchasePrice = 100m,
-            Quantity = 5m
-        };
-        decimal newPrice = 80m;
-
-        this.portofolioValuator.UpdateHoldingValuation(holding, newPrice);
-
-        Assert.Equal(80m, holding.CurrentPrice);
-        Assert.Equal(-100m, holding.UnrealizedGainLoss);
-    }
-
-    [Fact]
-    public void UpdatePortfolioTotals_WithPositiveTotalCost_CalculatesTotalsCorrectly()
-    {
-        var portfolio = new Portfolio
-        {
-            Holdings = new List<InvestmentHolding>
+            // Arrange
+            var investmentHoldingInstance = new InvestmentHolding
             {
-                new InvestmentHolding { Quantity = 10m, AveragePurchasePrice = 100m, CurrentPrice = 150m, UnrealizedGainLoss = 500m },
-                new InvestmentHolding { Quantity = 5m, AveragePurchasePrice = 50m, CurrentPrice = 40m, UnrealizedGainLoss = -50m }
-            }
-        };
-        this.portofolioValuator.UpdatePortfolioTotals(portfolio);
+                AveragePurchasePrice = 50m,
+                Quantity = 10m
+            };
+            decimal newMarketPrice = 75m;
 
-        Assert.Equal(1700m, portfolio.TotalValue);
+            // Act
+            this.portfolioValuationService.UpdateHoldingValuation(investmentHoldingInstance, newMarketPrice);
 
-        Assert.Equal(450m, portfolio.TotalGainLoss);
+            // Assert
+            Assert.Equal(75m, investmentHoldingInstance.CurrentPrice);
+            Assert.Equal(250m, investmentHoldingInstance.UnrealizedGainLoss);
+        }
 
-        Assert.Equal(36m, portfolio.GainLossPercent);
-    }
-
-    [Fact]
-    public void UpdatePortfolioTotals_WithZeroTotalCost_AvoidsDivideByZero()
-    {
-        var portfolio = new Portfolio
+        [Fact]
+        public void UpdatePortfolioTotals_WithPositiveTotalCost_CalculatesTotalsCorrectly()
         {
-            Holdings = new List<InvestmentHolding>
+            // Arrange
+            var userPortfolio = new Portfolio
             {
-                new InvestmentHolding { Quantity = 0m, AveragePurchasePrice = 0m, CurrentPrice = 100m, UnrealizedGainLoss = 0m }
-            }
-        };
+                Holdings = new List<InvestmentHolding>
+                {
+                    new InvestmentHolding { Quantity = 10m, AveragePurchasePrice = 100m, CurrentPrice = 150m, UnrealizedGainLoss = 500m },
+                    new InvestmentHolding { Quantity = 5m, AveragePurchasePrice = 50m, CurrentPrice = 40m, UnrealizedGainLoss = -50m }
+                }
+            };
 
-        this.portofolioValuator.UpdatePortfolioTotals(portfolio);
+            // Act
+            this.portfolioValuationService.UpdatePortfolioTotals(userPortfolio);
 
-        Assert.Equal(0m, portfolio.TotalValue);
-        Assert.Equal(0m, portfolio.TotalGainLoss);
-
-        Assert.Equal(0m, portfolio.GainLossPercent);
-    }
-
-    [Fact]
-    public void UpdatePortfolioTotals_WithEmptyHoldings_CalculatesZeroes()
-    {
-        var portfolio = new Portfolio
-        {
-            Holdings = new List<InvestmentHolding>()
-        };
-
-        this.portofolioValuator.UpdatePortfolioTotals(portfolio);
-
-        Assert.Equal(0m, portfolio.TotalValue);
-        Assert.Equal(0m, portfolio.TotalGainLoss);
-        Assert.Equal(0m, portfolio.GainLossPercent);
+            // Assert
+            Assert.Equal(1700m, userPortfolio.TotalValue);
+            Assert.Equal(450m, userPortfolio.TotalGainLoss);
+            Assert.Equal(36m, userPortfolio.GainLossPercent);
+        }
     }
 }

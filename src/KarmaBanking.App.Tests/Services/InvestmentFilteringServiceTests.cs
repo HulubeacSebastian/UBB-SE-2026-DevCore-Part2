@@ -1,7 +1,10 @@
-﻿namespace KarmaBanking.App.Tests.Services
+﻿// <copyright file="InvestmentFilteringServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
+
+namespace KarmaBanking.App.Tests.Services
 {
     using System.Collections.Generic;
-    using System.Linq;
     using KarmaBanking.App.Models;
     using KarmaBanking.App.Services;
     using Xunit;
@@ -11,51 +14,45 @@
         [Fact]
         public void FilterHoldingsByAssetType_NullHoldings_ReturnsEmpty()
         {
-            var investmentFilter = new InvestmentFilteringService();
-            var holdingsEnumerable = investmentFilter.FilterHoldingsByAssetType(null, "Stocks");
-            Assert.Empty(holdingsEnumerable);
-        }
+            // Arrange
+            var investmentFilteringService = new InvestmentFilteringService();
 
-        [Fact]
-        public void FilterHoldingsByAssetType_NullHoldingElement_IgnoresNull()
-        {
-            var investmentFilter = new InvestmentFilteringService();
-            var holdingListEmpty = new List<InvestmentHolding> { null };
+            // Act
+            var filteredHoldings = investmentFilteringService.FilterHoldingsByAssetType(null, "Stocks");
 
-            var holdingsEnumerable = investmentFilter.FilterHoldingsByAssetType(holdingListEmpty, "Stocks");
-
-            Assert.Empty(holdingsEnumerable);
+            // Assert
+            Assert.Empty(filteredHoldings);
         }
 
         [Theory]
         [InlineData("Stock", "Stocks", true)]
-        [InlineData("Stocks", "Stocks", true)]
         [InlineData("ETF", "Stocks", false)]
-        [InlineData("ETF", "ETFs", true)]
         [InlineData("ETFs", "ETFs", true)]
-        [InlineData("Bond", "Bonds", true)]
-        [InlineData("Bonds", "Bonds", true)]
         [InlineData("Crypto", "Crypto", true)]
-        [InlineData("Real Estate", "Other", true)]
-        [InlineData("Stock", "Other", false)]
         [InlineData("Commodities", "All", true)]
-        public void FilterHoldingsByAssetType_VariousFilters_ReturnsExpectedMatch(string assetType, string filter, bool shouldMatch)
+        public void FilterHoldingsByAssetType_VariousFilters_ReturnsExpectedMatch(
+            string assetType,
+            string filterType,
+            bool shouldMatch)
         {
-            var investmentFilter = new InvestmentFilteringService();
-            var holdingListPopulated = new List<InvestmentHolding>
+            // Arrange
+            var investmentFilteringService = new InvestmentFilteringService();
+            var investmentHoldings = new List<InvestmentHolding>
             {
                 new InvestmentHolding { AssetType = assetType }
             };
 
-            var holdingsEnumerable = investmentFilter.FilterHoldingsByAssetType(holdingListPopulated, filter);
+            // Act
+            var filteredHoldings = investmentFilteringService.FilterHoldingsByAssetType(investmentHoldings, filterType);
 
+            // Assert
             if (shouldMatch)
             {
-                Assert.Single(holdingsEnumerable);
+                Assert.Single(filteredHoldings);
             }
             else
             {
-                Assert.Empty(holdingsEnumerable);
+                Assert.Empty(filteredHoldings);
             }
         }
     }

@@ -1,4 +1,8 @@
-﻿namespace KarmaBanking.App.Tests.Services
+﻿// <copyright file="LoanApplicationPresentationServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
+
+namespace KarmaBanking.App.Tests.Services
 {
     using KarmaBanking.App.Services;
     using Xunit;
@@ -8,24 +12,30 @@
         [Fact]
         public void BuildApplicationOutcome_NullRejectionReason_ReturnsApproved()
         {
+            // Arrange
             var loanApplicationPresentationService = new LoanApplicationPresentationService();
 
-            var (isApproved, returnedMessage) = loanApplicationPresentationService.BuildApplicationOutcome(null);
+            // Act
+            var (isApproved, applicationMessage) = loanApplicationPresentationService.BuildApplicationOutcome(null);
 
+            // Assert
             Assert.True(isApproved);
-            Assert.Equal("Your loan application has been approved!", returnedMessage);
+            Assert.Equal("Your loan application has been approved!", applicationMessage);
         }
 
         [Fact]
         public void BuildApplicationOutcome_WithRejectionReason_ReturnsRejectedWithMessage()
         {
+            // Arrange
             var loanApplicationPresentationService = new LoanApplicationPresentationService();
-            var reasonForRejection = "Credit score too low";
+            string rejectionReasonMessage = "Credit score too low";
 
-            var (isApproved, returnedMessage) = loanApplicationPresentationService.BuildApplicationOutcome(reasonForRejection);
+            // Act
+            var (isApproved, applicationMessage) = loanApplicationPresentationService.BuildApplicationOutcome(rejectionReasonMessage);
 
+            // Assert
             Assert.False(isApproved);
-            Assert.Equal($"Application rejected: {reasonForRejection}", returnedMessage);
+            Assert.Equal($"Application rejected: {rejectionReasonMessage}", applicationMessage);
         }
     }
 }

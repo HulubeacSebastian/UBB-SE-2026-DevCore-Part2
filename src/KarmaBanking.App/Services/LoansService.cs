@@ -63,7 +63,7 @@ public class LoanService : ILoanService
 
         var application = new LoanApplication
         {
-            UserId = request.UserId,
+            UserIdentificationNumber = request.UserId,
             LoanType = request.LoanType,
             DesiredAmount = request.DesiredAmount,
             PreferredTermMonths = request.PreferredTermMonths,
@@ -73,7 +73,7 @@ public class LoanService : ILoanService
         };
 
         var appId = await this.loanRepository.CreateLoanApplicationAsync(request);
-        application.Id = appId;
+        application.IdentificationNumber = appId;
 
         return application;
     }
@@ -96,7 +96,7 @@ public class LoanService : ILoanService
     {
         var (status, reason) = await this.EvaluateApplicationAsync(application);
 
-        await this.loanRepository.UpdateLoanApplicationStatusAsync(application.Id, status, reason);
+        await this.loanRepository.UpdateLoanApplicationStatusAsync(application.IdentificationNumber, status, reason);
 
         return (status, reason);
     }
@@ -111,7 +111,7 @@ public class LoanService : ILoanService
 
         var loan = new Loan
         {
-            UserIdentificationNumber = application.UserId,
+            UserIdentificationNumber = application.UserIdentificationNumber,
             LoanType = application.LoanType,
             Principal = application.DesiredAmount,
             OutstandingBalance = application.DesiredAmount,
@@ -251,7 +251,7 @@ public class LoanService : ILoanService
 
     private async Task<(LoanApplicationStatus approved, string? reason)> EvaluateApplicationAsync(LoanApplication application)
     {
-        var currentLoans = await this.loanRepository.GetLoansByUserAsync(application.UserId);
+        var currentLoans = await this.loanRepository.GetLoansByUserAsync(application.UserIdentificationNumber);
 
         var totalOutstanding = currentLoans.Sum(l => l.OutstandingBalance);
         var activeLoansCount = currentLoans.Count(l => l.LoanStatus == LoanStatus.Active);

@@ -1,6 +1,9 @@
-﻿namespace KarmaBanking.App.Tests.Services
+﻿// <copyright file="ChatCategoryServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
+
+namespace KarmaBanking.App.Tests.Services
 {
-    using System;
     using KarmaBanking.App.Services;
     using Xunit;
 

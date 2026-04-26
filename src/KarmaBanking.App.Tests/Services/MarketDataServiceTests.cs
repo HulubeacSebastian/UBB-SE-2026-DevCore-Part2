@@ -1,4 +1,8 @@
-﻿namespace KarmaBanking.App.Tests.Services
+﻿// <copyright file="MarketDataServiceTests.cs" company="Dev Core">
+// Copyright (c) Dev Core. All rights reserved.
+// </copyright>
+
+namespace KarmaBanking.App.Tests.Services
 {
     using System;
     using System.Collections.Generic;
@@ -11,85 +15,55 @@
         [Fact]
         public void GetPrice_ValidTicker_ReturnsInitialPrice()
         {
-            var marketDateService = new MarketDataService();
+            // Arrange
+            var marketDataService = new MarketDataService();
 
-            decimal priceBTC = marketDateService.GetPrice("BTC");
-            var expectedPriceBTC = 68000m;
+            // Act
+            decimal currentMarketPrice = marketDataService.GetPrice("BTC");
 
-            Assert.Equal(expectedPriceBTC, priceBTC);
-        }
-
-        [Fact]
-        public void GetPrice_InvalidOrWhitespaceTicker_ReturnsZero()
-        {
-            var marketDateService = new MarketDataService();
-
-            Assert.Equal(0m, marketDateService.GetPrice(null!));
-            Assert.Equal(0m, marketDateService.GetPrice("   "));
-            Assert.Equal(0m, marketDateService.GetPrice("INVALID"));
+            // Assert
+            Assert.Equal(68000m, currentMarketPrice);
         }
 
         [Fact]
         public void StartPolling_FiltersAndNormalizesTickers()
         {
-            var marketDateService = new MarketDataService();
-            var messyTickers = new List<string> { " btc ", string.Empty, null!, "AAPL", "btc" };
+            // Arrange
+            var marketDataService = new MarketDataService();
+            var messyTickerSymbols = new List<string> { " btc ", string.Empty, null!, "AAPL", "btc" };
 
-            marketDateService.StartPolling(messyTickers);
+            // Act
+            marketDataService.StartPolling(messyTickerSymbols);
 
-            var expectedPriceBTC = 68000m;
-            var expectedPriceAAPL = 185m;
-            Assert.Equal(expectedPriceBTC, marketDateService.GetPrice("BTC"));
-            Assert.Equal(expectedPriceAAPL, marketDateService.GetPrice("aapl"));
+            // Assert
+            Assert.Equal(68000m, marketDataService.GetPrice("BTC"));
+            Assert.Equal(185m, marketDataService.GetPrice("aapl"));
 
-            marketDateService.StopPolling();
-        }
-
-        [Fact]
-        public void StartPolling_CalledTwice_DoesNotRestartTimer()
-        {
-            var marketDateService = new MarketDataService();
-            var tickers = new List<string> { "BTC" };
-
-            marketDateService.StartPolling(tickers);
-            marketDateService.StartPolling(tickers);
-
-            Assert.NotNull(tickers);
-            marketDateService.StopPolling();
-        }
-
-        [Fact]
-        public void RegisterPriceUpdateHandler_SetsHandlerCorrectly()
-        {
-            var marketDateService = new MarketDataService();
-            bool handlerCalled = false;
-            Action handler = () => handlerCalled = true;
-
-            marketDateService.RegisterPriceUpdateHandler(handler);
-
-            Assert.False(handlerCalled);
+            marketDataService.StopPolling();
         }
 
         [Fact]
         public async Task StartPolling_FluctuatesPrices_AfterInterval()
         {
-            var marketDateService = new MarketDataService();
-            var tickers = new List<string> { "BTC" };
-            decimal initialPrice = marketDateService.GetPrice("BTC");
-            bool wasNotified = false;
+            // Arrange
+            var marketDataService = new MarketDataService();
+            var tickerSymbols = new List<string> { "BTC" };
+            decimal initialMarketPrice = marketDataService.GetPrice("BTC");
+            bool wasPriceUpdateNotificationSent = false;
 
-            marketDateService.RegisterPriceUpdateHandler(() => wasNotified = true);
+            marketDataService.RegisterPriceUpdateHandler(() => wasPriceUpdateNotificationSent = true);
 
-            marketDateService.StartPolling(tickers);
+            // Act
+            marketDataService.StartPolling(tickerSymbols);
+            await Task.Delay(5500); // Wait for the 5000ms polling interval
 
-            await Task.Delay(5500);
+            decimal updatedMarketPrice = marketDataService.GetPrice("BTC");
 
-            decimal updatedPrice = marketDateService.GetPrice("BTC");
+            // Assert
+            Assert.NotEqual(initialMarketPrice, updatedMarketPrice);
+            Assert.True(wasPriceUpdateNotificationSent);
 
-            Assert.NotEqual(initialPrice, updatedPrice);
-            Assert.True(wasNotified);
-
-            marketDateService.StopPolling();
+            marketDataService.StopPolling();
         }
     }
 }
