@@ -179,10 +179,10 @@ public class LoanRepository : ILoanRepository
             var loanId = rows[0].LoanId;
 
             var deleteQuery = "DELETE FROM AmortizationRow WHERE loanId = @LoanId";
-            using (var deleteCmd = new SqlCommand(deleteQuery, connection, transaction))
+            using (var deleteCommand = new SqlCommand(deleteQuery, connection, transaction))
             {
-                deleteCmd.Parameters.Add("@LoanId", SqlDbType.Int).Value = loanId;
-                await deleteCmd.ExecuteNonQueryAsync();
+                deleteCommand.Parameters.Add("@LoanId", SqlDbType.Int).Value = loanId;
+                await deleteCommand.ExecuteNonQueryAsync();
             }
 
             var insertQuery = @"INSERT INTO AmortizationRow 
@@ -190,25 +190,25 @@ public class LoanRepository : ILoanRepository
                         VALUES 
                         (@LoanId, @InstallmentNumber, @DueDate, @PrincipalPortion, @InterestPortion, @RemainingBalance)";
 
-            using (var insertCmd = new SqlCommand(insertQuery, connection, transaction))
+            using (var insertCommand = new SqlCommand(insertQuery, connection, transaction))
             {
-                insertCmd.Parameters.Add("@LoanId", SqlDbType.Int);
-                insertCmd.Parameters.Add("@InstallmentNumber", SqlDbType.Int);
-                insertCmd.Parameters.Add("@DueDate", SqlDbType.DateTime);
-                insertCmd.Parameters.Add("@PrincipalPortion", SqlDbType.Decimal);
-                insertCmd.Parameters.Add("@InterestPortion", SqlDbType.Decimal);
-                insertCmd.Parameters.Add("@RemainingBalance", SqlDbType.Decimal);
+                insertCommand.Parameters.Add("@LoanId", SqlDbType.Int);
+                insertCommand.Parameters.Add("@InstallmentNumber", SqlDbType.Int);
+                insertCommand.Parameters.Add("@DueDate", SqlDbType.DateTime);
+                insertCommand.Parameters.Add("@PrincipalPortion", SqlDbType.Decimal);
+                insertCommand.Parameters.Add("@InterestPortion", SqlDbType.Decimal);
+                insertCommand.Parameters.Add("@RemainingBalance", SqlDbType.Decimal);
 
                 foreach (var row in rows)
                 {
-                    insertCmd.Parameters["@LoanId"].Value = row.LoanId;
-                    insertCmd.Parameters["@InstallmentNumber"].Value = row.InstallmentNumber;
-                    insertCmd.Parameters["@DueDate"].Value = row.DueDate;
-                    insertCmd.Parameters["@PrincipalPortion"].Value = row.PrincipalPortion;
-                    insertCmd.Parameters["@InterestPortion"].Value = row.InterestPortion;
-                    insertCmd.Parameters["@RemainingBalance"].Value = row.RemainingBalance;
+                    insertCommand.Parameters["@LoanId"].Value = row.LoanId;
+                    insertCommand.Parameters["@InstallmentNumber"].Value = row.InstallmentNumber;
+                    insertCommand.Parameters["@DueDate"].Value = row.DueDate;
+                    insertCommand.Parameters["@PrincipalPortion"].Value = row.PrincipalPortion;
+                    insertCommand.Parameters["@InterestPortion"].Value = row.InterestPortion;
+                    insertCommand.Parameters["@RemainingBalance"].Value = row.RemainingBalance;
 
-                    await insertCmd.ExecuteNonQueryAsync();
+                    await insertCommand.ExecuteNonQueryAsync();
                 }
             }
 
@@ -352,7 +352,7 @@ public class LoanRepository : ILoanRepository
         using var command = new SqlCommand(query, connection);
         command.CommandTimeout = CommandTimeoutSeconds;
 
-        command.Parameters.Add("@userId", SqlDbType.Int).Value = loan.UserIdentificationNumber;
+        command.Parameters.Add("@userId", SqlDbType.Int).Value = loan.UserId;
         command.Parameters.AddWithValue("@loanType", loan.LoanType.ToString());
         command.Parameters.AddWithValue("@principal", loan.Principal);
         command.Parameters.AddWithValue("@outstandingBalance", loan.OutstandingBalance);
@@ -363,8 +363,8 @@ public class LoanRepository : ILoanRepository
         command.Parameters.AddWithValue("@termInMonths", loan.TermInMonths);
         command.Parameters.AddWithValue("@startDate", loan.StartDate);
 
-        var newIdentificationNumber = (int)(await command.ExecuteScalarAsync())!;
-        return newIdentificationNumber;
+        var newId = (int)(await command.ExecuteScalarAsync())!;
+        return newId;
     }
 
     /// <summary>
@@ -406,8 +406,8 @@ public class LoanRepository : ILoanRepository
     {
         return new Loan
         {
-            IdentificationNumber = (int)reader["id"],
-            UserIdentificationNumber = (int)reader["userId"],
+            Id = (int)reader["id"],
+            UserId = (int)reader["userId"],
             LoanType = Enum.Parse<LoanType>(reader["loanType"].ToString()!, true),
             Principal = (decimal)reader["principal"],
             OutstandingBalance = (decimal)reader["outstandingBalance"],

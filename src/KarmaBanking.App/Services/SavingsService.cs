@@ -31,35 +31,35 @@ public class SavingsService : ISavingsService
         this.savingsRepository = savingsRepository;
     }
 
-    public async Task<SavingsAccount> CreateAccountAsync(CreateSavingsAccountDto dto)
+    public async Task<SavingsAccount> CreateAccountAsync(CreateSavingsAccountDto dataTransferObject)
     {
         // BA-9: max 5 active accounts per user
-        var activeAccountsList = await this.savingsRepository.GetSavingsAccountsByUserIdAsync(dto.UserIdentificationNumber, false);
+        var activeAccountsList = await this.savingsRepository.GetSavingsAccountsByUserIdAsync(dataTransferObject.UserIdentificationNumber, false);
         if (activeAccountsList.Count >= MAX_ACTIVE_ACCOUNTS)
         {
             throw new InvalidOperationException("You cannot have more than 5 active savings accounts.");
         }
 
         // BA-9: GoalSavings requires a future target date
-        if (dto.SavingsType == "GoalSavings")
+        if (dataTransferObject.SavingsType == "GoalSavings")
         {
-            if (!dto.TargetDate.HasValue)
+            if (!dataTransferObject.TargetDate.HasValue)
             {
                 throw new ArgumentException("GoalSavings accounts require a target date.");
             }
 
-            if (dto.TargetDate.Value <= DateTime.Today)
+            if (dataTransferObject.TargetDate.Value <= DateTime.Today)
             {
                 throw new ArgumentException("Target date must be in the future.");
             }
 
-            if (!dto.TargetAmount.HasValue || dto.TargetAmount.Value <= 0)
+            if (!dataTransferObject.TargetAmount.HasValue || dataTransferObject.TargetAmount.Value <= 0)
             {
                 throw new ArgumentException("GoalSavings accounts require a positive target amount.");
             }
         }
 
-        var apy = dto.SavingsType switch
+        var annualPercentageYield = dataTransferObject.SavingsType switch
         {
             "FixedDeposit" => FIXED_DEPOSIT_APY,
             "GoalSavings" => GOAL_SAVINGS_APY,
@@ -67,7 +67,7 @@ public class SavingsService : ISavingsService
             _ => DEFAULT_APY,
         };
 
-        return await this.savingsRepository.CreateSavingsAccountAsync(dto, apy);
+        return await this.savingsRepository.CreateSavingsAccountAsync(dataTransferObject, annualPercentageYield);
     }
 
     public Task<List<SavingsAccount>> GetAccountsAsync(int userId, bool includesClosed = false)

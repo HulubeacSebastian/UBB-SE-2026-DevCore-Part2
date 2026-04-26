@@ -125,7 +125,7 @@
                                             </TextBlock>
                                             <TextBlock FontSize="13"
                                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}">
-                                                <Run Text="APY: " /><Run Text="{x:Bind Apy}" />
+                                                <Run Text="APY: " /><Run Text="{x:Bind AnnualPercentageYield}" />
                                             </TextBlock>
                                             <TextBlock FontSize="13"
                                                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}">

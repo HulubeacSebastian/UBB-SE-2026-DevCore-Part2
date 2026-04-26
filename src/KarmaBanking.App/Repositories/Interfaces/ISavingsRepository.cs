@@ -17,10 +17,10 @@ public interface ISavingsRepository
     /// <summary>
     /// Creates a new savings account.
     /// </summary>
-    /// <param name="dto">The create-account request payload.</param>
-    /// <param name="apy">The APY assigned to the new account.</param>
+    /// <param name="dataTransferObject">The create-account request payload.</param>
+    /// <param name="annualPercentageYield">The APY assigned to the new account.</param>
     /// <returns>The created savings account.</returns>
-    Task<SavingsAccount> CreateSavingsAccountAsync(CreateSavingsAccountDto dto, decimal apy);
+    Task<SavingsAccount> CreateSavingsAccountAsync(CreateSavingsAccountDto dataTransferObject, decimal annualPercentageYield);
 
     /// <summary>
     /// Gets savings accounts for a user.
