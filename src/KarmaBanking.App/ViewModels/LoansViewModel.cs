@@ -111,9 +111,9 @@ public partial class LoansViewModel : ObservableObject
     public bool HasError => !string.IsNullOrEmpty(this.ErrorMessage);
 
     public IEnumerable<LoanViewModel> FilteredLoans =>
-        this.loans.Where(l =>
-            (this.statusFilter == null || l.Loan.LoanStatus == this.statusFilter) &&
-            (this.typeFilter == null || l.Loan.LoanType == this.typeFilter));
+        this.loans.Where(loan =>
+            (this.statusFilter == null || loan.Loan.LoanStatus == this.statusFilter) &&
+            (this.typeFilter == null || loan.Loan.LoanType == this.typeFilter));
 
     [RelayCommand]
     public async Task LoadLoansAsync()
@@ -126,9 +126,9 @@ public partial class LoansViewModel : ObservableObject
             this.Loans = new ObservableCollection<LoanViewModel>(
                 result.Select(loan => new LoanViewModel(loan, this.loanService.GetRepaymentProgress(loan))));
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            this.ErrorMessage = ex.Message;
+            this.ErrorMessage = exception.Message;
         }
         finally
         {
@@ -163,9 +163,9 @@ public partial class LoansViewModel : ObservableObject
                 this.OnPropertyChanged(nameof(this.FilteredLoans));
             }
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            this.ErrorMessage = ex.Message;
+            this.ErrorMessage = exception.Message;
         }
         finally
         {
@@ -189,9 +189,9 @@ public partial class LoansViewModel : ObservableObject
             };
             this.CurrentEstimate = this.loanService.GetLoanEstimate(request);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            this.ErrorMessage = e.Message;
+            this.ErrorMessage = exception.Message;
         }
     }
 
@@ -209,9 +209,9 @@ public partial class LoansViewModel : ObservableObject
 
             this.OnPropertyChanged(nameof(this.FilteredLoans));
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            this.ErrorMessage = e.Message;
+            this.ErrorMessage = exception.Message;
             throw;
         }
         finally
@@ -287,9 +287,9 @@ public partial class LoansViewModel : ObservableObject
             var rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
             this.AmortizationRows = new ObservableCollection<AmortizationRow>(rows);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            this.ErrorMessage = e.Message;
+            this.ErrorMessage = exception.Message;
         }
         finally
         {
@@ -317,9 +317,9 @@ public partial class LoansViewModel : ObservableObject
                     UseShellExecute = true,
                 });
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            this.ErrorMessage = e.Message;
+            this.ErrorMessage = exception.Message;
         }
     }
 

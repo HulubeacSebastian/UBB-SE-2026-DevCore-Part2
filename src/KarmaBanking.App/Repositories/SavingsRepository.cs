@@ -40,10 +40,10 @@ public class SavingsRepository : ISavingsRepository
 
         var accountsList = new List<SavingsAccount>();
 
-        using var dbConnection = DatabaseConfig.GetDatabaseConnection();
-        await dbConnection.OpenAsync();
+        using var databaseConnection = DatabaseConfig.GetDatabaseConnection();
+        await databaseConnection.OpenAsync();
 
-        using var sqlCommand = new SqlCommand(selectAccountsQuery, dbConnection);
+        using var sqlCommand = new SqlCommand(selectAccountsQuery, databaseConnection);
         sqlCommand.Parameters.AddWithValue("@UserId", userIdentificationNumber);
 
         using var reader = await sqlCommand.ExecuteReaderAsync();
@@ -74,10 +74,10 @@ public class SavingsRepository : ISavingsRepository
                      'Active', @CreatedAt, @AccountName,
                      @FundingAccountId, @TargetAmount, @TargetDate)";
 
-        using var dbConnection = DatabaseConfig.GetDatabaseConnection();
-        await dbConnection.OpenAsync();
+        using var databaseConnection = DatabaseConfig.GetDatabaseConnection();
+        await databaseConnection.OpenAsync();
 
-        using var sqlCommand = new SqlCommand(insertAccountQuery, dbConnection);
+        using var sqlCommand = new SqlCommand(insertAccountQuery, databaseConnection);
         sqlCommand.Parameters.AddWithValue("@UserId", dataTransferObject.UserIdentificationNumber);
         sqlCommand.Parameters.AddWithValue("@SavingsType", dataTransferObject.SavingsType);
         sqlCommand.Parameters.AddWithValue("@Balance", dataTransferObject.InitialDeposit);
@@ -119,9 +119,9 @@ public class SavingsRepository : ISavingsRepository
     /// <returns>The resulting deposit response.</returns>
     public async Task<DepositResponseDto> DepositAsync(int accountIdentificationNumber, decimal amount, string source)
     {
-        using var dbConnection = DatabaseConfig.GetDatabaseConnection();
-        await dbConnection.OpenAsync();
-        using var sqlTransaction = dbConnection.BeginTransaction();
+        using var databaseConnection = DatabaseConfig.GetDatabaseConnection();
+        await databaseConnection.OpenAsync();
+        using var sqlTransaction = databaseConnection.BeginTransaction();
 
         try
         {
@@ -132,7 +132,7 @@ public class SavingsRepository : ISavingsRepository
 
             using var sqlUpdateAccountBalanceCommand = new SqlCommand(
                 updateAccountBalanceQuery,
-                dbConnection,
+                databaseConnection,
                 sqlTransaction);
             sqlUpdateAccountBalanceCommand.Parameters.AddWithValue("@Amount", amount);
             sqlUpdateAccountBalanceCommand.Parameters.AddWithValue("@AccountId", accountIdentificationNumber);
@@ -143,7 +143,7 @@ public class SavingsRepository : ISavingsRepository
             const string selectAccountBalanceQuery = "SELECT balance FROM SavingsAccount WHERE id = @AccountId";
             using (var sqlSelectAccountBalanceCommand = new SqlCommand(
                        selectAccountBalanceQuery,
-                       dbConnection,
+                       databaseConnection,
                        sqlTransaction))
             {
                 sqlSelectAccountBalanceCommand.Parameters.AddWithValue("@AccountId", accountIdentificationNumber);
@@ -157,7 +157,7 @@ public class SavingsRepository : ISavingsRepository
                 VALUES (@AccountId, @TransactionType, @Amount, @BalanceAfter, @Source, @Description, GETUTCDATE())";
 
             using var sqlInsertTransactionCommand =
-                new SqlCommand(insertTransactionQuery, dbConnection, sqlTransaction);
+                new SqlCommand(insertTransactionQuery, databaseConnection, sqlTransaction);
 
             sqlInsertTransactionCommand.Parameters.AddWithValue("@AccountId", accountIdentificationNumber);
             sqlInsertTransactionCommand.Parameters.AddWithValue("@TransactionType", "Deposit");
@@ -198,10 +198,10 @@ public class SavingsRepository : ISavingsRepository
         decimal transferAmount,
         decimal earlyClosurePenalty)
     {
-        using var dbConnection = DatabaseConfig.GetDatabaseConnection();
-        await dbConnection.OpenAsync();
+        using var databasebConnection = DatabaseConfig.GetDatabaseConnection();
+        await databasebConnection.OpenAsync();
 
-        using var dbTransaction = dbConnection.BeginTransaction();
+        using var databaseTransaction = databasebConnection.BeginTransaction();
 
         try
         {
@@ -215,8 +215,8 @@ public class SavingsRepository : ISavingsRepository
                 SELECT balance, savingsType, maturityDate, accountStatus
                 FROM SavingsAccount WITH (UPDLOCK, ROWLOCK)
                 WHERE id = @Id",
-                       dbConnection,
-                       dbTransaction))
+                       databasebConnection,
+                       databaseTransaction))
             {
                 selectSourceAccountDataCommand.Parameters.AddWithValue("@Id", accountIdentificationNumber);
 
@@ -233,8 +233,8 @@ public class SavingsRepository : ISavingsRepository
                 UPDATE SavingsAccount 
                 SET balance = balance + @Amount
                 WHERE id = @DestId",
-                       dbConnection,
-                       dbTransaction))
+                       databasebConnection,
+                       databaseTransaction))
             {
                 transferAmountToDestinationCommand.Parameters.AddWithValue("@Amount", transferAmount);
                 transferAmountToDestinationCommand.Parameters.AddWithValue("@DestId", destinationAccountIdentificationNumber);
@@ -250,8 +250,8 @@ public class SavingsRepository : ISavingsRepository
                     accountStatus = 'Closed',
                     updatedAt = GETUTCDATE()
                 WHERE id = @Id",
-                       dbConnection,
-                       dbTransaction))
+                       databasebConnection,
+                       databaseTransaction))
             {
                 closeAccountCommand.Parameters.AddWithValue("@Id", accountIdentificationNumber);
                 await closeAccountCommand.ExecuteNonQueryAsync();
@@ -264,8 +264,8 @@ public class SavingsRepository : ISavingsRepository
                 (accountId, transactionType, amount, balanceAfter, source, description, createdAt)
                 VALUES
                 (@AccountId, 'Closure', @Amount, 0, 'Closure', 'Account closed', GETUTCDATE())",
-                       dbConnection,
-                       dbTransaction))
+                       databasebConnection,
+                       databaseTransaction))
             {
                 insertClosureTransactionCommand.Parameters.AddWithValue("@AccountId", accountIdentificationNumber);
                 insertClosureTransactionCommand.Parameters.AddWithValue("@Amount", transferAmount);
@@ -273,7 +273,7 @@ public class SavingsRepository : ISavingsRepository
                 await insertClosureTransactionCommand.ExecuteNonQueryAsync();
             }
 
-            await dbTransaction.CommitAsync();
+            await databaseTransaction.CommitAsync();
 
             return new ClosureResultDto
             {
@@ -286,7 +286,7 @@ public class SavingsRepository : ISavingsRepository
         }
         catch (Exception exception)
         {
-            await dbTransaction.RollbackAsync();
+            await databaseTransaction.RollbackAsync();
 
             return new ClosureResultDto
             {
@@ -313,9 +313,9 @@ public class SavingsRepository : ISavingsRepository
         string destinationLabel,
         decimal earlyWithdrawalPenalty)
     {
-        using var dbConnection = DatabaseConfig.GetDatabaseConnection();
-        await dbConnection.OpenAsync();
-        using var dbTransaction = dbConnection.BeginTransaction();
+        using var databaseConnection = DatabaseConfig.GetDatabaseConnection();
+        await databaseConnection.OpenAsync();
+        using var databaseTransaction = databaseConnection.BeginTransaction();
 
         try
         {
@@ -328,8 +328,8 @@ public class SavingsRepository : ISavingsRepository
                 SELECT balance, savingsType, maturityDate
                 FROM SavingsAccount WITH (UPDLOCK, ROWLOCK)
                 WHERE id = @Id",
-                       dbConnection,
-                       dbTransaction))
+                       databaseConnection,
+                       databaseTransaction))
             {
                 selectAccountDataCommand.Parameters.AddWithValue("@Id", accountId);
                 using var reader = await selectAccountDataCommand.ExecuteReaderAsync();
@@ -344,8 +344,8 @@ public class SavingsRepository : ISavingsRepository
             using (var updateAccountBalanceCommand = new SqlCommand(
                        @"
                 UPDATE SavingsAccount SET balance = @Balance WHERE id = @Id",
-                       dbConnection,
-                       dbTransaction))
+                       databaseConnection,
+                       databaseTransaction))
             {
                 updateAccountBalanceCommand.Parameters.AddWithValue("@Balance", newBalance);
                 updateAccountBalanceCommand.Parameters.AddWithValue("@Id", accountId);
@@ -358,8 +358,8 @@ public class SavingsRepository : ISavingsRepository
                 (accountId, transactionType, amount, balanceAfter, source, description, createdAt)
                 VALUES (@AccountId, 'Withdrawal', @Amount, @BalanceAfter, 'Manual',
                         @Description, GETUTCDATE())",
-                       dbConnection,
-                       dbTransaction))
+                       databaseConnection,
+                       databaseTransaction))
             {
                 insertWithdrawalTransactionCommand.Parameters.AddWithValue("@AccountId", accountId);
                 insertWithdrawalTransactionCommand.Parameters.AddWithValue("@Amount", amount);
@@ -373,7 +373,7 @@ public class SavingsRepository : ISavingsRepository
                 await insertWithdrawalTransactionCommand.ExecuteNonQueryAsync();
             }
 
-            await dbTransaction.CommitAsync();
+            await databaseTransaction.CommitAsync();
 
             return new WithdrawResponseDto
             {
@@ -389,7 +389,7 @@ public class SavingsRepository : ISavingsRepository
         }
         catch (Exception exception)
         {
-            await dbTransaction.RollbackAsync();
+            await databaseTransaction.RollbackAsync();
             return new WithdrawResponseDto
             {
                 Success = false,
@@ -411,10 +411,10 @@ public class SavingsRepository : ISavingsRepository
                 FROM AutoDeposit
                 WHERE savingsAccountId = @AccountId";
 
-        using var dbConnection = DatabaseConfig.GetDatabaseConnection();
-        await dbConnection.OpenAsync();
+        using var databaseConnection = DatabaseConfig.GetDatabaseConnection();
+        await databaseConnection.OpenAsync();
 
-        using var selectAutoDepositByAccountIdCommand = new SqlCommand(selectAutoDepositByAccountIdQuery, dbConnection);
+        using var selectAutoDepositByAccountIdCommand = new SqlCommand(selectAutoDepositByAccountIdQuery, databaseConnection);
         selectAutoDepositByAccountIdCommand.Parameters.AddWithValue("@AccountId", accountId);
         using var reader = await selectAutoDepositByAccountIdCommand.ExecuteReaderAsync();
 
@@ -441,8 +441,8 @@ public class SavingsRepository : ISavingsRepository
     /// <returns>A task that completes when persistence is done.</returns>
     public async Task SaveAutoDepositAsync(AutoDeposit autoDeposit)
     {
-        using var dbConnection = DatabaseConfig.GetDatabaseConnection();
-        await dbConnection.OpenAsync();
+        using var databaseConnection = DatabaseConfig.GetDatabaseConnection();
+        await databaseConnection.OpenAsync();
 
         if (autoDeposit.Id == 0)
         {
@@ -450,7 +450,7 @@ public class SavingsRepository : ISavingsRepository
                     INSERT INTO AutoDeposit (savingsAccountId, amount, frequency, nextRunDate, isActive)
                     VALUES (@AccountId, @Amount, @Frequency, @NextRunDate, @IsActive)";
 
-            using var insertAutoDepositCommand = new SqlCommand(insertAutoDepositQuery, dbConnection);
+            using var insertAutoDepositCommand = new SqlCommand(insertAutoDepositQuery, databaseConnection);
             insertAutoDepositCommand.Parameters.AddWithValue("@AccountId", autoDeposit.SavingsAccountId);
             insertAutoDepositCommand.Parameters.AddWithValue("@Amount", autoDeposit.Amount);
             insertAutoDepositCommand.Parameters.AddWithValue("@Frequency", autoDeposit.Frequency.ToString());
@@ -466,7 +466,7 @@ public class SavingsRepository : ISavingsRepository
                         nextRunDate = @NextRunDate, isActive = @IsActive
                     WHERE id = @Id";
 
-            using var updateAutoDepositCommand = new SqlCommand(updateAutoDepositQuery, dbConnection);
+            using var updateAutoDepositCommand = new SqlCommand(updateAutoDepositQuery, databaseConnection);
             updateAutoDepositCommand.Parameters.AddWithValue("@Id", autoDeposit.Id);
             updateAutoDepositCommand.Parameters.AddWithValue("@Amount", autoDeposit.Amount);
             updateAutoDepositCommand.Parameters.AddWithValue("@Frequency", autoDeposit.Frequency.ToString());
@@ -505,8 +505,8 @@ public class SavingsRepository : ISavingsRepository
         int page,
         int pageSize)
     {
-        using var dbConnection = DatabaseConfig.GetDatabaseConnection();
-        await dbConnection.OpenAsync();
+        using var databaseConnection = DatabaseConfig.GetDatabaseConnection();
+        await databaseConnection.OpenAsync();
 
         var baseQuery = @"
                 FROM SavingsTransaction
@@ -519,7 +519,7 @@ public class SavingsRepository : ISavingsRepository
         }
 
         // total count
-        using var countAccountTransactionsCommand = new SqlCommand("SELECT COUNT(*) " + baseQuery, dbConnection);
+        using var countAccountTransactionsCommand = new SqlCommand("SELECT COUNT(*) " + baseQuery, databaseConnection);
         countAccountTransactionsCommand.Parameters.AddWithValue("@AccountId", accountId);
 
         if (baseQuery.Contains("@Type"))
@@ -536,7 +536,7 @@ public class SavingsRepository : ISavingsRepository
                 ORDER BY createdAt DESC
                 OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
 
-        using var paginatedSelectAccountsCommand = new SqlCommand(paginatedSelectAccountsQuery, dbConnection);
+        using var paginatedSelectAccountsCommand = new SqlCommand(paginatedSelectAccountsQuery, databaseConnection);
         paginatedSelectAccountsCommand.Parameters.AddWithValue("@AccountId", accountId);
         paginatedSelectAccountsCommand.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
         paginatedSelectAccountsCommand.Parameters.AddWithValue("@PageSize", pageSize);

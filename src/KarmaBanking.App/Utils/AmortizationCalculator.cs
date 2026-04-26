@@ -95,13 +95,13 @@ public static class AmortizationCalculator
 
         var isCurrentMarked = false;
 
-        for (var i = 1; i <= termInMonths; i++)
+        for (var index = 1; index <= termInMonths; index++)
         {
-            var dueDate = startDate.AddMonths(i);
+            var dueDate = startDate.AddMonths(index);
             var interestPortion = Math.Round(remainingBalance * monthlyRate, 2);
             var principalPortion = monthlyInstallment - interestPortion;
 
-            if (i == termInMonths)
+            if (index == termInMonths)
             {
                 // Adjust final installment so remaining balance becomes exactly 0
                 principalPortion = remainingBalance;
@@ -110,7 +110,7 @@ public static class AmortizationCalculator
 
             remainingBalance -= principalPortion;
 
-            if (remainingBalance < 0 || i == termInMonths)
+            if (remainingBalance < 0 || index == termInMonths)
             {
                 remainingBalance = 0;
             }
@@ -118,7 +118,7 @@ public static class AmortizationCalculator
             var row = new AmortizationRow
             {
                 LoanId = loan.Id,
-                InstallmentNumber = i,
+                InstallmentNumber = index,
                 DueDate = dueDate,
                 PrincipalPortion = principalPortion,
                 InterestPortion = interestPortion,
