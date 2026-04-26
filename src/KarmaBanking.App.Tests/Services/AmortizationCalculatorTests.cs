@@ -2,14 +2,11 @@
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
+using global::KarmaBanking.App.Utils;
+using Xunit;
+
 namespace KarmaBanking.App.Tests.Services
 {
-    using System;
-    using System.Linq;
-    using KarmaBanking.App.Models;
-    using KarmaBanking.App.Utils;
-    using Xunit;
-
     public class AmortizationCalculatorTests
     {
         [Fact]
