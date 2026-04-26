@@ -33,6 +33,14 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
+        public void ComputeRepaymentProgress_WithHalfBalancePaid_ReturnsFiftyPercent()
+        {
+            var progress = AmortizationCalculator.ComputeRepaymentProgress(1000m, 500m);
+
+            Assert.Equal(50m, progress);
+        }
+
+        [Fact]
         public void Generate_BuildsExpectedNumberOfRowsAndEndsAtZeroBalance()
         {
             var loan = new Loan
@@ -50,7 +58,31 @@ namespace KarmaBanking.App.Tests.Services
             var rows = AmortizationCalculator.Generate(loan);
 
             Assert.Equal(12, rows.Count);
+            Assert.Equal(1, rows[0].InstallmentNumber);
+            Assert.Equal(12, rows[^1].InstallmentNumber);
             Assert.Equal(0m, rows[^1].RemainingBalance);
+            Assert.Equal(loan.StartDate.AddMonths(1), rows[0].DueDate);
+        }
+
+        [Fact]
+        public void Generate_MarksOnlyOneCurrentInstallment()
+        {
+            var loan = new Loan
+            {
+                Id = 8,
+                Principal = 10000m,
+                OutstandingBalance = 10000m,
+                InterestRate = 8m,
+                MonthlyInstallment = 313.36m,
+                RemainingMonths = 36,
+                TermInMonths = 36,
+                StartDate = DateTime.Today.AddMonths(-2),
+            };
+
+            var rows = AmortizationCalculator.Generate(loan);
+
+            var currentCount = rows.Count(row => row.IsCurrent);
+            Assert.Equal(1, currentCount);
         }
     }
 }

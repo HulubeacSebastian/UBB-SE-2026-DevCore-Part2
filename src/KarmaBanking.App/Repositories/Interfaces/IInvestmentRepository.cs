@@ -13,9 +13,9 @@ public interface IInvestmentRepository
     /// <summary>
     /// Gets a user's portfolio snapshot including holdings.
     /// </summary>
-    /// <param name="userIdentificationNumber">The owning user identifier.</param>
+    /// <param name="userId">The owning user identifier.</param>
     /// <returns>The portfolio data.</returns>
-    Portfolio GetPortfolio(int userIdentificationNumber);
+    Portfolio GetPortfolio(int userId);
 
     /// <summary>
     /// Records a crypto buy or sell trade and updates holdings using final calculated values.
@@ -30,7 +30,7 @@ public interface IInvestmentRepository
     /// <param name="finalAveragePrice">The post-trade average price calculated by the service.</param>
     /// <returns>A task that completes when the trade is persisted.</returns>
     Task RecordCryptoTradeAsync(
-        int portfolioIdentificationNumber,
+        int portfolioId,
         string ticker,
         string actionType,
         decimal quantity,
@@ -42,13 +42,13 @@ public interface IInvestmentRepository
     /// <summary>
     /// Gets paginated investment transaction logs with optional filters.
     /// </summary>
-    /// <param name="portfolioIdentificationNumber">The portfolio identifier.</param>
+    /// <param name="portfolioId">The portfolio identifier.</param>
     /// <param name="startDate">The optional start date filter.</param>
     /// <param name="endDate">The optional end date filter.</param>
     /// <param name="ticker">The optional ticker filter.</param>
     /// <returns>A filtered list of investment transactions.</returns>
     Task<List<InvestmentTransaction>> GetInvestmentLogsAsync(
-        int portfolioIdentificationNumber,
+        int portfolioId,
         DateTime? startDate = null,
         DateTime? endDate = null,
         string? ticker = null);

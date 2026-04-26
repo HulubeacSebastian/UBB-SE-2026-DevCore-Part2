@@ -23,7 +23,7 @@ public class SavingsPresentationService
 
     public string BuildBestInterestRate(IEnumerable<SavingsAccount> accounts)
     {
-        var bestApy = accounts.Any() ? accounts.Max(account => account.Apy) : 0m;
+        var bestApy = accounts.Any() ? accounts.Max(account => account.AnnualPercentageYield) : 0m;
         return $"{bestApy * 100:F2}%";
     }
 

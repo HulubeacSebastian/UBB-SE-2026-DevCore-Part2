@@ -41,7 +41,7 @@ public class SavingsAccount
     /// <summary>
     ///     Gets or sets the annual percentage yield (APY) for the savings account.
     /// </summary>
-    public decimal Apy { get; set; }
+    public decimal AnnualPercentageYield { get; set; }
 
     /// <summary>
     ///     Gets or sets the maturity date for fixed deposit accounts, which indicates when the funds will be available without
@@ -92,7 +92,7 @@ public class SavingsAccount
     ///     This provides users with an estimate of how much interest they can expect to earn in a month if the balance remains
     ///     unchanged.
     /// </summary>
-    public decimal MonthlyInterestProjection => this.Balance * this.Apy / 12m;
+    public decimal MonthlyInterestProjection => this.Balance * this.AnnualPercentageYield / 12m;
 
     /// <summary>
     ///     Gets the percentage of the savings goal that has been achieved.

@@ -397,9 +397,9 @@ namespace KarmaBanking.App.ViewModels
                 var databaseSessions = await apiService.GetUserChatSessionsAsync();
 
                 Sessions.Clear();
-                foreach (var s in databaseSessions)
+                foreach (var session in databaseSessions)
                 {
-                    Sessions.Add(s);
+                    Sessions.Add(session);
                 }
 
                 if (Sessions.Count > 0)
@@ -408,9 +408,9 @@ namespace KarmaBanking.App.ViewModels
                     await LoadMessagesForSessionAsync(CurrentSession);
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                StatusMessage = "Failed to load sessions: " + ex.Message;
+                StatusMessage = "Failed to load sessions: " + exception.Message;
             }
         }
 
@@ -421,13 +421,13 @@ namespace KarmaBanking.App.ViewModels
                 return;
             }
 
-            var repo = new ChatMessageRepository();
-            var messages = await Task.Run(() => repo.GetMessagesBySessionId(session.Id));
+            var chatMessageRepository = new ChatMessageRepository();
+            var messages = await Task.Run(() => chatMessageRepository.GetMessagesBySessionId(session.Id));
 
             session.Messages.Clear();
-            foreach (var msg in messages)
+            foreach (var message in messages)
             {
-                session.Messages.Add(msg);
+                session.Messages.Add(message);
             }
         }
 

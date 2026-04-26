@@ -111,9 +111,9 @@ public partial class LoansViewModel : ObservableObject
     public bool HasError => !string.IsNullOrEmpty(this.ErrorMessage);
 
     public IEnumerable<LoanViewModel> FilteredLoans =>
-        this.loans.Where(l =>
-            (this.statusFilter == null || l.Loan.LoanStatus == this.statusFilter) &&
-            (this.typeFilter == null || l.Loan.LoanType == this.typeFilter));
+        this.loans.Where(loan =>
+            (this.statusFilter == null || loan.Loan.LoanStatus == this.statusFilter) &&
+            (this.typeFilter == null || loan.Loan.LoanType == this.typeFilter));
 
     [RelayCommand]
     public async Task LoadLoansAsync()
@@ -126,9 +126,9 @@ public partial class LoansViewModel : ObservableObject
             this.Loans = new ObservableCollection<LoanViewModel>(
                 result.Select(loan => new LoanViewModel(loan, this.loanService.GetRepaymentProgress(loan))));
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            this.ErrorMessage = ex.Message;
+            this.ErrorMessage = exception.Message;
         }
         finally
         {
@@ -163,9 +163,9 @@ public partial class LoansViewModel : ObservableObject
                 this.OnPropertyChanged(nameof(this.FilteredLoans));
             }
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            this.ErrorMessage = ex.Message;
+            this.ErrorMessage = exception.Message;
         }
         finally
         {
@@ -189,9 +189,9 @@ public partial class LoansViewModel : ObservableObject
             };
             this.CurrentEstimate = this.loanService.GetLoanEstimate(request);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            this.ErrorMessage = e.Message;
+            this.ErrorMessage = exception.Message;
         }
     }
 
@@ -204,14 +204,14 @@ public partial class LoansViewModel : ObservableObject
             var amount = this.CustomAmount.HasValue
                 ? (decimal?)this.CustomAmount.Value
                 : null;
-            await this.loanService.PayInstallmentAsync(this.SelectedLoan.Loan.IdentificationNumber, amount);
+            await this.loanService.PayInstallmentAsync(this.SelectedLoan.Loan.Id, amount);
             await this.LoadLoansAsync();
 
             this.OnPropertyChanged(nameof(this.FilteredLoans));
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            this.ErrorMessage = e.Message;
+            this.ErrorMessage = exception.Message;
             throw;
         }
         finally
@@ -284,12 +284,12 @@ public partial class LoansViewModel : ObservableObject
         this.ErrorMessage = string.Empty;
         try
         {
-            var rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.IdentificationNumber);
+            var rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
             this.AmortizationRows = new ObservableCollection<AmortizationRow>(rows);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            this.ErrorMessage = e.Message;
+            this.ErrorMessage = exception.Message;
         }
         finally
         {
@@ -302,10 +302,10 @@ public partial class LoansViewModel : ObservableObject
     {
         try
         {
-            var rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.IdentificationNumber);
+            var rows = await this.loanService.GetAmortizationAsync(this.SelectedLoan.Loan.Id);
             var pdfBytes = this.pdfExporter.ExportAmortization(rows);
             var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            var fileName = $"amortization_schedule_{this.SelectedLoan.Loan.IdentificationNumber}.pdf";
+            var fileName = $"amortization_schedule_{this.SelectedLoan.Loan.Id}.pdf";
             var filePath = Path.Combine(desktopPath, fileName);
 
             await File.WriteAllBytesAsync(filePath, pdfBytes);
@@ -317,9 +317,9 @@ public partial class LoansViewModel : ObservableObject
                     UseShellExecute = true,
                 });
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            this.ErrorMessage = e.Message;
+            this.ErrorMessage = exception.Message;
         }
     }
 
