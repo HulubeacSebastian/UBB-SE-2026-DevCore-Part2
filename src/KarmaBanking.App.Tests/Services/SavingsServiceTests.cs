@@ -1068,13 +1068,13 @@ namespace KarmaBanking.App.Tests.Services
             {
                 new SavingsTransaction
                 {
-                    IdentificationNumber = 1,
+                    Id = 1,
                     SavingsAccountId = accountId,
                     Amount = 100m,
                     Type = TransactionType.Deposit,
                     Source = "Test",
                     CreatedAt = DateTime.UtcNow,
-                    AccountIdentificationNumber = accountId,
+                    AccountId = accountId,
                     BalanceAfter = 100m,
                     Description = "Test transaction",
                 }
@@ -1096,13 +1096,13 @@ namespace KarmaBanking.App.Tests.Services
             {
                 new SavingsTransaction
                 {
-                    IdentificationNumber = 1,
+                    Id = 1,
                     SavingsAccountId = accountId,
                     Amount = 100m,
                     Type = TransactionType.Deposit,
                     Source = "Test",
                     CreatedAt = DateTime.UtcNow,
-                    AccountIdentificationNumber = accountId,
+                    AccountId = accountId,
                     BalanceAfter = 100m,
                     Description = "Test transaction",
                 }
@@ -1124,13 +1124,13 @@ namespace KarmaBanking.App.Tests.Services
             {
                 new SavingsTransaction
                 {
-                    IdentificationNumber = 1,
+                    Id = 1,
                     SavingsAccountId = accountId,
                     Amount = 100m,
                     Type = TransactionType.Deposit,
                     Source = "Test",
                     CreatedAt = DateTime.UtcNow,
-                    AccountIdentificationNumber = accountId,
+                    AccountId = accountId,
                     BalanceAfter = 100m,
                     Description = "Test transaction",
                 }

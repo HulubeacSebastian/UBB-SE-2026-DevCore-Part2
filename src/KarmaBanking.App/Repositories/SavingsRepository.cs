@@ -58,10 +58,10 @@ public class SavingsRepository : ISavingsRepository
     /// <summary>
     /// Creates a new savings account using the provided request and APY.
     /// </summary>
-    /// <param name="dto">The create-account request payload.</param>
-    /// <param name="apy">The annual percentage yield to assign.</param>
+    /// <param name="dataTransferObject">The create-account request payload.</param>
+    /// <param name="annualPercentageYield">The annual percentage yield to assign.</param>
     /// <returns>The created savings account.</returns>
-    public async Task<SavingsAccount> CreateSavingsAccountAsync(CreateSavingsAccountDto dto, decimal apy)
+    public async Task<SavingsAccount> CreateSavingsAccountAsync(CreateSavingsAccountDto dataTransferObject, decimal annualPercentageYield)
     {
         const string insertAccountQuery = @"
                 INSERT INTO SavingsAccount
@@ -78,35 +78,35 @@ public class SavingsRepository : ISavingsRepository
         await dbConnection.OpenAsync();
 
         using var sqlCommand = new SqlCommand(insertAccountQuery, dbConnection);
-        sqlCommand.Parameters.AddWithValue("@UserId", dto.UserIdentificationNumber);
-        sqlCommand.Parameters.AddWithValue("@SavingsType", dto.SavingsType);
-        sqlCommand.Parameters.AddWithValue("@Balance", dto.InitialDeposit);
-        sqlCommand.Parameters.AddWithValue("@Apy", apy);
-        sqlCommand.Parameters.AddWithValue("@MaturityDate", (object?)dto.MaturityDate ?? DBNull.Value);
+        sqlCommand.Parameters.AddWithValue("@UserId", dataTransferObject.UserIdentificationNumber);
+        sqlCommand.Parameters.AddWithValue("@SavingsType", dataTransferObject.SavingsType);
+        sqlCommand.Parameters.AddWithValue("@Balance", dataTransferObject.InitialDeposit);
+        sqlCommand.Parameters.AddWithValue("@Apy", annualPercentageYield);
+        sqlCommand.Parameters.AddWithValue("@MaturityDate", (object?)dataTransferObject.MaturityDate ?? DBNull.Value);
         sqlCommand.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
-        sqlCommand.Parameters.AddWithValue("@AccountName", (object?)dto.AccountName ?? DBNull.Value);
+        sqlCommand.Parameters.AddWithValue("@AccountName", (object?)dataTransferObject.AccountName ?? DBNull.Value);
         sqlCommand.Parameters.AddWithValue(
             "@FundingAccountId",
-            dto.FundingAccountId == 0 ? DBNull.Value : dto.FundingAccountId);
-        sqlCommand.Parameters.AddWithValue("@TargetAmount", (object?)dto.TargetAmount ?? DBNull.Value);
-        sqlCommand.Parameters.AddWithValue("@TargetDate", (object?)dto.TargetDate ?? DBNull.Value);
+            dataTransferObject.FundingAccountId == 0 ? DBNull.Value : dataTransferObject.FundingAccountId);
+        sqlCommand.Parameters.AddWithValue("@TargetAmount", (object?)dataTransferObject.TargetAmount ?? DBNull.Value);
+        sqlCommand.Parameters.AddWithValue("@TargetDate", (object?)dataTransferObject.TargetDate ?? DBNull.Value);
 
         var newSavingsAccountIdentificationNumber = (int)(await sqlCommand.ExecuteScalarAsync())!;
 
         return new SavingsAccount
         {
             IdentificationNumber = newSavingsAccountIdentificationNumber,
-            UserIdentificationNumber = dto.UserIdentificationNumber,
-            SavingsType = dto.SavingsType,
-            AccountName = dto.AccountName,
-            Balance = dto.InitialDeposit,
+            UserIdentificationNumber = dataTransferObject.UserIdentificationNumber,
+            SavingsType = dataTransferObject.SavingsType,
+            AccountName = dataTransferObject.AccountName,
+            Balance = dataTransferObject.InitialDeposit,
             AccruedInterest = 0,
-            Apy = apy,
+            AnnualPercentageYield = annualPercentageYield,
             AccountStatus = "Active",
             CreatedAt = DateTime.Now,
-            FundingAccountIdentificationNumber = dto.FundingAccountId == 0 ? null : dto.FundingAccountId,
-            TargetAmount = dto.TargetAmount,
-            TargetDate = dto.TargetDate,
+            FundingAccountIdentificationNumber = dataTransferObject.FundingAccountId == 0 ? null : dataTransferObject.FundingAccountId,
+            TargetAmount = dataTransferObject.TargetAmount,
+            TargetDate = dataTransferObject.TargetDate,
         };
     }
 
@@ -555,8 +555,8 @@ public class SavingsRepository : ISavingsRepository
             transactionsList.Add(
                 new SavingsTransaction
                 {
-                    IdentificationNumber = (int)reader["id"],
-                    AccountIdentificationNumber = (int)reader["accountId"],
+                    Id = (int)reader["id"],
+                    AccountId = (int)reader["accountId"],
                     Type = Enum.Parse<TransactionType>(reader["transactionType"].ToString()!),
                     Amount = (decimal)reader["amount"],
                     BalanceAfter = (decimal)reader["balanceAfter"],
@@ -569,23 +569,23 @@ public class SavingsRepository : ISavingsRepository
         return (transactionsList, numberOfAccountTransactions);
     }
 
-    private static SavingsAccount MapReaderToAccount(SqlDataReader r)
+    private static SavingsAccount MapReaderToAccount(SqlDataReader sqlDataReader)
     {
         return new SavingsAccount
         {
-            IdentificationNumber = r.GetInt32(r.GetOrdinal("id")),
-            UserIdentificationNumber = r.GetInt32(r.GetOrdinal("userId")),
-            SavingsType = r["savingsType"]?.ToString() ?? string.Empty,
-            Balance = r.GetDecimal(r.GetOrdinal("balance")),
-            AccruedInterest = r.GetDecimal(r.GetOrdinal("accruedInterest")),
-            Apy = r.GetDecimal(r.GetOrdinal("apy")),
-            MaturityDate = r["maturityDate"] as DateTime?,
-            AccountStatus = r["accountStatus"]?.ToString() ?? string.Empty,
-            CreatedAt = r.GetDateTime(r.GetOrdinal("createdAt")),
-            AccountName = r["accountName"] as string,
-            FundingAccountIdentificationNumber = r["fundingAccountId"] as int?,
-            TargetAmount = r["targetAmount"] as decimal?,
-            TargetDate = r["targetDate"] as DateTime?,
+            IdentificationNumber = sqlDataReader.GetInt32(sqlDataReader.GetOrdinal("id")),
+            UserIdentificationNumber = sqlDataReader.GetInt32(sqlDataReader.GetOrdinal("userId")),
+            SavingsType = sqlDataReader["savingsType"]?.ToString() ?? string.Empty,
+            Balance = sqlDataReader.GetDecimal(sqlDataReader.GetOrdinal("balance")),
+            AccruedInterest = sqlDataReader.GetDecimal(sqlDataReader.GetOrdinal("accruedInterest")),
+            AnnualPercentageYield = sqlDataReader.GetDecimal(sqlDataReader.GetOrdinal("apy")),
+            MaturityDate = sqlDataReader["maturityDate"] as DateTime?,
+            AccountStatus = sqlDataReader["accountStatus"]?.ToString() ?? string.Empty,
+            CreatedAt = sqlDataReader.GetDateTime(sqlDataReader.GetOrdinal("createdAt")),
+            AccountName = sqlDataReader["accountName"] as string,
+            FundingAccountIdentificationNumber = sqlDataReader["fundingAccountId"] as int?,
+            TargetAmount = sqlDataReader["targetAmount"] as decimal?,
+            TargetDate = sqlDataReader["targetDate"] as DateTime?,
         };
     }
 }

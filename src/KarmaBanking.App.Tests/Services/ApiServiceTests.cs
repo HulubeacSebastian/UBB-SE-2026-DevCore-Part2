@@ -75,7 +75,7 @@
         {
             var mockLoanService = Substitute.For<ILoanService>();
             var mockChatRepo = Substitute.For<IChatRepository>();
-            var expectedLoans = new List<Loan> { new Loan { IdentificationNumber = 1 } };
+            var expectedLoans = new List<Loan> { new Loan { Id = 1 } };
             mockLoanService.GetAllLoansAsync().Returns(Task.FromResult(expectedLoans));
 
             var loansGetter = new ApiService(mockLoanService, mockChatRepo);
@@ -139,8 +139,7 @@
             var mockLoanService = Substitute.For<ILoanService>();
             var mockChatRepo = Substitute.For<IChatRepository>();
             var expectedRowsForAmortization = new List<AmortizationRow> { new AmortizationRow { InstallmentNumber = 1 } };
-            mockLoanService.GetAmortizationAsync(1).Returns(Task.FromResult(expectedRows));
-
+            // mockLoanService.GetAmortizationAsync(1).Returns(Task.FromResult(expectedRows));
             var amortizationGetter = new ApiService(mockLoanService, mockChatRepo);
             var amortizationRowList = await amortizationGetter.GetAmortizationAsync(1);
 

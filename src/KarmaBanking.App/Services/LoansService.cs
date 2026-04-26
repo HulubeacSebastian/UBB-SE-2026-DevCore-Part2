@@ -111,7 +111,7 @@ public class LoanService : ILoanService
 
         var loan = new Loan
         {
-            UserIdentificationNumber = application.UserId,
+            UserId = application.UserId,
             LoanType = application.LoanType,
             Principal = application.DesiredAmount,
             OutstandingBalance = application.DesiredAmount,
@@ -175,7 +175,7 @@ public class LoanService : ILoanService
             ? LoanStatus.Passed
             : loan.LoanStatus;
 
-        await this.loanRepository.UpdateLoanAfterPaymentAsync(loan.IdentificationNumber, newBalance, newRemainingMonths, newStatus);
+        await this.loanRepository.UpdateLoanAfterPaymentAsync(loan.Id, newBalance, newRemainingMonths, newStatus);
     }
 
     public (decimal BalanceAfterPayment, int RemainingMonths) CalculatePaymentPreview(Loan loan, decimal? customAmount = null)
@@ -253,8 +253,8 @@ public class LoanService : ILoanService
     {
         var currentLoans = await this.loanRepository.GetLoansByUserAsync(application.UserId);
 
-        var totalOutstanding = currentLoans.Sum(l => l.OutstandingBalance);
-        var activeLoansCount = currentLoans.Count(l => l.LoanStatus == LoanStatus.Active);
+        var totalOutstanding = currentLoans.Sum(loan => loan.OutstandingBalance);
+        var activeLoansCount = currentLoans.Count(loan => loan.LoanStatus == LoanStatus.Active);
 
         if (activeLoansCount >= 5)
         {

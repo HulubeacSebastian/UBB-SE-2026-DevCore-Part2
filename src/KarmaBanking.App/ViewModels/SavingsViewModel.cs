@@ -315,7 +315,7 @@ public partial class SavingsViewModel : BaseViewModel
             return;
         }
 
-        if (!this.savingsUiRulesService.TryParseDepositFrequency(this.AutoDepositFrequency, out var freq))
+        if (!this.savingsUiRulesService.TryParseDepositFrequency(this.AutoDepositFrequency, out var frequency))
         {
             this.ErrorMessage = "Invalid frequency.";
             return;
@@ -326,7 +326,7 @@ public partial class SavingsViewModel : BaseViewModel
             Id = this.currentAutoDeposit?.Id ?? 0,
             SavingsAccountId = this.SelectedAccount!.IdentificationNumber,
             Amount = amount,
-            Frequency = freq,
+            Frequency = frequency,
             NextRunDate = this.AutoDepositStartDate?.DateTime ?? DateTime.Now.AddDays(1),
             IsActive = this.AutoDepositIsActive,
         };
@@ -635,16 +635,16 @@ public partial class SavingsViewModel : BaseViewModel
 
             this.transactions.Clear();
 
-            foreach (var tx in result.Items)
+            foreach (var transaction in result.Items)
             {
-                this.transactions.Add(tx);
+                this.transactions.Add(transaction);
             }
 
             this.totalPages = this.savingsUiRulesService.CalculateTotalPages(result.TotalCount, 10);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            this.ErrorMessage = ex.Message;
+            this.ErrorMessage = exception.Message;
         }
     }
 

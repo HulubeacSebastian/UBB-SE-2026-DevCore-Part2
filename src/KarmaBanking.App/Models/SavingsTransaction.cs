@@ -15,7 +15,7 @@ public class SavingsTransaction
     /// <summary>
     ///     Gets or sets the unique identifier for the transaction.
     /// </summary>
-    public int IdentificationNumber { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     ///     Gets or sets the unique identifier for a savings account involved in the transaction.
@@ -48,7 +48,7 @@ public class SavingsTransaction
     ///     This is the account that the transaction is being made on, and it is used to link the transaction to the correct
     ///     account in the database.
     /// </summary>
-    public int AccountIdentificationNumber { get; set; }
+    public int AccountId { get; set; }
 
     /// <summary>
     ///     Gets or sets the balance of the savings account after the transaction has been processed.
