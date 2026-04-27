@@ -15,6 +15,9 @@ using KarmaBanking.App.Repositories;
 
 public class EmailTranscriptService
 {
+    private const int TranscriptSeparatorLength = 50;
+    private const int SmtpPort = 587;
+
     private readonly ChatMessageRepository chatMessageRepository;
 
     public EmailTranscriptService()
@@ -39,7 +42,7 @@ public class EmailTranscriptService
 
         transcriptBuilder.AppendLine($"Chat Transcript for Session #{sessionIdentificationNumber}");
         transcriptBuilder.AppendLine($"Generated at: {DateTime.Now}");
-        transcriptBuilder.AppendLine(new string('-', 50));
+        transcriptBuilder.AppendLine(new string('-', TranscriptSeparatorLength));
 
         foreach (var message in messages)
         {
@@ -63,7 +66,7 @@ public class EmailTranscriptService
         mailMessage.Subject = emailSubject;
         mailMessage.Body = emailBody;
 
-        using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
+        using (var smtpClient = new SmtpClient("smtp.gmail.com", SmtpPort))
         {
             smtpClient.Credentials = new NetworkCredential("your_email_here", "your_password_here");
             smtpClient.EnableSsl = true;

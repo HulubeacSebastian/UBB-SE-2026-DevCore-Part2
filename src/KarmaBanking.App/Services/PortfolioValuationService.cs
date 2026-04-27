@@ -9,6 +9,10 @@ using KarmaBanking.App.Models;
 
 public class PortfolioValuationService
 {
+    private const decimal PercentageScale = 100m;
+    private const decimal ZeroCostThreshold = 0m;
+    private const decimal DefaultGainLossPercent = 0m;
+
     public void UpdateHoldingValuation(InvestmentHolding holding, decimal updatedPrice)
     {
         holding.CurrentPrice = updatedPrice;
@@ -22,6 +26,8 @@ public class PortfolioValuationService
         portfolio.TotalGainLoss = holdings.Sum(holding => holding.UnrealizedGainLoss);
 
         var totalCost = holdings.Sum(holding => holding.AveragePurchasePrice * holding.Quantity);
-        portfolio.GainLossPercent = totalCost > 0 ? portfolio.TotalGainLoss / totalCost * 100 : 0;
+        portfolio.GainLossPercent = totalCost > ZeroCostThreshold
+            ? portfolio.TotalGainLoss / totalCost * PercentageScale
+            : DefaultGainLossPercent;
     }
 }

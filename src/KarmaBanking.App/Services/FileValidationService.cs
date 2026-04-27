@@ -16,10 +16,16 @@ using Windows.Storage;
 /// </summary>
 public class FileValidationService
 {
+    private const long BytesPerKilobyte = 1024;
+    private const long KilobytesPerMegabyte = 1024;
+    private const int MaxFileSizeInMegabytes = 10;
+    private const string FileSizeDisplayFormat = "0.##";
+    private const string MaxFileSizeValidationMessage = "File size must be ten MB or less.";
+
     /// <summary>
-    /// The maximum allowed file size in bytes (10 MB).
+    /// The maximum allowed file size in bytes.
     /// </summary>
-    private const long MaxFileSize = 10 * 1024 * 1024;
+    private const long MaxFileSize = MaxFileSizeInMegabytes * BytesPerKilobyte * KilobytesPerMegabyte;
 
     /// <summary>
     /// Converts a file size in bytes to a human-readable formatted string (e.g., KB or MB).
@@ -28,19 +34,17 @@ public class FileValidationService
     /// <returns>A formatted string representing the file size.</returns>
     public static string GetFileSizeDisplay(long sizeInBytes)
     {
-        const long kb = 1024;
-        const long mb = kb * 1024;
+        const long kilobyte = BytesPerKilobyte;
+        const long megabyte = kilobyte * KilobytesPerMegabyte;
 
-        if (sizeInBytes >= mb)
+        if (sizeInBytes >= megabyte)
         {
-            // 2. Use .ToString with InvariantCulture
-            return (sizeInBytes / (double)mb).ToString("0.##", CultureInfo.InvariantCulture) + " MB";
+            return (sizeInBytes / (double)megabyte).ToString(FileSizeDisplayFormat, CultureInfo.InvariantCulture) + " MB";
         }
 
-        if (sizeInBytes >= kb)
+        if (sizeInBytes >= kilobyte)
         {
-            // 3. Use .ToString with InvariantCulture
-            return (sizeInBytes / (double)kb).ToString("0.##", CultureInfo.InvariantCulture) + " KB";
+            return (sizeInBytes / (double)kilobyte).ToString(FileSizeDisplayFormat, CultureInfo.InvariantCulture) + " KB";
         }
 
         return $"{sizeInBytes} B";
@@ -63,7 +67,7 @@ public class FileValidationService
             var properties = await file.GetBasicPropertiesAsync();
             if (properties.Size > MaxFileSize)
             {
-                return (false, "File size must be 10 MB or less.");
+                return (false, MaxFileSizeValidationMessage);
             }
 
             var fileExtension = Path.GetExtension(file.Name).ToLowerInvariant();

@@ -12,6 +12,9 @@ using Microsoft.UI.Xaml.Data;
 /// </summary>
 public class DecimalToPercentConverter : IValueConverter
 {
+    private const string PercentFormat = "F2";
+    private const string DefaultPercentText = "0.00%";
+
     /// <summary>
     /// Converts a decimal value to a percentage string.
     /// </summary>
@@ -24,10 +27,10 @@ public class DecimalToPercentConverter : IValueConverter
     {
         if (value is decimal amount)
         {
-            return $"{amount:F2}%";
+            return $"{amount.ToString(PercentFormat)}%";
         }
 
-        return "0.00%";
+        return DefaultPercentText;
     }
 
     /// <summary>

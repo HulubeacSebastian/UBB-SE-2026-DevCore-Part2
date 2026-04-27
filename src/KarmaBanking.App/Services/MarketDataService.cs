@@ -15,16 +15,26 @@ public class MarketDataService : IMarketDataService
     private const int DefaultPollingIntervalInMilliseconds = 5000;
     private const double MaximumPriceFluctuationPercentage = 0.04;
     private const double PriceFluctuationOffset = 0.02;
+    private const decimal DefaultBtcPrice = 68000m;
+    private const decimal DefaultEthPrice = 3400m;
+    private const decimal DefaultAaplPrice = 185m;
+    private const decimal DefaultMsftPrice = 420m;
+    private const decimal DefaultGooglPrice = 155m;
+    private const decimal DefaultTslaPrice = 650m;
+    private const decimal DefaultSpyPrice = 520m;
+    private const decimal PriceBaseMultiplier = 1m;
+    private const int PriceRoundingDigits = 2;
+    private const decimal MissingPrice = 0m;
 
     private readonly Dictionary<string, decimal> currentPrices = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["BTC"] = 68000m,
-        ["ETH"] = 3400m,
-        ["AAPL"] = 185m,
-        ["MSFT"] = 420m,
-        ["GOOGL"] = 155m,
-        ["TSLA"] = 650m,
-        ["SPY"] = 520m
+        ["BTC"] = DefaultBtcPrice,
+        ["ETH"] = DefaultEthPrice,
+        ["AAPL"] = DefaultAaplPrice,
+        ["MSFT"] = DefaultMsftPrice,
+        ["GOOGL"] = DefaultGooglPrice,
+        ["TSLA"] = DefaultTslaPrice,
+        ["SPY"] = DefaultSpyPrice
     };
 
     private readonly Random randomNumberGenerator = new();
@@ -65,8 +75,8 @@ public class MarketDataService : IMarketDataService
                             var changePercentage =
                                 (decimal)((this.randomNumberGenerator.NextDouble() *
                                            MaximumPriceFluctuationPercentage) - PriceFluctuationOffset);
-                            var updatedPrice = currentPrice * (1 + changePercentage);
-                            this.currentPrices[ticker] = decimal.Round(updatedPrice, 2);
+                            var updatedPrice = currentPrice * (PriceBaseMultiplier + changePercentage);
+                            this.currentPrices[ticker] = decimal.Round(updatedPrice, PriceRoundingDigits);
                         }
                     }
 
@@ -91,12 +101,12 @@ public class MarketDataService : IMarketDataService
     {
         if (string.IsNullOrWhiteSpace(tickerSymbol))
         {
-            return 0m;
+            return MissingPrice;
         }
 
         lock (this.synchronizationRoot)
         {
-            return this.currentPrices.TryGetValue(tickerSymbol.Trim().ToUpperInvariant(), out var price) ? price : 0m;
+            return this.currentPrices.TryGetValue(tickerSymbol.Trim().ToUpperInvariant(), out var price) ? price : MissingPrice;
         }
     }
 

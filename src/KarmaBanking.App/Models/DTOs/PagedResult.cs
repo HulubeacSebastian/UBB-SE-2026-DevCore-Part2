@@ -18,7 +18,7 @@ public class PagedResult<T>
     /// <summary>Gets or sets the total number of available items.</summary>
     public int TotalCount { get; set; }
 
-    /// <summary>Gets or sets the current page number (1-based).</summary>
+    /// <summary>Gets or sets the current page number (one-based).</summary>
     public int Page { get; set; }
 
     /// <summary>Gets or sets the requested page size.</summary>

@@ -8,10 +8,12 @@ using System;
 using Microsoft.UI.Xaml.Data;
 
 /// <summary>
-/// Converts a <see cref="DateTime"/> object to a formatted month and year string (e.g., "Mar '26").
+/// Converts a <see cref="DateTime"/> object to a formatted month and year string.
 /// </summary>
 public class DateToMonthYearConverter : IValueConverter
 {
+    private const string MonthYearFormat = "MMM ''yy";
+
     /// <summary>
     /// Converts a date value to a short month and year string format.
     /// </summary>
@@ -24,8 +26,7 @@ public class DateToMonthYearConverter : IValueConverter
     {
         if (value is DateTime date)
         {
-            // Format: "Mar '26"
-            return date.ToString("MMM ''yy");
+            return date.ToString(MonthYearFormat);
         }
 
         return string.Empty;

@@ -12,6 +12,10 @@ using Microsoft.UI.Xaml.Data;
 /// </summary>
 public class DecimalToTrendSymbolConverter : IValueConverter
 {
+    private const decimal ZeroAmount = 0m;
+    private const string PositiveTrendSymbol = "▲";
+    private const string NegativeTrendSymbol = "▼";
+
     /// <summary>
     /// Converts a decimal value to a directional arrow string.
     /// </summary>
@@ -24,14 +28,14 @@ public class DecimalToTrendSymbolConverter : IValueConverter
     {
         if (value is decimal amount)
         {
-            if (amount > 0)
+            if (amount > ZeroAmount)
             {
-                return "▲";
+                return PositiveTrendSymbol;
             }
 
-            if (amount < 0)
+            if (amount < ZeroAmount)
             {
-                return "▼";
+                return NegativeTrendSymbol;
             }
         }
 

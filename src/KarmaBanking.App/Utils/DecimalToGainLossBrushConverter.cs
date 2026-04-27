@@ -14,6 +14,8 @@ using Microsoft.UI.Xaml.Media;
 /// </summary>
 public class DecimalToGainLossBrushConverter : IValueConverter
 {
+    private const decimal ZeroAmount = 0m;
+
     private static readonly SolidColorBrush PositiveBrush = new(Colors.ForestGreen);
     private static readonly SolidColorBrush NegativeBrush = new(Colors.IndianRed);
     private static readonly SolidColorBrush NeutralBrush = new(Colors.Gray);
@@ -30,12 +32,12 @@ public class DecimalToGainLossBrushConverter : IValueConverter
     {
         if (value is decimal amount)
         {
-            if (amount > 0)
+            if (amount > ZeroAmount)
             {
                 return PositiveBrush;
             }
 
-            if (amount < 0)
+            if (amount < ZeroAmount)
             {
                 return NegativeBrush;
             }

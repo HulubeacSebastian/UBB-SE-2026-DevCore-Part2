@@ -10,6 +10,26 @@
     using Microsoft.Data.SqlClient;
     public class ChatRepository : IChatRepository
     {
+        private const int MessageIdOrdinal = 0;
+        private const int MessageSessionIdOrdinal = 1;
+        private const int MessageSenderTypeOrdinal = 2;
+        private const int MessageContentOrdinal = 3;
+        private const int MessageSentAtOrdinal = 4;
+
+        private const int SessionIdOrdinal = 0;
+        private const int SessionUserIdOrdinal = 1;
+        private const int SessionIssueCategoryOrdinal = 2;
+        private const int SessionStatusOrdinal = 3;
+        private const int SessionRatingOrdinal = 4;
+        private const int SessionStartedAtOrdinal = 5;
+        private const int SessionEndedAtOrdinal = 6;
+        private const int SessionFeedbackOrdinal = 7;
+
+        private const int FeedbackMaxLength = 255;
+        private const int SessionStatusMaxLength = 30;
+        private const int IssueCategoryMaxLength = 50;
+        private const int DefaultSessionRating = 0;
+
         public async Task<List<ChatMessage>> GetChatMessagesAsync(int chatSessionId)
         {
             var messages = new List<ChatMessage>();
@@ -33,11 +53,11 @@
                     {
                         messages.Add(new ChatMessage
                         {
-                            Id = reader.GetInt32(0),
-                            SessionId = reader.GetInt32(1),
-                            SenderType = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                            Content = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
-                            SentAt = reader.GetDateTime(4),
+                            Id = reader.GetInt32(MessageIdOrdinal),
+                            SessionId = reader.GetInt32(MessageSessionIdOrdinal),
+                            SenderType = reader.IsDBNull(MessageSenderTypeOrdinal) ? string.Empty : reader.GetString(MessageSenderTypeOrdinal),
+                            Content = reader.IsDBNull(MessageContentOrdinal) ? string.Empty : reader.GetString(MessageContentOrdinal),
+                            SentAt = reader.GetDateTime(MessageSentAtOrdinal),
                         });
                     }
                 }
@@ -63,9 +83,9 @@
 
                 command.Parameters.Add("@sessionId", SqlDbType.Int).Value = sessionId;
                 command.Parameters.Add("@rating", SqlDbType.Int).Value = rating;
-                command.Parameters.Add("@feedback", SqlDbType.NVarChar, 255).Value =
+                command.Parameters.Add("@feedback", SqlDbType.NVarChar, FeedbackMaxLength).Value =
                     string.IsNullOrWhiteSpace(feedback) ? DBNull.Value : feedback;
-                command.Parameters.Add("@sessionStatus", SqlDbType.NVarChar, 30).Value = "Closed";
+                command.Parameters.Add("@sessionStatus", SqlDbType.NVarChar, SessionStatusMaxLength).Value = "Closed";
                 command.Parameters.Add("@endedAt", SqlDbType.DateTime2).Value = DateTime.Now;
 
                 command.ExecuteNonQuery();
@@ -85,8 +105,8 @@
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.Add("@userId", SqlDbType.Int).Value = userId;
-                    command.Parameters.Add("@issueCategory", SqlDbType.NVarChar, 50).Value = issueCategory;
-                    command.Parameters.Add("@sessionStatus", SqlDbType.NVarChar, 30).Value = "Open";
+                    command.Parameters.Add("@issueCategory", SqlDbType.NVarChar, IssueCategoryMaxLength).Value = issueCategory;
+                    command.Parameters.Add("@sessionStatus", SqlDbType.NVarChar, SessionStatusMaxLength).Value = "Open";
                     command.Parameters.Add("@startedAt", SqlDbType.DateTime2).Value = DateTime.Now;
 
                     return (int)await command.ExecuteScalarAsync();
@@ -132,14 +152,14 @@
                     {
                         chatSessions.Add(new ChatSession
                         {
-                            Id = reader.GetInt32(0),
-                            UserId = reader.GetInt32(1),
-                            IssueCategory = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                            SessionStatus = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
-                            Rating = reader.IsDBNull(4) ? 0 : reader.GetInt32(4),
-                            StartedAt = reader.GetDateTime(5),
-                            EndedAt = reader.IsDBNull(6) ? DateTime.MinValue : reader.GetDateTime(6),
-                            Feedback = reader.IsDBNull(7) ? string.Empty : reader.GetString(7)
+                            Id = reader.GetInt32(SessionIdOrdinal),
+                            UserId = reader.GetInt32(SessionUserIdOrdinal),
+                            IssueCategory = reader.IsDBNull(SessionIssueCategoryOrdinal) ? string.Empty : reader.GetString(SessionIssueCategoryOrdinal),
+                            SessionStatus = reader.IsDBNull(SessionStatusOrdinal) ? string.Empty : reader.GetString(SessionStatusOrdinal),
+                            Rating = reader.IsDBNull(SessionRatingOrdinal) ? DefaultSessionRating : reader.GetInt32(SessionRatingOrdinal),
+                            StartedAt = reader.GetDateTime(SessionStartedAtOrdinal),
+                            EndedAt = reader.IsDBNull(SessionEndedAtOrdinal) ? DateTime.MinValue : reader.GetDateTime(SessionEndedAtOrdinal),
+                            Feedback = reader.IsDBNull(SessionFeedbackOrdinal) ? string.Empty : reader.GetString(SessionFeedbackOrdinal)
                         });
                     }
                 }

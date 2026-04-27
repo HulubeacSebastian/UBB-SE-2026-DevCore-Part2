@@ -13,6 +13,7 @@
     {
         private const string AssetTypeCrypto = "Crypto";
         private const string OrderTypeMarket = "Market";
+        private const decimal InitialUnrealizedGainLoss = 0m;
 
         /// <summary>
         /// Records a crypto trade and updates the holding with final values calculated by the Service.
@@ -36,7 +37,7 @@
             {
                 int? holdingIdentificationNumber = null;
 
-                // 1. Check if the holding already exists
+                // First step: check if the holding already exists.
                 var checkHoldingSqlQuery = "SELECT id FROM InvestmentHolding WHERE portfolioId = @PortfolioId AND ticker = @Ticker";
                 using (var checkCommand = new SqlCommand(checkHoldingSqlQuery, sqlConnection, sqlTransaction))
                 {
@@ -50,7 +51,7 @@
                     }
                 }
 
-                // 2. Update existing holding or Insert new holding using FINAL values provided by the Service
+                // Second step: update existing holding or insert a new holding with final values from the service.
                 if (holdingIdentificationNumber.HasValue)
                 {
                     var updateHoldingSqlQuery = "UPDATE InvestmentHolding SET quantity = @FinalQuantity, avgPurchasePrice = @FinalAveragePrice WHERE id = @HoldingId";
@@ -66,7 +67,7 @@
                     var insertHoldingSqlQuery = @"
                             INSERT INTO InvestmentHolding (portfolioId, ticker, assetType, quantity, avgPurchasePrice, currentPrice, unrealizedGainLoss)
                             OUTPUT INSERTED.id
-                            VALUES (@PortfolioId, @Ticker, @AssetType, @Quantity, @AveragePrice, @AveragePrice, 0)";
+                            VALUES (@PortfolioId, @Ticker, @AssetType, @Quantity, @AveragePrice, @AveragePrice, @UnrealizedGainLoss)";
 
                     using var insertCommand = new SqlCommand(insertHoldingSqlQuery, sqlConnection, sqlTransaction);
                     insertCommand.Parameters.AddWithValue("@PortfolioId", portfolioIdentificationNumber);
@@ -74,11 +75,12 @@
                     insertCommand.Parameters.AddWithValue("@AssetType", AssetTypeCrypto);
                     insertCommand.Parameters.AddWithValue("@Quantity", finalQuantity);
                     insertCommand.Parameters.AddWithValue("@AveragePrice", finalAveragePrice);
+                    insertCommand.Parameters.AddWithValue("@UnrealizedGainLoss", InitialUnrealizedGainLoss);
 
                     holdingIdentificationNumber = (int)(await insertCommand.ExecuteScalarAsync())!;
                 }
 
-                // 3. Log the transaction details
+                // Third step: write the transaction log entry.
                 var insertTransactionSqlQuery = @"
                         INSERT INTO InvestmentTransaction (holdingId, ticker, actionType, quantity, pricePerUnit, fees, orderType, executedAt)
                         VALUES (@HoldingId, @Ticker, @ActionType, @Quantity, @PricePerUnit, @Fees, @OrderType, @ExecutedAt)";
@@ -123,10 +125,15 @@
                 using var portfolioDataReader = selectPortfolioCommand.ExecuteReader();
                 if (portfolioDataReader.Read())
                 {
-                    userPortfolio.IdentificationNumber = portfolioDataReader.GetInt32(0);
-                    userPortfolio.TotalValue = portfolioDataReader.GetDecimal(2);
-                    userPortfolio.TotalGainLoss = portfolioDataReader.GetDecimal(3);
-                    userPortfolio.GainLossPercent = portfolioDataReader.GetDecimal(4);
+                    var portfolioIdOrdinal = portfolioDataReader.GetOrdinal("id");
+                    var totalValueOrdinal = portfolioDataReader.GetOrdinal("totalValue");
+                    var totalGainLossOrdinal = portfolioDataReader.GetOrdinal("totalGainLoss");
+                    var gainLossPercentOrdinal = portfolioDataReader.GetOrdinal("gainLossPercent");
+
+                    userPortfolio.IdentificationNumber = portfolioDataReader.GetInt32(portfolioIdOrdinal);
+                    userPortfolio.TotalValue = portfolioDataReader.GetDecimal(totalValueOrdinal);
+                    userPortfolio.TotalGainLoss = portfolioDataReader.GetDecimal(totalGainLossOrdinal);
+                    userPortfolio.GainLossPercent = portfolioDataReader.GetDecimal(gainLossPercentOrdinal);
                 }
                 else
                 {
@@ -140,15 +147,23 @@
                 using var holdingsDataReader = selectHoldingsCommand.ExecuteReader();
                 while (holdingsDataReader.Read())
                 {
+                    var holdingIdOrdinal = holdingsDataReader.GetOrdinal("id");
+                    var tickerOrdinal = holdingsDataReader.GetOrdinal("ticker");
+                    var assetTypeOrdinal = holdingsDataReader.GetOrdinal("assetType");
+                    var quantityOrdinal = holdingsDataReader.GetOrdinal("quantity");
+                    var averagePurchasePriceOrdinal = holdingsDataReader.GetOrdinal("avgPurchasePrice");
+                    var currentPriceOrdinal = holdingsDataReader.GetOrdinal("currentPrice");
+                    var unrealizedGainLossOrdinal = holdingsDataReader.GetOrdinal("unrealizedGainLoss");
+
                     userPortfolio.Holdings.Add(new InvestmentHolding
                     {
-                        IdentificationNumber = holdingsDataReader.GetInt32(0),
-                        Ticker = holdingsDataReader.IsDBNull(1) ? string.Empty : holdingsDataReader.GetString(1),
-                        AssetType = holdingsDataReader.IsDBNull(2) ? string.Empty : holdingsDataReader.GetString(2),
-                        Quantity = holdingsDataReader.GetDecimal(3),
-                        AveragePurchasePrice = holdingsDataReader.GetDecimal(4),
-                        CurrentPrice = holdingsDataReader.GetDecimal(5),
-                        UnrealizedGainLoss = holdingsDataReader.GetDecimal(6)
+                        IdentificationNumber = holdingsDataReader.GetInt32(holdingIdOrdinal),
+                        Ticker = holdingsDataReader.IsDBNull(tickerOrdinal) ? string.Empty : holdingsDataReader.GetString(tickerOrdinal),
+                        AssetType = holdingsDataReader.IsDBNull(assetTypeOrdinal) ? string.Empty : holdingsDataReader.GetString(assetTypeOrdinal),
+                        Quantity = holdingsDataReader.GetDecimal(quantityOrdinal),
+                        AveragePurchasePrice = holdingsDataReader.GetDecimal(averagePurchasePriceOrdinal),
+                        CurrentPrice = holdingsDataReader.GetDecimal(currentPriceOrdinal),
+                        UnrealizedGainLoss = holdingsDataReader.GetDecimal(unrealizedGainLossOrdinal)
                     });
                 }
             }
@@ -209,17 +224,27 @@
             using var transactionLogDataReader = await filterCommand.ExecuteReaderAsync();
             while (await transactionLogDataReader.ReadAsync())
             {
+                var transactionIdOrdinal = transactionLogDataReader.GetOrdinal("id");
+                var holdingIdOrdinal = transactionLogDataReader.GetOrdinal("holdingId");
+                var tickerOrdinal = transactionLogDataReader.GetOrdinal("ticker");
+                var actionTypeOrdinal = transactionLogDataReader.GetOrdinal("actionType");
+                var quantityOrdinal = transactionLogDataReader.GetOrdinal("quantity");
+                var pricePerUnitOrdinal = transactionLogDataReader.GetOrdinal("pricePerUnit");
+                var feesOrdinal = transactionLogDataReader.GetOrdinal("fees");
+                var orderTypeOrdinal = transactionLogDataReader.GetOrdinal("orderType");
+                var executedAtOrdinal = transactionLogDataReader.GetOrdinal("executedAt");
+
                 investmentLogs.Add(new InvestmentTransaction
                 {
-                    IdentificationNumber = transactionLogDataReader.GetInt32(0),
-                    HoldingIdentificationNumber = transactionLogDataReader.GetInt32(1),
-                    Ticker = transactionLogDataReader.GetString(2),
-                    ActionType = transactionLogDataReader.GetString(3),
-                    Quantity = transactionLogDataReader.GetDecimal(4),
-                    PricePerUnit = transactionLogDataReader.GetDecimal(5),
-                    Fees = transactionLogDataReader.GetDecimal(6),
-                    OrderType = transactionLogDataReader.GetString(7),
-                    ExecutedAt = transactionLogDataReader.GetDateTime(8)
+                    IdentificationNumber = transactionLogDataReader.GetInt32(transactionIdOrdinal),
+                    HoldingIdentificationNumber = transactionLogDataReader.GetInt32(holdingIdOrdinal),
+                    Ticker = transactionLogDataReader.GetString(tickerOrdinal),
+                    ActionType = transactionLogDataReader.GetString(actionTypeOrdinal),
+                    Quantity = transactionLogDataReader.GetDecimal(quantityOrdinal),
+                    PricePerUnit = transactionLogDataReader.GetDecimal(pricePerUnitOrdinal),
+                    Fees = transactionLogDataReader.GetDecimal(feesOrdinal),
+                    OrderType = transactionLogDataReader.GetString(orderTypeOrdinal),
+                    ExecutedAt = transactionLogDataReader.GetDateTime(executedAtOrdinal)
                 });
             }
 

@@ -15,7 +15,7 @@ public static class DatabaseConfig
     /// The SQL Server connection string used by the application.
     /// </summary>
     public static readonly string DatabaseConnectionString =
-        @"Server=DESKTOP-BIG8P7V\SQLEXPRESS;Database=KarmaBankingDb;Trusted_Connection=True;TrustServerCertificate=True;";
+        @"Server=localhost\SQLEXPRESS;Database=KarmaBankingDb;Trusted_Connection=True;TrustServerCertificate=True;";
 
     /// <summary>
     /// Creates a new SQL connection using <see cref="DatabaseConnectionString"/>.

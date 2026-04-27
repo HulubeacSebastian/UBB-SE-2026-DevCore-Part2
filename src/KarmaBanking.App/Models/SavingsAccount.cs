@@ -11,6 +11,11 @@ using System;
 /// </summary>
 public class SavingsAccount
 {
+    private const decimal MonthsInYear = 12m;
+    private const decimal PercentageScale = 100m;
+    private const decimal MinimumTargetAmountExclusive = 0m;
+    private const double DefaultProgressPercent = 0d;
+
     /// <summary>
     ///     Gets or sets the unique identifier for the savings account.
     /// </summary>
@@ -92,15 +97,15 @@ public class SavingsAccount
     ///     This provides users with an estimate of how much interest they can expect to earn in a month if the balance remains
     ///     unchanged.
     /// </summary>
-    public decimal MonthlyInterestProjection => this.Balance * this.AnnualPercentageYield / 12m;
+    public decimal MonthlyInterestProjection => this.Balance * this.AnnualPercentageYield / MonthsInYear;
 
     /// <summary>
     ///     Gets the percentage of the savings goal that has been achieved.
     /// </summary>
     public double ProgressPercent =>
-        this.TargetAmount.HasValue && this.TargetAmount.Value > 0
-            ? (double)(this.Balance / this.TargetAmount.Value * 100m)
-            : 0;
+        this.TargetAmount.HasValue && this.TargetAmount.Value > MinimumTargetAmountExclusive
+            ? (double)(this.Balance / this.TargetAmount.Value * PercentageScale)
+            : DefaultProgressPercent;
 
     /// <summary>
     ///     Gets the string representation of the balance of the account, prefixed with a dollar sign for a nice display.

@@ -11,6 +11,10 @@ using KarmaBanking.App.Models;
 
 public class SavingsPresentationService
 {
+    private const int SingularAccountCount = 1;
+    private const decimal DefaultBestApy = 0m;
+    private const decimal PercentageScale = 100m;
+
     public string BuildTotalSavedAmount(IEnumerable<SavingsAccount> accounts)
     {
         return $"${accounts.Sum(account => account.Balance):F2}";
@@ -18,13 +22,13 @@ public class SavingsPresentationService
 
     public string BuildNumberOfAccountsText(int accountCount)
     {
-        return $"across {accountCount} account{(accountCount == 1 ? string.Empty : "s")}";
+        return $"across {accountCount} account{(accountCount == SingularAccountCount ? string.Empty : "s")}";
     }
 
     public string BuildBestInterestRate(IEnumerable<SavingsAccount> accounts)
     {
-        var bestApy = accounts.Any() ? accounts.Max(account => account.AnnualPercentageYield) : 0m;
-        return $"{bestApy * 100:F2}%";
+        var bestApy = accounts.Any() ? accounts.Max(account => account.AnnualPercentageYield) : DefaultBestApy;
+        return $"{bestApy * PercentageScale:F2}%";
     }
 
     public bool HasClosePenaltyRisk(SavingsAccount? selectedAccount)

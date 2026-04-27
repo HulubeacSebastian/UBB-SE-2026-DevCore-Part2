@@ -11,22 +11,27 @@ public class CryptoTradeCalculationService
 {
     private const decimal FeeRate = 0.015m;
     private const decimal MinimumFee = 0.50m;
+    private const decimal PositiveQuantityThreshold = 0m;
+    private const decimal DefaultQuantity = 0m;
+    private const decimal MockBtcPrice = 65000m;
+    private const decimal MockDefaultPrice = 3000m;
+    private const int CurrencyRoundingDigits = 2;
 
     public bool TryParsePositiveQuantity(string quantityText, out decimal quantity)
 {
     // Adding NumberStyles.Any and InvariantCulture ensures the dot is treated as a decimal
-    if (decimal.TryParse(quantityText, NumberStyles.Any, CultureInfo.InvariantCulture, out quantity) && quantity > 0)
+    if (decimal.TryParse(quantityText, NumberStyles.Any, CultureInfo.InvariantCulture, out quantity) && quantity > PositiveQuantityThreshold)
     {
         return true;
     }
 
-    quantity = 0m;
+    quantity = DefaultQuantity;
     return false;
 }
 
     public decimal GetMockMarketPrice(string ticker)
     {
-        return ticker == "BTC" ? 65000m : 3000m;
+        return ticker == "BTC" ? MockBtcPrice : MockDefaultPrice;
     }
 
     public (decimal EstimatedFee, decimal TotalAmount) CalculateTradePreview(
@@ -35,7 +40,7 @@ public class CryptoTradeCalculationService
         decimal quantity)
     {
         var tradeValue = quantity * this.GetMockMarketPrice(ticker);
-        var calculatedFee = Math.Round(tradeValue * FeeRate, 2);
+        var calculatedFee = Math.Round(tradeValue * FeeRate, CurrencyRoundingDigits);
         var estimatedFee = calculatedFee < MinimumFee ? MinimumFee : calculatedFee;
         var totalAmount = actionType == "BUY"
             ? tradeValue + estimatedFee
