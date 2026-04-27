@@ -5,7 +5,9 @@
 namespace KarmaBanking.App.Views;
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using KarmaBanking.App.Data;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Services;
@@ -16,6 +18,10 @@ using Microsoft.UI.Xaml.Navigation;
 
 public sealed partial class SavingsView : Page
 {
+    private const int FirstItemIndex = 0;
+    private const int NoSelectionIndex = -1;
+    private const int SuccessMessageDelayMilliseconds = 1500;
+
     private readonly SavingsViewModel viewModel;
 
     public SavingsView()
@@ -57,8 +63,8 @@ public sealed partial class SavingsView : Page
 
         if (tag == "OpenNew")
         {
-            this.SavingsTypeRadioButtons.SelectedIndex = -1;
-            this.FrequencyRadioButtons.SelectedIndex = -1;
+            this.SavingsTypeRadioButtons.SelectedIndex = NoSelectionIndex;
+            this.FrequencyRadioButtons.SelectedIndex = NoSelectionIndex;
             this.viewModel.SelectedSavingsType = string.Empty;
             this.viewModel.SelectedFrequency = string.Empty;
             this.GoalSavingsPanel.Visibility = Visibility.Collapsed;
@@ -66,9 +72,9 @@ public sealed partial class SavingsView : Page
 
             await this.viewModel.LoadFundingSourcesAsync();
             this.FundingSourceComboBox.ItemsSource = this.viewModel.FundingSources;
-            if (this.viewModel.FundingSources.Count > 0)
+            if (this.viewModel.FundingSources.Any())
             {
-                this.FundingSourceComboBox.SelectedIndex = 0;
+                this.FundingSourceComboBox.SelectedIndex = FirstItemIndex;
             }
         }
 
@@ -76,7 +82,7 @@ public sealed partial class SavingsView : Page
         {
             this.HideAllActionPanels();
             this.ManageButtonsPanel.Visibility = Visibility.Collapsed;
-            this.ManageAccountComboBox.SelectedIndex = -1;
+            this.ManageAccountComboBox.SelectedIndex = NoSelectionIndex;
         }
     }
 
@@ -164,12 +170,12 @@ public sealed partial class SavingsView : Page
         {
             this.CreateSuccessBar.IsOpen = true;
             this.OpenAccountButton.IsEnabled = false;
-            await Task.Delay(1500);
+            await Task.Delay(SuccessMessageDelayMilliseconds);
             this.CreateSuccessBar.IsOpen = false;
             this.OpenAccountButton.IsEnabled = true;
             this.AccountNameTextBox.Text = string.Empty;
             this.InitialDepositTextBox.Text = string.Empty;
-            this.SavingsTypeRadioButtons.SelectedIndex = -1;
+            this.SavingsTypeRadioButtons.SelectedIndex = NoSelectionIndex;
             this.MainNavigationView.SelectedItem = this.MyAccountsTab;
         }
     }
@@ -200,9 +206,9 @@ public sealed partial class SavingsView : Page
         // Load funding sources into the deposit combobox
         await this.viewModel.LoadFundingSourcesAsync();
         this.DepositSourceComboBox.ItemsSource = this.viewModel.FundingSources;
-        if (this.viewModel.FundingSources.Count > 0)
+        if (this.viewModel.FundingSources.Any())
         {
-            this.DepositSourceComboBox.SelectedIndex = 0;
+            this.DepositSourceComboBox.SelectedIndex = FirstItemIndex;
         }
 
         // Sync amount field
@@ -226,10 +232,10 @@ public sealed partial class SavingsView : Page
         // Load funding sources as withdraw destinations
         await this.viewModel.LoadFundingSourcesAsync();
         this.WithdrawDestComboBox.ItemsSource = this.viewModel.FundingSources;
-        if (this.viewModel.FundingSources.Count > 0)
+        if (this.viewModel.FundingSources.Any())
         {
-            this.WithdrawDestComboBox.SelectedIndex = 0;
-            this.viewModel.WithdrawDestination = this.viewModel.FundingSources[0];
+            this.WithdrawDestComboBox.SelectedIndex = FirstItemIndex;
+            this.viewModel.WithdrawDestination = this.viewModel.FundingSources[FirstItemIndex];
         }
 
         this.WithdrawAmountTextBox.Text = string.Empty;
@@ -261,8 +267,8 @@ public sealed partial class SavingsView : Page
         this.AutoDepositAmountTextBox.Text = this.viewModel.AutoDepositAmountText;
 
         // Set frequency radio
-        this.AutoDepositFrequencyRadios.SelectedIndex = -1;
-        for (var i = 0; i < this.AutoDepositFrequencyRadios.Items.Count; i++)
+        this.AutoDepositFrequencyRadios.SelectedIndex = NoSelectionIndex;
+        for (var i = FirstItemIndex; i < this.AutoDepositFrequencyRadios.Items.Count; i++)
         {
             if (this.AutoDepositFrequencyRadios.Items[i] is RadioButton radioButton &&
                 radioButton.Tag?.ToString() == this.viewModel.AutoDepositFrequency)
@@ -295,13 +301,13 @@ public sealed partial class SavingsView : Page
         this.CloseConfirmCheckBox.IsChecked = false;
         this.CloseConfirmButton.IsEnabled = false;
 
-        var hasNoDest = this.viewModel.CloseDestinationAccounts.Count == 0;
+        var hasNoDest = !this.viewModel.CloseDestinationAccounts.Any();
         this.CloseNoDestText.Visibility = hasNoDest ? Visibility.Visible : Visibility.Collapsed;
         this.CloseDestComboBox.Visibility = hasNoDest ? Visibility.Collapsed : Visibility.Visible;
 
         if (!hasNoDest)
         {
-            this.CloseDestComboBox.SelectedIndex = 0;
+            this.CloseDestComboBox.SelectedIndex = FirstItemIndex;
         }
 
         // Show penalty warning for fixed deposit before maturity
@@ -468,10 +474,10 @@ public sealed partial class SavingsView : Page
         if (success)
         {
             // After successful close, go back to buttons panel after a brief moment
-            await Task.Delay(1500);
+            await Task.Delay(SuccessMessageDelayMilliseconds);
             this.CloseAccountActionPanel.Visibility = Visibility.Collapsed;
             this.ManageButtonsPanel.Visibility = Visibility.Visible;
-            this.ManageAccountComboBox.SelectedIndex = -1;
+            this.ManageAccountComboBox.SelectedIndex = NoSelectionIndex;
             this.ManageButtonsPanel.Visibility = Visibility.Collapsed;
         }
     }

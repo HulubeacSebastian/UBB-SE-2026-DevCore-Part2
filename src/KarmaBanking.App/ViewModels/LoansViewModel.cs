@@ -14,12 +14,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using KarmaBanking.App.Data;
 using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Services;
 using KarmaBanking.App.Utils;
 
 public partial class LoansViewModel : ObservableObject
 {
+    private const string CustomAmountDisplayFormat = "0.##";
+    private const int ZeroCount = 0;
+    private const decimal ZeroAmount = 0m;
+    private const int FirstPage = 1;
+    private const int DefaultPageSize = 10;
+
     private readonly ILoanService loanService;
     private readonly LoanApplicationPresentationService loanApplicationPresentationService;
     private readonly LoanDialogStateService loanDialogStateService;
@@ -224,8 +231,8 @@ public partial class LoansViewModel : ObservableObject
     {
         if (this.SelectedLoan == null)
         {
-            this.PaymentPreviewBalance = 0m;
-            this.PaymentPreviewRemainingMonths = 0;
+            this.PaymentPreviewBalance = ZeroAmount;
+            this.PaymentPreviewRemainingMonths = ZeroCount;
             return;
         }
 
@@ -261,7 +268,7 @@ public partial class LoansViewModel : ObservableObject
 
         this.CustomAmount = (double)normalizedCustomAmount;
 
-        var currentText = normalizedCustomAmount.ToString("0.##", CultureInfo.CurrentCulture);
+        var currentText = normalizedCustomAmount.ToString(CustomAmountDisplayFormat, CultureInfo.CurrentCulture);
         this.UpdatePaymentPreview(false, currentText);
         return currentText;
     }
@@ -341,8 +348,8 @@ public partial class LoansViewModel : ObservableObject
         this.ApplicationResult = string.Empty;
         this.ApplicationWasApproved = false;
 
-        this.DesiredAmount = 0;
-        this.PreferredTermMonths = 0;
+        this.DesiredAmount = default;
+        this.PreferredTermMonths = default;
         this.Purpose = string.Empty;
         this.CurrentEstimate = null;
         this.IsEstimateVisible = false;

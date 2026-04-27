@@ -8,11 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Provider;
+using KarmaBanking.App.Data;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Services.Interfaces;
 using KarmaBanking.App.Utils;
@@ -105,9 +107,8 @@ public class InvestmentLogsViewModel : INotifyPropertyChanged
             var endDateTime = this.EndDate?.DateTime;
             var tickerSymbol = this.SelectedTicker == "All" ? null : this.SelectedTicker;
 
-            // Portfolio identification number 1 is standard for current integration
             var transactionResults = await this.investmentService.GetInvestmentLogsAsync(
-                1,
+                CurrentUser.Id,
                 startDateTime,
                 endDateTime,
                 tickerSymbol);
@@ -117,7 +118,7 @@ public class InvestmentLogsViewModel : INotifyPropertyChanged
                 this.Logs.Add(transactionLog);
             }
 
-            this.StatusMessage = this.Logs.Count == 0 ? "No transactions found matching the criteria." : string.Empty;
+            this.StatusMessage = this.Logs.Any() ? string.Empty : "No transactions found matching the criteria.";
         }
         catch (Exception exception)
         {
@@ -131,7 +132,7 @@ public class InvestmentLogsViewModel : INotifyPropertyChanged
 
     private async Task ExportToCsvAsync()
     {
-        if (this.Logs.Count == 0)
+        if (!this.Logs.Any())
         {
             this.StatusMessage = "No data to export.";
             return;

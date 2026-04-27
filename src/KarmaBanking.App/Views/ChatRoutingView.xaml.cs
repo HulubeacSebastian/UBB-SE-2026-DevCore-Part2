@@ -17,8 +17,34 @@ namespace KarmaBanking.App.Views
 {
     public sealed partial class ChatRoutingView : Page
     {
+        private const int NoRatingSelected = 0;
+        private const int LowestRating = 1;
+        private const int SecondRating = 2;
+        private const int ThirdRating = 3;
+        private const int FourthRating = 4;
+        private const int HighestRating = 5;
+        private const int RatingDialogSpacing = 12;
+        private const int RatingButtonsSpacing = 8;
+        private const int RatingTitleFontSize = 18;
+        private const int AttachmentSizeLimitBytes = 10 * 1024 * 1024;
+        private const int UploadDelayMilliseconds = 1000;
+        private const int DefaultSessionId = 1;
+        private const string NoRatingText = "No rating selected.";
+        private const string SelectedRatingPrefix = "Selected rating: ";
+        private const string OneStarLabel = "one star";
+        private const string TwoStarsLabel = "two stars";
+        private const string ThreeStarsLabel = "three stars";
+        private const string FourStarsLabel = "four stars";
+        private const string FiveStarsLabel = "five stars";
+        private const string OneStarButtonText = "⭐ One";
+        private const string TwoStarButtonText = "⭐ Two";
+        private const string ThreeStarButtonText = "⭐ Three";
+        private const string FourStarButtonText = "⭐ Four";
+        private const string FiveStarButtonText = "⭐ Five";
+        private const int FeedbackTextBoxHeight = 100;
+
         private readonly ChatViewModel viewModel = ChatViewModel.Instance;
-        private int selectedRating = 0;
+        private int selectedRating = NoRatingSelected;
 
         public ChatRoutingView()
         {
@@ -76,17 +102,17 @@ namespace KarmaBanking.App.Views
 
         private async void OpenRatingDialog_Click(object sender, RoutedEventArgs e)
         {
-            selectedRating = 0;
+            selectedRating = NoRatingSelected;
 
             StackPanel dialogContent = new StackPanel
             {
-                Spacing = 12
+                Spacing = RatingDialogSpacing
             };
 
             TextBlock titleText = new TextBlock
             {
                 Text = "Rate your experience",
-                FontSize = 18,
+                FontSize = RatingTitleFontSize,
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
             };
 
@@ -98,48 +124,48 @@ namespace KarmaBanking.App.Views
             StackPanel starsPanel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
-                Spacing = 8
+                Spacing = RatingButtonsSpacing
             };
 
             TextBlock selectedRatingText = new TextBlock
             {
-                Text = "No rating selected."
+                Text = NoRatingText
             };
 
-            Button star1 = new Button { Content = "⭐1", Tag = 1 };
-            Button star2 = new Button { Content = "⭐2", Tag = 2 };
-            Button star3 = new Button { Content = "⭐3", Tag = 3 };
-            Button star4 = new Button { Content = "⭐4", Tag = 4 };
-            Button star5 = new Button { Content = "⭐5", Tag = 5 };
+            Button star1 = new Button { Content = OneStarButtonText, Tag = LowestRating };
+            Button star2 = new Button { Content = TwoStarButtonText, Tag = SecondRating };
+            Button star3 = new Button { Content = ThreeStarButtonText, Tag = ThirdRating };
+            Button star4 = new Button { Content = FourStarButtonText, Tag = FourthRating };
+            Button star5 = new Button { Content = FiveStarButtonText, Tag = HighestRating };
 
             star1.Click += (s, args) =>
             {
-                selectedRating = 1;
-                selectedRatingText.Text = "Selected rating: 1 ⭐";
+                selectedRating = LowestRating;
+                selectedRatingText.Text = $"{SelectedRatingPrefix}{OneStarLabel}";
             };
 
             star2.Click += (s, args) =>
             {
-                selectedRating = 2;
-                selectedRatingText.Text = "Selected rating: 2 ⭐";
+                selectedRating = SecondRating;
+                selectedRatingText.Text = $"{SelectedRatingPrefix}{TwoStarsLabel}";
             };
 
             star3.Click += (s, args) =>
             {
-                selectedRating = 3;
-                selectedRatingText.Text = "Selected rating: 3 ⭐";
+                selectedRating = ThirdRating;
+                selectedRatingText.Text = $"{SelectedRatingPrefix}{ThreeStarsLabel}";
             };
 
             star4.Click += (s, args) =>
             {
-                selectedRating = 4;
-                selectedRatingText.Text = "Selected rating: 4 ⭐";
+                selectedRating = FourthRating;
+                selectedRatingText.Text = $"{SelectedRatingPrefix}{FourStarsLabel}";
             };
 
             star5.Click += (s, args) =>
             {
-                selectedRating = 5;
-                selectedRatingText.Text = "Selected rating: 5 ⭐";
+                selectedRating = HighestRating;
+                selectedRatingText.Text = $"{SelectedRatingPrefix}{FiveStarsLabel}";
             };
 
             starsPanel.Children.Add(star1);
@@ -158,7 +184,7 @@ namespace KarmaBanking.App.Views
                 PlaceholderText = "Write your feedback here...",
                 AcceptsReturn = true,
                 TextWrapping = TextWrapping.Wrap,
-                Height = 100
+                Height = FeedbackTextBoxHeight
             };
 
             dialogContent.Children.Add(titleText);
@@ -182,7 +208,7 @@ namespace KarmaBanking.App.Views
 
             if (result == ContentDialogResult.Primary)
             {
-                if (selectedRating == 0)
+                if (selectedRating == NoRatingSelected)
                 {
                     StatusText.Text = "Please select a rating before submitting.";
                     StatusText.Foreground = new SolidColorBrush(Colors.Red);
@@ -193,7 +219,7 @@ namespace KarmaBanking.App.Views
                 {
                     ApiService api = new ApiService();
 
-                    int sessionId = viewModel.CurrentSession?.Id ?? 1;
+                    int sessionId = viewModel.CurrentSession?.Id ?? DefaultSessionId;
                     string feedback = feedbackTextBox.Text;
 
                     api.SubmitFeedback(sessionId, selectedRating, feedback);
@@ -242,10 +268,10 @@ namespace KarmaBanking.App.Views
 
                 BasicProperties properties = await file.GetBasicPropertiesAsync();
 
-                if (properties.Size > 10 * 1024 * 1024)
+                if (properties.Size > AttachmentSizeLimitBytes)
                 {
-                    viewModel.StatusMessage = "File size must be 10 MB or less.";
-                    viewModel.SetUploadFailed("File size must be 10 MB or less.");
+                    viewModel.StatusMessage = "File size must be ten megabytes or less.";
+                    viewModel.SetUploadFailed("File size must be ten megabytes or less.");
                     return;
                 }
 
@@ -261,7 +287,7 @@ namespace KarmaBanking.App.Views
                 viewModel.SetAttachmentSelected();
 
                 viewModel.SetUploadStarted();
-                await Task.Delay(1000);
+                await Task.Delay(UploadDelayMilliseconds);
                 viewModel.SetUploadSucceeded();
             }
             catch (Exception ex)
