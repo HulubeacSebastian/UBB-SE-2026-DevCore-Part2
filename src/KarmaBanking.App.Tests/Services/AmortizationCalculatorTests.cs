@@ -12,7 +12,7 @@ namespace KarmaBanking.App.Tests.Services
     public class AmortizationCalculatorTests
     {
         [Fact]
-        public void ComputeEstimate_WithZeroInterest_SplitsPrincipalEvenly()
+        public void ComputeEstimate_WhenZeroInterest_ThenSplitsPrincipalEvenly()
         {
             // Arrange
             var expectedLoadEstimate = new LoanEstimate
@@ -30,7 +30,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void ComputeRepaymentProgress_WithHalfBalancePaid_ReturnsFiftyPercent()
+        public void ComputeRepaymentProgress_WhenHalfBalancePaid_ThenReturnsFiftyPercent()
         {
             // Act
             decimal repaymentProgress = AmortizationCalculator.ComputeRepaymentProgress(1000m, 500m);
@@ -40,7 +40,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void Generate_BuildsExpectedNumberOfRowsAndEndsAtZeroBalance()
+        public void Generate_WhenCalculatingAmortization_ThenBuildsExpectedNumberOfRowsAndEndsAtZeroBalance()
         {
             // Arrange
             var loanInstance = new Loan
@@ -64,7 +64,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void Generate_MarksOnlyOneCurrentInstallment()
+        public void Generate_WhenLoanStartedMonthsAgo_ThenMarksOnlyOneCurrentInstallment()
         {
             // Arrange
             var loanInstance = new Loan

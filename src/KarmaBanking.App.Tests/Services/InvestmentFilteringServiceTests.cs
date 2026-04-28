@@ -1,4 +1,4 @@
-﻿// <copyright file="InvestmentFilteringServiceTests.cs" company="Dev Core">
+// <copyright file="InvestmentFilteringServiceTests.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
@@ -12,7 +12,7 @@ namespace KarmaBanking.App.Tests.Services
     public class InvestmentFilteringServiceTests
     {
         [Fact]
-        public void FilterHoldingsByAssetType_NullHoldings_ReturnsEmpty()
+        public void FilterHoldingsByAssetType_WhenHoldingsAreNull_ThenReturnsEmpty()
         {
             // Arrange
             var investmentFilteringService = new InvestmentFilteringService();

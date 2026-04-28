@@ -9,23 +9,28 @@ using System.Globalization;
 
 public class PaymentCalculationService
 {
+    private const decimal ZeroAmount = 0m;
+    private const int ZeroMonths = 0;
+    private const int SingleMonth = 1;
+    private const string CurrencyInputFormat = "0.##";
+
     public (decimal BalanceAfterPayment, int RemainingMonths) CalculatePaymentPreview(
         decimal monthlyInstallment,
         decimal outstandingBalance,
         int remainingMonths,
         bool isStandardPayment,
-        decimal customPaymentAmount = 0)
+        decimal customPaymentAmount = ZeroAmount)
     {
         var paymentAmount = isStandardPayment ? monthlyInstallment : customPaymentAmount;
-        var balanceAfterPayment = Math.Max(0m, outstandingBalance - paymentAmount);
+        var balanceAfterPayment = Math.Max(ZeroAmount, outstandingBalance - paymentAmount);
 
         var monthsPaid = isStandardPayment
-            ? 1
-            : paymentAmount <= 0m
-                ? 0
+            ? SingleMonth
+            : paymentAmount <= ZeroAmount
+                ? ZeroMonths
                 : (int)Math.Floor(paymentAmount / monthlyInstallment);
 
-        var newRemainingMonths = Math.Max(0, remainingMonths - monthsPaid);
+        var newRemainingMonths = Math.Max(ZeroMonths, remainingMonths - monthsPaid);
         return (balanceAfterPayment, newRemainingMonths);
     }
 
@@ -33,7 +38,7 @@ public class PaymentCalculationService
     {
         if (string.IsNullOrWhiteSpace(input))
         {
-            return (false, 0m);
+            return (false, ZeroAmount);
         }
 
         if (decimal.TryParse(input, NumberStyles.Number, CultureInfo.CurrentCulture, out var currentCultureResult))
@@ -46,16 +51,16 @@ public class PaymentCalculationService
             return (true, invariantCultureResult);
         }
 
-        return (false, 0m);
+        return (false, ZeroAmount);
     }
 
     public (bool IsValid, string ValidationMessage) ValidatePaymentAmount(
         decimal paymentAmount,
         decimal outstandingBalance)
     {
-        if (paymentAmount <= 0)
+        if (paymentAmount <= ZeroAmount)
         {
-            return (false, "Payment amount must be greater than 0.");
+            return (false, "Payment amount must be greater than zero.");
         }
 
         if (paymentAmount > outstandingBalance)
@@ -77,6 +82,6 @@ public class PaymentCalculationService
 
     public string FormatCustomAmount(decimal amount)
     {
-        return amount.ToString("0.##", CultureInfo.CurrentCulture);
+        return amount.ToString(CurrencyInputFormat, CultureInfo.CurrentCulture);
     }
 }

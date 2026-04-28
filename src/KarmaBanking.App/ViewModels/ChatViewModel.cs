@@ -14,6 +14,15 @@ namespace KarmaBanking.App.ViewModels
 {
     public class ChatViewModel : INotifyPropertyChanged
     {
+        private const int InitialSessionId = 1;
+        private const int ZeroIndex = 0;
+        private const int NextMessageIdOffset = 1;
+        private const int InitialMessageId = 1;
+        private const int PreviewTitleLength = 32;
+        private const int PreviewTextLength = 56;
+        private const int PreviewSuffixLength = 3;
+        private const int MessageDelaySeconds = 1;
+
         public static ChatViewModel Instance { get; } = new ChatViewModel();
 
         private readonly ApiService apiService = new ApiService(null, new ChatRepository());
@@ -25,7 +34,7 @@ namespace KarmaBanking.App.ViewModels
         private SelectedAttachment? selectedAttachment;
         private bool isUploading;
         private string uploadStatusMessage = "No file uploaded.";
-        private int nextSessionId = 1;
+        private int nextSessionId = InitialSessionId;
 
         public ObservableCollection<ChatSession> Sessions
         {
@@ -94,7 +103,7 @@ namespace KarmaBanking.App.ViewModels
 
         public string CurrentSessionModeLabel => CurrentSession?.SessionModeLabel ?? "Chatbot assistance";
 
-        public bool HasMessages => Messages.Count > 0;
+        public bool HasMessages => Messages.Any();
 
         public SelectedAttachment? SelectedAttachment
         {
@@ -196,7 +205,7 @@ namespace KarmaBanking.App.ViewModels
                     LastPreview = "No messages yet."
                 };
 
-                Sessions.Insert(0, newSession);
+                Sessions.Insert(ZeroIndex, newSession);
 
                 CurrentSession = newSession;
 
@@ -290,7 +299,7 @@ namespace KarmaBanking.App.ViewModels
                 SessionId = CurrentSession.Id,
                 SenderType = "BOT",
                 Content = "This is an automated response to: " + question,
-                SentAt = DateTime.Now.AddSeconds(1)
+                SentAt = DateTime.Now.AddSeconds(MessageDelaySeconds)
             };
             await apiService.SendMessageAsync(botMessage);
             CurrentSession.Messages.Add(botMessage);
@@ -309,7 +318,7 @@ namespace KarmaBanking.App.ViewModels
 
             string preferredPreview = lastMessage != null ? lastMessage.Content : "No messages yet.";
 
-            session.LastPreview = TrimForPreview(preferredPreview, 56);
+            session.LastPreview = TrimForPreview(preferredPreview, PreviewTextLength);
             session.LastUpdatedAt = DateTime.Now;
         }
 
@@ -340,7 +349,7 @@ namespace KarmaBanking.App.ViewModels
 
             CurrentSession.Messages.Add(new ChatMessage
             {
-                Id = CurrentSession.Messages.Count + 1,
+                Id = CurrentSession.Messages.Count + NextMessageIdOffset,
                 SessionId = CurrentSession.Id,
                 SenderType = "SYSTEM",
                 Content = $"Conversation sent to the Karma Banking team. {attachmentMessage}",
@@ -351,11 +360,11 @@ namespace KarmaBanking.App.ViewModels
             {
                 CurrentSession.Messages.Add(new ChatMessage
                 {
-                    Id = CurrentSession.Messages.Count + 1,
+                    Id = CurrentSession.Messages.Count + NextMessageIdOffset,
                     SessionId = CurrentSession.Id,
                     SenderType = "CUSTOMER NOTE",
                     Content = trimmedMessage,
-                    SentAt = DateTime.Now.AddSeconds(1)
+                    SentAt = DateTime.Now.AddSeconds(MessageDelaySeconds)
                 });
             }
 
@@ -402,7 +411,7 @@ namespace KarmaBanking.App.ViewModels
                     Sessions.Add(session);
                 }
 
-                if (Sessions.Count > 0)
+                if (Sessions.Any())
                 {
                     CurrentSession = Sessions.Last();
                     await LoadMessagesForSessionAsync(CurrentSession);
@@ -435,7 +444,7 @@ namespace KarmaBanking.App.ViewModels
         {
             List<string> questions = await apiService.GetChatbotPresetQuestionsAsync();
 
-            if (questions.Count == 0)
+            if (!questions.Any())
             {
                 return;
             }
@@ -451,12 +460,12 @@ namespace KarmaBanking.App.ViewModels
                 IssueCategory = "General",
                 SessionStatus = "Open",
                 StartedAt = DateTime.Now,
-                Title = $"Session {nextSessionId - 1}"
+                Title = $"Session {nextSessionId - NextMessageIdOffset}"
             };
 
             session.Messages.Add(new ChatMessage
             {
-                Id = 1,
+                Id = InitialMessageId,
                 SessionId = session.Id,
                 SenderType = "CHATBOT ASSISTANCE",
                 Content = "Welcome. This support assistant uses preset questions and fixed answers only. Choose a question below or contact the real team at any time.",
@@ -464,7 +473,7 @@ namespace KarmaBanking.App.ViewModels
             });
 
             UpdateSessionSummary(session);
-            Sessions.Insert(0, session);
+                Sessions.Insert(ZeroIndex, session);
             CurrentSession = session;
             StatusMessage = "A new chat session is ready.";
         }
@@ -475,13 +484,13 @@ namespace KarmaBanking.App.ViewModels
                 ? selectedQuestion
                 : session.Messages.FirstOrDefault(message => message.SenderType == "USER")?.Content ?? $"Session {session.Id}";
 
-            session.Title = TrimForPreview(preferredTitle, 32);
+            session.Title = TrimForPreview(preferredTitle, PreviewTitleLength);
 
             string preferredPreview = !string.IsNullOrWhiteSpace(response)
                 ? response
                 : session.Messages.LastOrDefault()?.Content ?? "No messages yet.";
 
-            session.LastPreview = TrimForPreview(preferredPreview, 56);
+            session.LastPreview = TrimForPreview(preferredPreview, PreviewTextLength);
             session.LastUpdatedAt = DateTime.Now;
         }
 
@@ -495,7 +504,7 @@ namespace KarmaBanking.App.ViewModels
             string trimmed = content.Trim();
             return trimmed.Length <= maxLength
                 ? trimmed
-                : $"{trimmed.Substring(0, maxLength - 3)}...";
+                : $"{trimmed.Substring(ZeroIndex, maxLength - PreviewSuffixLength)}...";
         }
 
         private static string InferCategory(string question)

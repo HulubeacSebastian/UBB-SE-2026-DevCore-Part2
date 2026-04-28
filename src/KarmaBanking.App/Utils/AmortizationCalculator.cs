@@ -13,6 +13,14 @@ using KarmaBanking.App.Models;
 /// </summary>
 public static class AmortizationCalculator
 {
+    private const decimal ZeroDecimal = 0m;
+    private const int ZeroInteger = 0;
+    private const int FirstInstallmentNumber = 1;
+    private const decimal OneDecimal = 1m;
+    private const decimal MonthsPerYear = 12m;
+    private const decimal PercentageScale = 100m;
+    private const int CurrencyPrecisionDigits = 2;
+
     /// <summary>
     /// Computes a loan estimate based on the requested amount, annual rate, and term.
     /// </summary>
@@ -22,21 +30,21 @@ public static class AmortizationCalculator
     /// <returns>A <see cref="LoanEstimate"/> containing the indicative rate, monthly installment, and total repayable amount.</returns>
     public static LoanEstimate ComputeEstimate(decimal amount, decimal annualRate, int termMonths)
     {
-        var monthlyRate = annualRate / 12m / 100m;
+        var monthlyRate = annualRate / MonthsPerYear / PercentageScale;
         decimal monthlyInstallment;
 
-        if (monthlyRate == 0)
+        if (monthlyRate == ZeroDecimal)
         {
             monthlyInstallment = amount / termMonths;
         }
         else
         {
-            monthlyInstallment = amount * monthlyRate * (decimal)Math.Pow(1 + (double)monthlyRate, termMonths) /
-                                 ((decimal)Math.Pow(1 + (double)monthlyRate, termMonths) - 1);
+            monthlyInstallment = amount * monthlyRate * (decimal)Math.Pow((double)(OneDecimal + monthlyRate), termMonths) /
+                                 ((decimal)Math.Pow((double)(OneDecimal + monthlyRate), termMonths) - OneDecimal);
         }
 
-        monthlyInstallment = Math.Round(monthlyInstallment, 2);
-        var totalRepayable = Math.Round(monthlyInstallment * termMonths, 2);
+        monthlyInstallment = Math.Round(monthlyInstallment, CurrencyPrecisionDigits);
+        var totalRepayable = Math.Round(monthlyInstallment * termMonths, CurrencyPrecisionDigits);
 
         return new LoanEstimate
         {
@@ -54,12 +62,12 @@ public static class AmortizationCalculator
     /// <returns>A percentage representing the repayment progress.</returns>
     public static decimal ComputeRepaymentProgress(decimal principal, decimal outstandingBalance)
     {
-        if (principal == 0)
+        if (principal == ZeroDecimal)
         {
-            return 0;
+            return ZeroDecimal;
         }
 
-        return (principal - outstandingBalance) / principal * 100;
+        return (principal - outstandingBalance) / principal * PercentageScale;
     }
 
     /// <summary>
@@ -76,43 +84,43 @@ public static class AmortizationCalculator
         var termInMonths = loan.TermInMonths;
         var startDate = loan.StartDate;
 
-        var monthlyRate = annualRate / 12m / 100m;
+        var monthlyRate = annualRate / MonthsPerYear / PercentageScale;
         var remainingBalance = principal;
         decimal monthlyInstallment;
 
-        if (monthlyRate == 0)
+        if (monthlyRate == ZeroDecimal)
         {
             monthlyInstallment = remainingBalance / termInMonths;
         }
         else
         {
             monthlyInstallment = remainingBalance * monthlyRate *
-                                 (decimal)Math.Pow(1 + (double)monthlyRate, termInMonths) /
-                                 ((decimal)Math.Pow(1 + (double)monthlyRate, termInMonths) - 1);
+                                 (decimal)Math.Pow((double)(OneDecimal + monthlyRate), termInMonths) /
+                                 ((decimal)Math.Pow((double)(OneDecimal + monthlyRate), termInMonths) - OneDecimal);
         }
 
-        monthlyInstallment = Math.Round(monthlyInstallment, 2);
+        monthlyInstallment = Math.Round(monthlyInstallment, CurrencyPrecisionDigits);
 
         var isCurrentMarked = false;
 
-        for (var index = 1; index <= termInMonths; index++)
+        for (var index = FirstInstallmentNumber; index <= termInMonths; index++)
         {
             var dueDate = startDate.AddMonths(index);
-            var interestPortion = Math.Round(remainingBalance * monthlyRate, 2);
+            var interestPortion = Math.Round(remainingBalance * monthlyRate, CurrencyPrecisionDigits);
             var principalPortion = monthlyInstallment - interestPortion;
 
             if (index == termInMonths)
             {
-                // Adjust final installment so remaining balance becomes exactly 0
+                // Adjust final installment so remaining balance becomes exactly zero.
                 principalPortion = remainingBalance;
                 monthlyInstallment = principalPortion + interestPortion;
             }
 
             remainingBalance -= principalPortion;
 
-            if (remainingBalance < 0 || index == termInMonths)
+            if (remainingBalance < ZeroDecimal || index == termInMonths)
             {
-                remainingBalance = 0;
+                remainingBalance = ZeroDecimal;
             }
 
             var row = new AmortizationRow

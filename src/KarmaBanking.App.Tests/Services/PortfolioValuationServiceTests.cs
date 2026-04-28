@@ -11,6 +11,22 @@ namespace KarmaBanking.App.Tests.Services
 
     public class PortfolioValuationServiceTests
     {
+        private const decimal AveragePurchasePrice = 50m;
+        private const decimal PrimaryHoldingQuantity = 10m;
+        private const decimal UpdatedMarketPrice = 75m;
+        private const decimal ExpectedUnrealizedGainLoss = 250m;
+
+        private const decimal SecondaryHoldingQuantity = 5m;
+        private const decimal FirstHoldingAveragePurchasePrice = 100m;
+        private const decimal FirstHoldingCurrentPrice = 150m;
+        private const decimal FirstHoldingUnrealizedGainLoss = 500m;
+        private const decimal SecondHoldingCurrentPrice = 40m;
+        private const decimal SecondHoldingUnrealizedGainLoss = -50m;
+
+        private const decimal ExpectedTotalValue = 1700m;
+        private const decimal ExpectedTotalGainLoss = 450m;
+        private const decimal ExpectedGainLossPercent = 36m;
+
         private readonly PortfolioValuationService portfolioValuationService;
 
         public PortfolioValuationServiceTests()
@@ -19,26 +35,26 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void UpdateHoldingValuation_UpdatesPriceAndCalculatesGainLoss()
+        public void UpdateHoldingValuation_WhenNewMarketPriceProvided_ThenUpdatesPriceAndCalculatesGainLoss()
         {
             // Arrange
             var investmentHoldingInstance = new InvestmentHolding
             {
-                AveragePurchasePrice = 50m,
-                Quantity = 10m
+                AveragePurchasePrice = AveragePurchasePrice,
+                Quantity = PrimaryHoldingQuantity
             };
-            decimal newMarketPriceValue = 75m;
+            decimal newMarketPriceValue = UpdatedMarketPrice;
 
             // Act
             this.portfolioValuationService.UpdateHoldingValuation(investmentHoldingInstance, newMarketPriceValue);
 
             // Assert
-            Assert.Equal(75m, investmentHoldingInstance.CurrentPrice);
-            Assert.Equal(250m, investmentHoldingInstance.UnrealizedGainLoss);
+            Assert.Equal(UpdatedMarketPrice, investmentHoldingInstance.CurrentPrice);
+            Assert.Equal(ExpectedUnrealizedGainLoss, investmentHoldingInstance.UnrealizedGainLoss);
         }
 
         [Fact]
-        public void UpdatePortfolioTotals_WithPositiveTotalCost_CalculatesTotalsCorrectly()
+        public void UpdatePortfolioTotals_WhenMultipleHoldingsWithPositiveTotalCost_ThenCalculatesTotalsCorrectly()
         {
             // Arrange
             var userPortfolioInstance = new Portfolio
@@ -47,17 +63,17 @@ namespace KarmaBanking.App.Tests.Services
                 {
                     new InvestmentHolding
                     {
-                        Quantity = 10m,
-                        AveragePurchasePrice = 100m,
-                        CurrentPrice = 150m,
-                        UnrealizedGainLoss = 500m
+                        Quantity = PrimaryHoldingQuantity,
+                        AveragePurchasePrice = FirstHoldingAveragePurchasePrice,
+                        CurrentPrice = FirstHoldingCurrentPrice,
+                        UnrealizedGainLoss = FirstHoldingUnrealizedGainLoss
                     },
                     new InvestmentHolding
                     {
-                        Quantity = 5m,
-                        AveragePurchasePrice = 50m,
-                        CurrentPrice = 40m,
-                        UnrealizedGainLoss = -50m
+                        Quantity = SecondaryHoldingQuantity,
+                        AveragePurchasePrice = AveragePurchasePrice,
+                        CurrentPrice = SecondHoldingCurrentPrice,
+                        UnrealizedGainLoss = SecondHoldingUnrealizedGainLoss
                     }
                 }
             };
@@ -66,9 +82,9 @@ namespace KarmaBanking.App.Tests.Services
             this.portfolioValuationService.UpdatePortfolioTotals(userPortfolioInstance);
 
             // Assert
-            Assert.Equal(1700m, userPortfolioInstance.TotalValue);
-            Assert.Equal(450m, userPortfolioInstance.TotalGainLoss);
-            Assert.Equal(36m, userPortfolioInstance.GainLossPercent);
+            Assert.Equal(ExpectedTotalValue, userPortfolioInstance.TotalValue);
+            Assert.Equal(ExpectedTotalGainLoss, userPortfolioInstance.TotalGainLoss);
+            Assert.Equal(ExpectedGainLossPercent, userPortfolioInstance.GainLossPercent);
         }
     }
 }

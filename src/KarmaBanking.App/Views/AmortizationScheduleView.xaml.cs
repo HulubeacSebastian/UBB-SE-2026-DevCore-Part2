@@ -14,6 +14,19 @@ using Microsoft.UI.Xaml.Navigation;
 
 public sealed partial class AmortizationScheduleView : Page
 {
+    private const string LoanHeaderFormat = "{0} · {1} months · {2:0.##}%";
+    private const byte CurrentRowHighlightAlpha = 40;
+    private const byte CurrentRowHighlightRed = 0;
+    private const byte CurrentRowHighlightGreen = 120;
+    private const byte CurrentRowHighlightBlue = 215;
+
+    private static readonly SolidColorBrush CurrentRowHighlightBrush = new SolidColorBrush(
+        ColorHelper.FromArgb(
+            CurrentRowHighlightAlpha,
+            CurrentRowHighlightRed,
+            CurrentRowHighlightGreen,
+            CurrentRowHighlightBlue));
+
     private Loan? loan;
 
     public AmortizationScheduleView()
@@ -47,7 +60,7 @@ public sealed partial class AmortizationScheduleView : Page
     private void PopulateStaticLabels(Loan loan)
     {
         this.LoanSubHeaderText.Text =
-            $"{loan.LoanType} · {loan.TermInMonths} months · {loan.InterestRate:0.##}%";
+            string.Format(LoanHeaderFormat, loan.LoanType, loan.TermInMonths, loan.InterestRate);
 
         var loanViewModel = new LoanViewModel(loan, this.GetRepaymentProgress(loan));
         this.TotalInstallmentsText.Text = loan.TermInMonths.ToString();
@@ -67,7 +80,7 @@ public sealed partial class AmortizationScheduleView : Page
         if (args.Item is AmortizationRow row && args.ItemContainer is ListViewItem container)
         {
             container.Background = row.IsCurrent
-                ? new SolidColorBrush(ColorHelper.FromArgb(40, 0, 120, 215))
+                ? CurrentRowHighlightBrush
                 : null;
         }
     }

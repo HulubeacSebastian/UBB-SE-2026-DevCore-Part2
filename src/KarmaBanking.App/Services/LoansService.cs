@@ -11,6 +11,16 @@ using KarmaBanking.App.Utils;
 
 public class LoanService : ILoanService
 {
+    private const int MinimumIdExclusive = 0;
+    private const decimal ZeroAmount = 0m;
+    private const int NoRowsCount = 0;
+    private const int MaxActiveLoans = 5;
+    private const decimal TotalDebtLimit = 200000m;
+    private const decimal PersonalLoanRate = 8.5m;
+    private const decimal MortgageLoanRate = 4.5m;
+    private const decimal StudentLoanRate = 3.0m;
+    private const decimal AutoLoanRate = 6.5m;
+
     private readonly ILoanRepository loanRepository;
     private readonly LoanApplicationValidator validator;
     private readonly PaymentCalculationService paymentCalculationService;
@@ -29,7 +39,7 @@ public class LoanService : ILoanService
 
     public async Task<Loan> GetLoanByIdAsync(int id)
     {
-        if (id <= 0)
+        if (id <= MinimumIdExclusive)
         {
             return new Loan();
         }
@@ -39,7 +49,7 @@ public class LoanService : ILoanService
 
     public async Task<List<Loan>> GetLoansByUserAsync(int userId)
     {
-        if (userId <= 0)
+        if (userId <= MinimumIdExclusive)
         {
             return [];
         }
@@ -147,14 +157,14 @@ public class LoanService : ILoanService
             throw new InvalidOperationException("Loan not found.");
         }
 
-        if (loan.RemainingMonths <= 0 || loan.LoanStatus == LoanStatus.Passed)
+        if (loan.RemainingMonths <= MinimumIdExclusive || loan.LoanStatus == LoanStatus.Passed)
         {
             throw new InvalidOperationException("This loan is already closed.");
         }
 
         var paymentAmount = customAmount ?? loan.MonthlyInstallment;
 
-        if (paymentAmount <= 0)
+        if (paymentAmount <= ZeroAmount)
         {
             throw new ArgumentException("Payment amount must be greater than zero.");
         }
@@ -171,7 +181,7 @@ public class LoanService : ILoanService
 
         var (newBalance, newRemainingMonths) = this.CalculatePaymentPreview(loan, customAmount);
 
-        var newStatus = newBalance <= 0 || newRemainingMonths == 0
+        var newStatus = newBalance <= ZeroAmount || newRemainingMonths == MinimumIdExclusive
             ? LoanStatus.Passed
             : loan.LoanStatus;
 
@@ -181,7 +191,7 @@ public class LoanService : ILoanService
     public (decimal BalanceAfterPayment, int RemainingMonths) CalculatePaymentPreview(Loan loan, decimal? customAmount = null)
     {
         var isStandardPayment = !customAmount.HasValue;
-        var customPaymentAmount = customAmount ?? 0m;
+        var customPaymentAmount = customAmount ?? ZeroAmount;
 
         return this.paymentCalculationService.CalculatePaymentPreview(
             loan.MonthlyInstallment,
@@ -214,7 +224,7 @@ public class LoanService : ILoanService
     {
         var rows = await this.loanRepository.GetAmortizationAsync(loanId);
 
-        if (rows == null || rows.Count == 0)
+        if (rows == null || rows.Count == NoRowsCount)
         {
             await this.GenerateAmortizationAsync(loanId);
             rows = await this.loanRepository.GetAmortizationAsync(loanId);
@@ -256,12 +266,12 @@ public class LoanService : ILoanService
         var totalOutstanding = currentLoans.Sum(loan => loan.OutstandingBalance);
         var activeLoansCount = currentLoans.Count(loan => loan.LoanStatus == LoanStatus.Active);
 
-        if (activeLoansCount >= 5)
+        if (activeLoansCount >= MaxActiveLoans)
         {
             return (LoanApplicationStatus.Rejected, "Maximum number of active loans reached.");
         }
 
-        if (totalOutstanding + application.DesiredAmount >= 200000)
+        if (totalOutstanding + application.DesiredAmount >= TotalDebtLimit)
         {
             return (LoanApplicationStatus.Rejected, "Total debt limit exceeded.");
         }
@@ -273,10 +283,10 @@ public class LoanService : ILoanService
     {
         return loanType switch
         {
-            LoanType.Personal => 8.5m,
-            LoanType.Mortgage => 4.5m,
-            LoanType.Student => 3.0m,
-            LoanType.Auto => 6.5m,
+            LoanType.Personal => PersonalLoanRate,
+            LoanType.Mortgage => MortgageLoanRate,
+            LoanType.Student => StudentLoanRate,
+            LoanType.Auto => AutoLoanRate,
         };
     }
 }

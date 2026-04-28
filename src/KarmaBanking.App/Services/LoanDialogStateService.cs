@@ -6,10 +6,12 @@ namespace KarmaBanking.App.Services;
 
 public class LoanDialogStateService
 {
+    private const int PositiveThreshold = 0;
+
     public bool ShouldComputeEstimate(double desiredAmount, int preferredTermMonths, string purpose)
     {
-        return desiredAmount > 0 &&
-               preferredTermMonths > 0 &&
+        return desiredAmount > PositiveThreshold &&
+               preferredTermMonths > PositiveThreshold &&
                !string.IsNullOrWhiteSpace(purpose);
     }
 }

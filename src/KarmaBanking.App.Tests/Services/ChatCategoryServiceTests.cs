@@ -15,7 +15,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData("How to transfer money?", "Transfers")]
         [InlineData("TECHNICAL support", "Technical Issue")]
         [InlineData("Hello there", "Other")]
-        public void InferCategory_ReturnsExpectedCategory(string userQuestionText, string expectedCategoryName)
+        public void InferCategory_WhenGivenUserQuestion_ThenReturnsExpectedCategory(string userQuestionText, string expectedCategoryName)
         {
             // Arrange
             var chatCategoryService = new ChatCategoryService();

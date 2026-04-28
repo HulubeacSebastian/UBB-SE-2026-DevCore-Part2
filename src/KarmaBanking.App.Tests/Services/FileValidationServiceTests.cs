@@ -12,7 +12,7 @@ namespace KarmaBanking.App.Tests.Services
     public class FileValidationServiceTests
     {
         [Fact]
-        public void GetFileSizeDisplay_ExactKilobyte_ReturnsKilobytesFormatted()
+        public void GetFileSizeDisplay_WhenGivenExactKilobyte_ThenReturnsKilobytesFormatted()
         {
             // Arrange
             long sizeInBytes = 1024;
@@ -25,7 +25,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task ValidateFileAsync_NullFile_ReturnsFalseAndErrorMessage()
+        public async Task ValidateFileAsync_WhenFileIsNull_ThenReturnsFalseAndErrorMessage()
         {
             // Arrange
             var fileValidationService = new FileValidationService();
@@ -39,7 +39,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task MapStorageFileToAttachmentAsync_NullFile_ThrowsInvalidOperationException()
+        public async Task MapStorageFileToAttachmentAsync_WhenFileIsNull_ThenThrowsInvalidOperationException()
         {
             // Arrange
             var fileValidationService = new FileValidationService();

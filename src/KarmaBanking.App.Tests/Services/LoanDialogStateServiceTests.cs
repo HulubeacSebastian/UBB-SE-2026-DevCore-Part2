@@ -10,7 +10,7 @@ namespace KarmaBanking.App.Tests.Services
     public class LoanDialogStateServiceTests
     {
         [Fact]
-        public void ShouldComputeEstimate_ValidInputs_ReturnsTrue()
+        public void ShouldComputeEstimate_WhenValidInputsProvided_ThenReturnsTrue()
         {
             // Arrange
             var loanDialogStateService = new LoanDialogStateService();
@@ -25,7 +25,7 @@ namespace KarmaBanking.App.Tests.Services
         [Theory]
         [InlineData(0, 12, "Purpose")]
         [InlineData(-100, 12, "Purpose")]
-        public void ShouldComputeEstimate_InvalidAmount_ReturnsFalse(double loanAmountValue, int loanTermMonthsCount, string loanPurposeText)
+        public void ShouldComputeEstimate_WhenLoanAmountIsInvalid_ThenReturnsFalse(double loanAmountValue, int loanTermMonthsCount, string loanPurposeText)
         {
             // Arrange
             var loanDialogStateService = new LoanDialogStateService();
@@ -41,7 +41,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData(5000, 12, "")]
         [InlineData(5000, 12, "   ")]
         [InlineData(5000, 12, null)]
-        public void ShouldComputeEstimate_InvalidPurpose_ReturnsFalse(double loanAmountValue, int loanTermMonthsCount, string loanPurposeText)
+        public void ShouldComputeEstimate_WhenLoanPurposeIsInvalid_ThenReturnsFalse(double loanAmountValue, int loanTermMonthsCount, string loanPurposeText)
         {
             // Arrange
             var loanDialogStateService = new LoanDialogStateService();

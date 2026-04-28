@@ -25,7 +25,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task ExecuteCryptoTradeAsync_CalculatesWeightedAverageCorrectly_WithExistingHoldings()
+        public async Task ExecuteCryptoTradeAsync_WhenExistingHoldingsExist_ThenCalculatesWeightedAverageCorrectly()
         {
             // Arrange
             int portfolioIdentificationNumber = 1;
@@ -49,7 +49,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task ExecuteCryptoTradeAsync_ThrowsWrappedException_WhenRepositoryFails()
+        public async Task ExecuteCryptoTradeAsync_WhenRepositoryFails_ThenThrowsWrappedException()
         {
             // Arrange
             int portfolioIdentificationNumber = 1;
@@ -69,7 +69,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void GetPortfolio_ReturnsPortfolioFromRepository()
+        public void GetPortfolio_WhenCalled_ThenReturnsPortfolioFromRepository()
         {
             // Arrange
             int userIdentificationNumber = 123;
@@ -84,7 +84,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task GetInvestmentLogsAsync_ThrowsWhenStartDateAfterEndDate()
+        public async Task GetInvestmentLogsAsync_WhenStartDateAfterEndDate_ThenThrows()
         {
             // Arrange
             DateTime startDateTimeValue = DateTime.Now;

@@ -13,7 +13,7 @@ namespace KarmaBanking.App.Tests.Services
     public class MarketDataServiceTests
     {
         [Fact]
-        public void GetPrice_ValidTicker_ReturnsInitialPrice()
+        public void GetPrice_WhenValidTickerProvided_ThenReturnsInitialPrice()
         {
             // Arrange
             var marketDataService = new MarketDataService();
@@ -26,7 +26,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void StartPolling_FiltersAndNormalizesTickers()
+        public void StartPolling_WhenGivenMessyTickerList_ThenFiltersAndNormalizesTickers()
         {
             // Arrange
             var marketDataService = new MarketDataService();

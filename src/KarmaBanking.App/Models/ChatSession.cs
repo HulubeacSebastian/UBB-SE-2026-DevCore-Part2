@@ -8,6 +8,8 @@ namespace KarmaBanking.App.Models
 {
     public class ChatSession : INotifyPropertyChanged
     {
+        private const int NoMessagesCount = 0;
+
         public int Id { get; set; }
 
         public int UserId { get; set; }
@@ -48,7 +50,7 @@ namespace KarmaBanking.App.Models
 
         public string LastPreview
         {
-            get => Messages.Count > 0 ? Messages.Last().Content : "No messages yet.";
+            get => Messages.Count > NoMessagesCount ? Messages.Last().Content : "No messages yet.";
             set
             {
                 if (lastPreview != value)

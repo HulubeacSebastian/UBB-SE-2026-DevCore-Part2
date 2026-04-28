@@ -22,10 +22,10 @@ public static class CsvExportUtility
     {
         var builder = new StringBuilder();
 
-        // 1. Append the CSV header row
+        // Append the CSV header row.
         builder.AppendLine("Transaction ID,Ticker,Action,Quantity,Price Per Unit,Fees,Order Type,Executed At");
 
-        // 2. Append each transaction as a comma-separated row
+        // Append each transaction as a comma-separated row.
         if (transactions != null)
         {
             foreach (var tx in transactions)

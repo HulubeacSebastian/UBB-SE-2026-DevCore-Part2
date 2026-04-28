@@ -9,6 +9,10 @@ namespace KarmaBanking.App.Models;
 /// </summary>
 public class SelectedAttachment
 {
+    private const long BytesPerKilobyte = 1024;
+    private const long BytesPerMegabyte = BytesPerKilobyte * BytesPerKilobyte;
+    private const string SizePrecisionFormat = "F2";
+
     /// <summary>
     /// Gets or sets the original file name.
     /// </summary>
@@ -36,17 +40,19 @@ public class SelectedAttachment
     {
         get
         {
-            if (this.FileSizeBytes < 1024)
+            if (this.FileSizeBytes < BytesPerKilobyte)
             {
                 return $"{this.FileSizeBytes} B";
             }
 
-            if (this.FileSizeBytes < 1024 * 1024)
+            if (this.FileSizeBytes < BytesPerMegabyte)
             {
-                return $"{this.FileSizeBytes / 1024.0:F2} KB";
+                double sizeInKilobytes = this.FileSizeBytes / (double)BytesPerKilobyte;
+                return $"{sizeInKilobytes.ToString(SizePrecisionFormat)} KB";
             }
 
-            return $"{this.FileSizeBytes / 1024.0 / 1024.0:F2} MB";
+            double sizeInMegabytes = this.FileSizeBytes / (double)BytesPerMegabyte;
+            return $"{sizeInMegabytes.ToString(SizePrecisionFormat)} MB";
         }
     }
 }

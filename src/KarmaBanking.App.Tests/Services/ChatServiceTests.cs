@@ -24,7 +24,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task CreateChatSessionAsync_CallsRepositoryAndReturnsIdentificationNumber()
+        public async Task CreateChatSessionAsync_WhenCalled_ThenCallsRepositoryAndReturnsSessionId()
         {
             // Arrange
             int userIdentificationNumber = 1;

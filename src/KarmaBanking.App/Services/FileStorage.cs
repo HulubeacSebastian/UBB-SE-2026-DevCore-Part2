@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 public class FileStorage
 {
     private const long MaxFileSizeBytes = 10 * 1024 * 1024;
+    private const string MaxFileSizeLabel = "ten MB";
 
     private static readonly string[] AllowedExtensions =
     {
@@ -95,7 +96,7 @@ public class FileStorage
 
         if (fileInfo.Length > MaxFileSizeBytes)
         {
-            throw new InvalidOperationException("File size must be 10 MB or less.");
+            throw new InvalidOperationException($"File size must be {MaxFileSizeLabel} or less.");
         }
     }
 }

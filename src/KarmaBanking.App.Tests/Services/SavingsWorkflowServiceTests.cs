@@ -1,4 +1,4 @@
-﻿// <copyright file="SavingsWorkflowServiceTests.cs" company="Dev Core">
+// <copyright file="SavingsWorkflowServiceTests.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
@@ -73,7 +73,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildWithdrawResultMessage_NotSuccessful_ReturnsMessage()
+        public void BuildWithdrawResultMessage_WhenWithdrawNotSuccessful_ThenReturnsErrorMessage()
         {
             // Arrange
             var withdrawResponseDataTransferObject = new WithdrawResponseDto
@@ -90,7 +90,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildWithdrawResultMessage_SuccessWithoutPenalty_FormatsProperly()
+        public void BuildWithdrawResultMessage_WhenSuccessWithoutPenalty_ThenFormatsProperly()
         {
             // Arrange
             var withdrawResponseDataTransferObject = new WithdrawResponseDto
@@ -110,7 +110,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildWithdrawResultMessage_SuccessWithPenalty_FormatsProperly()
+        public void BuildWithdrawResultMessage_WhenSuccessWithPenalty_ThenFormatsProperly()
         {
             // Arrange
             var withdrawResponseDataTransferObject = new WithdrawResponseDto

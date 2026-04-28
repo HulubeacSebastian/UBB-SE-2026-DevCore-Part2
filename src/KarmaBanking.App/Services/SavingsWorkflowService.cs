@@ -11,6 +11,11 @@ using KarmaBanking.App.Models.DTOs;
 
 public class SavingsWorkflowService
 {
+    private const int NoDestinationId = 0;
+    private const decimal PositiveAmountThreshold = 0m;
+    private const decimal NoPenaltyAmount = 0m;
+    private const int FirstPage = 1;
+
     public FundingSourceOption? GetDefaultFundingSource(IEnumerable<FundingSourceOption> fundingSources)
     {
         return fundingSources.FirstOrDefault();
@@ -18,12 +23,12 @@ public class SavingsWorkflowService
 
     public int GetDefaultCloseDestinationId(IEnumerable<SavingsAccount> destinationAccounts)
     {
-        return destinationAccounts.FirstOrDefault()?.IdentificationNumber ?? 0;
+        return destinationAccounts.FirstOrDefault()?.IdentificationNumber ?? NoDestinationId;
     }
 
     public (bool IsValid, string ErrorMessage) ValidateWithdrawRequest(decimal amount, FundingSourceOption? destination)
     {
-        if (amount <= 0m)
+        if (amount <= PositiveAmountThreshold)
         {
             return (false, "Please enter a valid amount.");
         }
@@ -43,7 +48,7 @@ public class SavingsWorkflowService
             return response.Message;
         }
 
-        var penaltyText = response.PenaltyApplied > 0 ? $" (penalty: ${response.PenaltyApplied:N2})" : string.Empty;
+        var penaltyText = response.PenaltyApplied > NoPenaltyAmount ? $" (penalty: ${response.PenaltyApplied:N2})" : string.Empty;
         return $"Withdrawn: ${response.AmountWithdrawn:N2}{penaltyText}. New balance: ${response.NewBalance:N2}";
     }
 
@@ -54,7 +59,7 @@ public class SavingsWorkflowService
             return (false, "Please confirm account closure.");
         }
 
-        if (destinationId == 0)
+        if (destinationId == NoDestinationId)
         {
             return (false, "Please select a destination account.");
         }
@@ -69,6 +74,6 @@ public class SavingsWorkflowService
 
     public bool CanMoveToPreviousPage(int currentPage)
     {
-        return currentPage > 1;
+        return currentPage > FirstPage;
     }
 }

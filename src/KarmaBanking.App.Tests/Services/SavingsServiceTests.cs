@@ -36,7 +36,7 @@ namespace KarmaBanking.App.Tests.Services
         #region Create Account Tests
 
         [Fact]
-        public async Task CreateAccountAsync_StandardAccountIsCreated_ReturnsCreatedAccount()
+        public async Task CreateAccountAsync_WhenStandardAccountIsCreated_ThenReturnsCreatedAccount()
         {
             // Arrange
             var inputDto = new CreateSavingsAccountDto { UserIdentificationNumber = 1, SavingsType = "Standard", InitialDeposit = 1000m };
@@ -53,7 +53,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAccountAsync_GoalSavingsAccountIsCreated_ReturnsCreatedAccount()
+        public async Task CreateAccountAsync_WhenGoalSavingsAccountIsCreated_ThenReturnsCreatedAccount()
         {
             // Arrange
             var inputDto = new CreateSavingsAccountDto { UserIdentificationNumber = 1, SavingsType = "GoalSavings", TargetAmount = 5000m, TargetDate = DateTime.UtcNow.AddDays(30) };
@@ -70,7 +70,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAccountAsync_FixedDepositAccountIsCreated_ReturnsCreatedAccount()
+        public async Task CreateAccountAsync_WhenFixedDepositAccountIsCreated_ThenCallsRepositoryWithCorrectRate()
         {
             // Arrange
             var inputDto = new CreateSavingsAccountDto { UserIdentificationNumber = 1, SavingsType = "FixedDeposit" };
@@ -85,7 +85,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAccountAsync_HighYieldAccountIsCreated_ReturnsCreatedAccount()
+        public async Task CreateAccountAsync_WhenHighYieldAccountIsCreated_ThenCallsRepositoryWithCorrectRate()
         {
             // Arrange
             var inputDto = new CreateSavingsAccountDto { UserIdentificationNumber = 1, SavingsType = "HighYield" };
@@ -100,7 +100,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAccountAsync_UserHasMaxActiveAccounts_ThrowsInvalidOperationException()
+        public async Task CreateAccountAsync_WhenUserHasMaxActiveAccounts_ThenThrowsInvalidOperationException()
         {
             // Arrange
             var activeAccounts = new List<SavingsAccount> { new(), new(), new(), new(), new() };
@@ -113,7 +113,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAccountAsync_GoalSavingsWithoutTargetDate_ThrowsArgumentException()
+        public async Task CreateAccountAsync_WhenGoalSavingsWithoutTargetDate_ThenThrowsArgumentException()
         {
             // Arrange
             var dto = new CreateSavingsAccountDto { UserIdentificationNumber = 1, SavingsType = "GoalSavings", TargetAmount = 5000m };
@@ -124,7 +124,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAccountAsync_GoalSavingsWithPastTargetDate_ThrowsArgumentException()
+        public async Task CreateAccountAsync_WhenGoalSavingsWithPastTargetDate_ThenThrowsArgumentException()
         {
             // Arrange
             var dto = new CreateSavingsAccountDto { UserIdentificationNumber = 1, SavingsType = "GoalSavings", TargetDate = DateTime.UtcNow.AddDays(-1) };
@@ -135,7 +135,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAccountAsync_GoalSavingsWithoutTargetAmount_ThrowsArgumentException()
+        public async Task CreateAccountAsync_WhenGoalSavingsWithoutTargetAmount_ThenThrowsArgumentException()
         {
             // Arrange
             var dto = new CreateSavingsAccountDto { UserIdentificationNumber = 1, SavingsType = "GoalSavings", TargetDate = DateTime.UtcNow.AddDays(30) };
@@ -146,7 +146,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task CreateAccountAsync_GoalSavingsWithNegativeTargetAmount_ThrowsArgumentException()
+        public async Task CreateAccountAsync_WhenGoalSavingsWithNegativeTargetAmount_ThenThrowsArgumentException()
         {
             // Arrange
             var dto = new CreateSavingsAccountDto { UserIdentificationNumber = 1, SavingsType = "GoalSavings", TargetDate = DateTime.UtcNow.AddDays(30), TargetAmount = -100m };
@@ -161,14 +161,14 @@ namespace KarmaBanking.App.Tests.Services
         #region Deposit & Withdrawal Tests
 
         [Fact]
-        public async Task DepositAsync_NegativeAmount_ThrowsArgumentException()
+        public async Task DepositAsync_WhenAmountIsNegative_ThenThrowsArgumentException()
         {
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentException>(() => this.savingsService.DepositAsync(1, -10m, "Source", 1));
         }
 
         [Fact]
-        public async Task DepositAsync_InvalidAccountId_ThrowsInvalidOperationException()
+        public async Task DepositAsync_WhenAccountIdIsInvalid_ThenThrowsInvalidOperationException()
         {
             // Arrange
             this.savingsRepositoryMock.Setup(r => r.GetSavingsAccountsByUserIdAsync(1, true)).ReturnsAsync(new List<SavingsAccount>());
@@ -178,7 +178,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task DepositAsync_AccountStatusClosed_ThrowsInvalidOperationException()
+        public async Task DepositAsync_WhenAccountStatusIsClosed_ThenThrowsInvalidOperationException()
         {
             // Arrange
             var account = new SavingsAccount { IdentificationNumber = 1, AccountStatus = AccountStatus.Closed.ToString() };
@@ -189,7 +189,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task DepositAsync_ValidDeposit_ReturnsDepositResponse()
+        public async Task DepositAsync_WhenValidDepositProvided_ThenReturnsDepositResponse()
         {
             // Arrange
             var account = new SavingsAccount { IdentificationNumber = 1, UserIdentificationNumber = 1, AccountStatus = "Active" };
@@ -205,7 +205,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task WithdrawAsync_InsufficientBalance_ThrowsInvalidOperationException()
+        public async Task WithdrawAsync_WhenInsufficientBalance_ThenThrowsInvalidOperationException()
         {
             // Arrange
             var account = new SavingsAccount { IdentificationNumber = 1, Balance = 50m, AccountStatus = "Active" };
@@ -220,7 +220,7 @@ namespace KarmaBanking.App.Tests.Services
         #region Account Closure Tests
 
         [Fact]
-        public async Task CloseAccountAsync_CloseFixedDepositWithPenalty_ReturnsCloseAccountResponse()
+        public async Task CloseAccountAsync_WhenClosingFixedDepositWithPenalty_ThenReturnsCloseAccountResponse()
         {
             // Arrange
             var source = new SavingsAccount { IdentificationNumber = 1, Balance = 100m, SavingsType = "FixedDeposit", MaturityDate = DateTime.UtcNow.AddDays(30), AccountStatus = "Active" };
@@ -242,14 +242,14 @@ namespace KarmaBanking.App.Tests.Services
         #region Transaction & Utility Tests
 
         [Fact]
-        public async Task GetTransactionsAsync_NegativePage_ThrowsArgumentException()
+        public async Task GetTransactionsAsync_WhenPageNumberIsNegative_ThenThrowsArgumentException()
         {
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentException>(() => this.savingsService.GetTransactionsAsync(1, string.Empty, -1, 10));
         }
 
         [Fact]
-        public async Task GetFundingSourcesAsync_ValidCase_ReturnsFundingSources()
+        public async Task GetFundingSourcesAsync_WhenValidRequest_ThenReturnsFundingSources()
         {
             // Arrange
             var sources = new List<FundingSourceOption> { new() { Id = 1, DisplayName = "Bank" } };
@@ -263,14 +263,14 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void ComputeWithdrawalPenalty_ValidInput_ReturnsResult()
+        public void ComputeWithdrawalPenalty_WhenValidAmountProvided_ThenReturnsResult()
         {
             // Act & Assert
             Assert.Equal(2m, this.savingsService.ComputeWithdrawalPenalty(100m));
         }
 
         [Fact]
-        public void GetPenaltyDecimalFor_InvalidPenaltyCase_ThrowsArgumentException()
+        public void GetPenaltyDecimalFor_WhenInvalidPenaltyCase_ThenThrowsArgumentException()
         {
             // Act & Assert
             Assert.Throws<ArgumentException>(() => this.savingsService.GetPenaltyDecimalFor("Invalid"));

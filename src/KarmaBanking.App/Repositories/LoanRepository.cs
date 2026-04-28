@@ -15,6 +15,10 @@ using Microsoft.Data.SqlClient;
 public class LoanRepository : ILoanRepository
 {
     private const int CommandTimeoutSeconds = 120;
+    private const int StandardNVarCharLength = 50;
+    private const int ExtendedNVarCharLength = 255;
+    private const int EmptyCount = 0;
+    private const int FirstIndex = 0;
 
     /// <summary>
     /// Retrieves all loans from storage.
@@ -115,7 +119,7 @@ public class LoanRepository : ILoanRepository
 
         using var command = new SqlCommand(query, connection);
         command.CommandTimeout = CommandTimeoutSeconds;
-        command.Parameters.Add("@loanType", SqlDbType.NVarChar, 50).Value = loanType.ToString();
+        command.Parameters.Add("@loanType", SqlDbType.NVarChar, StandardNVarCharLength).Value = loanType.ToString();
 
         using var reader = await command.ExecuteReaderAsync();
 
@@ -145,7 +149,7 @@ public class LoanRepository : ILoanRepository
         using var command = new SqlCommand(query, connection);
         command.CommandTimeout = CommandTimeoutSeconds;
 
-        command.Parameters.Add("@loanStatus", SqlDbType.NVarChar, 50).Value = loanStatus.ToString();
+        command.Parameters.Add("@loanStatus", SqlDbType.NVarChar, StandardNVarCharLength).Value = loanStatus.ToString();
 
         using var reader = await command.ExecuteReaderAsync();
 
@@ -164,7 +168,7 @@ public class LoanRepository : ILoanRepository
     /// <returns>A task that completes when persistence finishes.</returns>
     public async Task SaveAmortizationAsync(List<AmortizationRow> rows)
     {
-        if (rows == null || rows.Count == 0)
+        if (rows == null || rows.Count == EmptyCount)
         {
             return;
         }
@@ -176,7 +180,7 @@ public class LoanRepository : ILoanRepository
 
         try
         {
-            var loanId = rows[0].LoanId;
+            var loanId = rows[FirstIndex].LoanId;
 
             var deleteQuery = "DELETE FROM AmortizationRow WHERE loanId = @LoanId";
             using (var deleteCommand = new SqlCommand(deleteQuery, connection, transaction))
@@ -324,9 +328,9 @@ public class LoanRepository : ILoanRepository
         using var command = new SqlCommand(query, connection);
         command.CommandTimeout = CommandTimeoutSeconds;
         command.Parameters.Add("@id", SqlDbType.Int).Value = id;
-        command.Parameters.Add("@loanApplicationStatus", SqlDbType.NVarChar, 50).Value =
+        command.Parameters.Add("@loanApplicationStatus", SqlDbType.NVarChar, StandardNVarCharLength).Value =
             loanApplicationStatus.ToString();
-        command.Parameters.Add("@rejectionReason", SqlDbType.NVarChar, 255).Value =
+        command.Parameters.Add("@rejectionReason", SqlDbType.NVarChar, ExtendedNVarCharLength).Value =
             reason != null ? reason : DBNull.Value;
 
         await command.ExecuteNonQueryAsync();
@@ -396,7 +400,7 @@ public class LoanRepository : ILoanRepository
 
         command.Parameters.Add("@outstandingBalance", SqlDbType.Decimal).Value = newBalance;
         command.Parameters.Add("@remainingMonths", SqlDbType.Int).Value = newRemainingMonths;
-        command.Parameters.Add("@loanStatus", SqlDbType.NVarChar, 50).Value = newStatus.ToString();
+        command.Parameters.Add("@loanStatus", SqlDbType.NVarChar, StandardNVarCharLength).Value = newStatus.ToString();
         command.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
         await command.ExecuteNonQueryAsync();

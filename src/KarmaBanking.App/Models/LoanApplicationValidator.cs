@@ -9,6 +9,15 @@ using System;
 /// </summary>
 public class LoanApplicationValidator
 {
+    private const decimal MinimumDesiredAmountExclusive = 0m;
+    private const int MinimumTermMonthsExclusive = 0;
+
+    private const string RequestCannotBeNullMessage = "Request cannot be null";
+    private const string DesiredAmountInvalidMessage = "Desired amount must be greater than zero";
+    private const string InvalidLoanTypeMessage = "Invalid Loan Type";
+    private const string TermInvalidMessage = "Term must be greater than zero";
+    private const string PurposeRequiredMessage = "Purpose is required";
+
     /// <summary>
     /// Validates a loan application request and throws when invalid.
     /// </summary>
@@ -17,27 +26,27 @@ public class LoanApplicationValidator
     {
         if (request == null)
         {
-            throw new Exception("Request cannot be null");
+            throw new Exception(RequestCannotBeNullMessage);
         }
 
-        if (request.DesiredAmount <= 0)
+        if (request.DesiredAmount <= MinimumDesiredAmountExclusive)
         {
-            throw new Exception("Desired amount must be greater than 0");
+            throw new Exception(DesiredAmountInvalidMessage);
         }
 
         if (!Enum.IsDefined(typeof(LoanType), request.LoanType))
         {
-            throw new Exception("Invalid Loan Type");
+            throw new Exception(InvalidLoanTypeMessage);
         }
 
-        if (request.PreferredTermMonths <= 0)
+        if (request.PreferredTermMonths <= MinimumTermMonthsExclusive)
         {
-            throw new Exception("Term must be greater than 0");
+            throw new Exception(TermInvalidMessage);
         }
 
         if (string.IsNullOrWhiteSpace(request.Purpose))
         {
-            throw new Exception("Purpose is required");
+            throw new Exception(PurposeRequiredMessage);
         }
     }
 }

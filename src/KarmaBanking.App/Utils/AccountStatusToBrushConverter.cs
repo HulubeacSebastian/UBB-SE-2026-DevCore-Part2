@@ -15,6 +15,17 @@ using Windows.UI;
 /// </summary>
 public class AccountStatusToBrushConverter : IValueConverter
 {
+    private const byte FullAlpha = 255;
+
+    private static readonly Color ActiveColor = Color.FromArgb(FullAlpha, 29, 185, 84);
+    private static readonly Color ClosedColor = Color.FromArgb(FullAlpha, 229, 57, 53);
+    private static readonly Color MaturedColor = Color.FromArgb(FullAlpha, 30, 136, 229);
+
+    private static readonly SolidColorBrush ActiveBrush = new(ActiveColor);
+    private static readonly SolidColorBrush ClosedBrush = new(ClosedColor);
+    private static readonly SolidColorBrush MaturedBrush = new(MaturedColor);
+    private static readonly SolidColorBrush DefaultBrush = new(Colors.Gray);
+
     /// <summary>
     /// Converts an account status value to a <see cref="SolidColorBrush"/>.
     /// </summary>
@@ -27,10 +38,10 @@ public class AccountStatusToBrushConverter : IValueConverter
     {
         return value?.ToString() switch
         {
-            "Active" => new SolidColorBrush(Color.FromArgb(255, 29, 185, 84)), // green
-            "Closed" => new SolidColorBrush(Color.FromArgb(255, 229, 57, 53)), // red
-            "Matured" => new SolidColorBrush(Color.FromArgb(255, 30, 136, 229)), // blue
-            _ => new SolidColorBrush(Colors.Gray),
+            "Active" => ActiveBrush,
+            "Closed" => ClosedBrush,
+            "Matured" => MaturedBrush,
+            _ => DefaultBrush,
         };
     }
 

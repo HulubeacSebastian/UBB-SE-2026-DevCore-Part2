@@ -8,10 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using KarmaBanking.App.Data;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Models.DTOs;
 using KarmaBanking.App.Services;
@@ -19,7 +21,11 @@ using KarmaBanking.App.Services.Interfaces;
 
 public partial class SavingsViewModel : BaseViewModel
 {
-    private const int CurrentUserId = 1;
+    private const int InitialPage = 1;
+    private const int DefaultTransactionPageSize = 10;
+    private const int InitialAutoDepositDelayDays = 1;
+    private const decimal ZeroAmount = 0m;
+
     private readonly SavingsPresentationService savingsPresentationService;
     private readonly ISavingsService savingsService;
     private readonly SavingsUiRulesService savingsUiRulesService;
@@ -37,9 +43,9 @@ public partial class SavingsViewModel : BaseViewModel
     [ObservableProperty]
     private string autoDepositSaveMessage = string.Empty;
     [ObservableProperty]
-    private DateTimeOffset? autoDepositStartDate = DateTimeOffset.Now.AddDays(1);
+    private DateTimeOffset? autoDepositStartDate = DateTimeOffset.Now.AddDays(InitialAutoDepositDelayDays);
     [ObservableProperty]
-    private string bestInterestRate = "0.00%";
+    private string bestInterestRate = string.Empty;
 
     // ── Close Account Panel ──────────────────────────────────────────────
     [ObservableProperty]
@@ -56,7 +62,7 @@ public partial class SavingsViewModel : BaseViewModel
     private AutoDeposit? currentAutoDeposit;
 
     [ObservableProperty]
-    private int currentPage = 1;
+    private int currentPage = InitialPage;
 
     // ── Deposit ──────────────────────────────────────────────────────────
     [ObservableProperty]
@@ -76,7 +82,7 @@ public partial class SavingsViewModel : BaseViewModel
     [ObservableProperty]
     private string initialDepositText = string.Empty;
     [ObservableProperty]
-    private string numberOfAccountsText = "across 0 accounts";
+    private string numberOfAccountsText = string.Empty;
 
     // ── My Accounts ──────────────────────────────────────────────────────
     [ObservableProperty]
@@ -122,7 +128,7 @@ public partial class SavingsViewModel : BaseViewModel
     private int totalPages;
 
     [ObservableProperty]
-    private string totalSavedAmount = "$0.00";
+    private string totalSavedAmount = string.Empty;
 
     [ObservableProperty]
     private ObservableCollection<SavingsTransaction> transactions = new();
@@ -152,9 +158,9 @@ public partial class SavingsViewModel : BaseViewModel
         this.savingsWorkflowService = new SavingsWorkflowService();
     }
 
-    public bool IsEmpty => this.SavingsAccounts.Count == 0;
+    public bool IsEmpty => !this.SavingsAccounts.Any();
 
-    public bool ShowAccountsList => this.SavingsAccounts.Count > 0;
+    public bool ShowAccountsList => this.SavingsAccounts.Any();
 
     public bool IsGoalSavings => this.SelectedSavingsType == "GoalSavings";
 
@@ -173,12 +179,12 @@ public partial class SavingsViewModel : BaseViewModel
         {
             if (!this.WithdrawHasEarlyRisk)
             {
-                return 0;
+                return ZeroAmount;
             }
 
             if (!this.savingsUiRulesService.TryParsePositiveAmount(this.WithdrawAmountText, out var withdrawAmount))
             {
-                return 0;
+                return ZeroAmount;
             }
 
             return this.savingsService.ComputeWithdrawalPenalty(withdrawAmount);
@@ -191,14 +197,14 @@ public partial class SavingsViewModel : BaseViewModel
         {
             if (!this.savingsUiRulesService.TryParsePositiveAmount(this.WithdrawAmountText, out var withdrawAmount))
             {
-                return 0;
+                return ZeroAmount;
             }
 
             return this.savingsUiRulesService.CalculateWithdrawNetAmount(withdrawAmount, this.WithdrawEstimatedPenalty);
         }
     }
 
-    public bool WithdrawHasPenalty => this.WithdrawEstimatedPenalty > 0;
+    public bool WithdrawHasPenalty => this.WithdrawEstimatedPenalty > ZeroAmount;
 
     public string WithdrawPenaltyBreakdownText =>
         $"Penalty ({this.savingsService.GetPenaltyDecimalFor("EarlyWithdrawal"):P0}): -${this.WithdrawEstimatedPenalty:N2}";
@@ -254,7 +260,7 @@ public partial class SavingsViewModel : BaseViewModel
                 this.SelectedAccount!.IdentificationNumber,
                 amount,
                 this.WithdrawDestination.DisplayName,
-                CurrentUserId);
+                CurrentUser.Id);
             this.WithdrawSuccess = withdrawResponseDto.Success;
             this.WithdrawResultMessage = this.savingsWorkflowService.BuildWithdrawResultMessage(withdrawResponseDto);
             if (withdrawResponseDto.Success)
@@ -293,7 +299,7 @@ public partial class SavingsViewModel : BaseViewModel
             this.HasExistingAutoDeposit = false;
             this.AutoDepositAmountText = string.Empty;
             this.AutoDepositFrequency = string.Empty;
-            this.AutoDepositStartDate = DateTimeOffset.Now.AddDays(1);
+            this.AutoDepositStartDate = DateTimeOffset.Now.AddDays(InitialAutoDepositDelayDays);
             this.AutoDepositIsActive = true;
         }
     }
@@ -323,11 +329,11 @@ public partial class SavingsViewModel : BaseViewModel
 
         var autoDeposit = new AutoDeposit
         {
-            Id = this.currentAutoDeposit?.Id ?? 0,
+            Id = this.currentAutoDeposit?.Id ?? default,
             SavingsAccountId = this.SelectedAccount!.IdentificationNumber,
             Amount = amount,
             Frequency = frequency,
-            NextRunDate = this.AutoDepositStartDate?.DateTime ?? DateTime.Now.AddDays(1),
+            NextRunDate = this.AutoDepositStartDate?.DateTime ?? DateTime.Now.AddDays(InitialAutoDepositDelayDays),
             IsActive = this.AutoDepositIsActive,
         };
 
@@ -344,7 +350,7 @@ public partial class SavingsViewModel : BaseViewModel
         this.ErrorMessage = string.Empty;
         try
         {
-            var accountsList = await this.savingsService.GetAccountsAsync(CurrentUserId);
+            var accountsList = await this.savingsService.GetAccountsAsync(CurrentUser.Id);
             this.SavingsAccounts.Clear();
             foreach (var account in accountsList)
             {
@@ -376,7 +382,10 @@ public partial class SavingsViewModel : BaseViewModel
         this.ErrorMessage = string.Empty;
         try
         {
-            var closureResultDto = await this.savingsService.CloseAccountAsync(account.IdentificationNumber, CurrentUserId, 1);
+            var closureResultDto = await this.savingsService.CloseAccountAsync(
+                account.IdentificationNumber,
+                this.SelectedCloseDestinationId,
+                CurrentUser.Id);
             var ok = closureResultDto.Success;
             if (!ok)
             {
@@ -430,7 +439,7 @@ public partial class SavingsViewModel : BaseViewModel
             var result = await this.savingsService.CloseAccountAsync(
                 this.SelectedAccount!.IdentificationNumber,
                 this.SelectedCloseDestinationId,
-                CurrentUserId);
+                CurrentUser.Id);
             this.CloseSuccess = result.Success;
             this.CloseResultMessage = result.Success ? "Account closed successfully." : result.Message;
             if (result.Success)
@@ -456,7 +465,7 @@ public partial class SavingsViewModel : BaseViewModel
     {
         try
         {
-            var fundingSourcesList = await this.savingsService.GetFundingSourcesAsync(CurrentUserId);
+            var fundingSourcesList = await this.savingsService.GetFundingSourcesAsync(CurrentUser.Id);
             this.FundingSources.Clear();
             foreach (var fundingSource in fundingSourcesList)
             {
@@ -517,7 +526,7 @@ public partial class SavingsViewModel : BaseViewModel
         }
 
         this.OnPropertyChanged(nameof(this.FieldErrors));
-        if (this.FieldErrors.Count > 0)
+        if (this.FieldErrors.Any())
         {
             return;
         }
@@ -529,7 +538,7 @@ public partial class SavingsViewModel : BaseViewModel
         {
             var createSavingsAccountDto = new CreateSavingsAccountDto
             {
-                UserIdentificationNumber = CurrentUserId,
+                UserIdentificationNumber = CurrentUser.Id,
                 SavingsType = this.SelectedSavingsType,
                 AccountName = this.AccountName.Trim(),
                 InitialDeposit = deposit,
@@ -598,7 +607,7 @@ public partial class SavingsViewModel : BaseViewModel
                 this.SelectedAccount.IdentificationNumber,
                 amount,
                 this.DepositSource,
-                CurrentUserId);
+                CurrentUser.Id);
 
             this.DepositSuccessMessage = $"Deposit successful! New balance: ${depositResponseDto.NewBalance:N2}";
             this.ShowDepositSuccess = true;
@@ -631,7 +640,7 @@ public partial class SavingsViewModel : BaseViewModel
                 accountId,
                 this.selectedFilter,
                 this.currentPage,
-                10);
+                DefaultTransactionPageSize);
 
             this.transactions.Clear();
 
@@ -640,7 +649,7 @@ public partial class SavingsViewModel : BaseViewModel
                 this.transactions.Add(transaction);
             }
 
-            this.totalPages = this.savingsUiRulesService.CalculateTotalPages(result.TotalCount, 10);
+            this.totalPages = this.savingsUiRulesService.CalculateTotalPages(result.TotalCount, DefaultTransactionPageSize);
         }
         catch (Exception exception)
         {
@@ -673,7 +682,7 @@ public partial class SavingsViewModel : BaseViewModel
     public async Task ChangeFilter(int accountId, string filter)
     {
         this.selectedFilter = filter;
-        this.currentPage = 1;
+        this.currentPage = InitialPage;
         await this.LoadTransactionsAsync(accountId);
     }
 }

@@ -16,7 +16,7 @@ namespace KarmaBanking.App.Tests.Services
     public class InvestmentLogsViewModelTests
     {
         [Fact]
-        public async Task LoadLogsAsync_SelectedTickerIsAll_CallsServiceWithNullTicker()
+        public async Task LoadLogsAsync_WhenSelectedTickerIsAll_ThenCallsServiceWithNullTicker()
         {
             // Arrange
             var investmentServiceMock = new Mock<IInvestmentService>();

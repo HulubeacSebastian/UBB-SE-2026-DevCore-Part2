@@ -19,6 +19,16 @@ using Microsoft.Data.SqlClient;
 /// </summary>
 public class SavingsRepository : ISavingsRepository
 {
+    private const decimal ZeroAmount = 0m;
+    private const int NoFundingAccountId = 0;
+    private const int NewAutoDepositId = 0;
+    private const decimal NoPenaltyAmount = 0m;
+    private const int FirstPageNumber = 1;
+    private const int PrimaryFundingSourceId = 1;
+    private const int SecondaryFundingSourceId = 2;
+    private const string PrimaryFundingSourceName = "Checking Account One";
+    private const string SecondaryFundingSourceName = "Checking Account Two";
+
     /// <summary>
     /// Gets savings accounts for a user with optional inclusion of closed accounts.
     /// </summary>
@@ -70,7 +80,7 @@ public class SavingsRepository : ISavingsRepository
                      fundingAccountId, targetAmount, targetDate)
                 OUTPUT INSERTED.id
                 VALUES
-                    (@UserId, @SavingsType, @Balance, 0, @Apy, @MaturityDate,
+                    (@UserId, @SavingsType, @Balance, @AccruedInterest, @Apy, @MaturityDate,
                      'Active', @CreatedAt, @AccountName,
                      @FundingAccountId, @TargetAmount, @TargetDate)";
 
@@ -81,13 +91,14 @@ public class SavingsRepository : ISavingsRepository
         sqlCommand.Parameters.AddWithValue("@UserId", dataTransferObject.UserIdentificationNumber);
         sqlCommand.Parameters.AddWithValue("@SavingsType", dataTransferObject.SavingsType);
         sqlCommand.Parameters.AddWithValue("@Balance", dataTransferObject.InitialDeposit);
+        sqlCommand.Parameters.AddWithValue("@AccruedInterest", ZeroAmount);
         sqlCommand.Parameters.AddWithValue("@Apy", annualPercentageYield);
         sqlCommand.Parameters.AddWithValue("@MaturityDate", (object?)dataTransferObject.MaturityDate ?? DBNull.Value);
         sqlCommand.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
         sqlCommand.Parameters.AddWithValue("@AccountName", (object?)dataTransferObject.AccountName ?? DBNull.Value);
         sqlCommand.Parameters.AddWithValue(
             "@FundingAccountId",
-            dataTransferObject.FundingAccountId == 0 ? DBNull.Value : dataTransferObject.FundingAccountId);
+            dataTransferObject.FundingAccountId == NoFundingAccountId ? DBNull.Value : dataTransferObject.FundingAccountId);
         sqlCommand.Parameters.AddWithValue("@TargetAmount", (object?)dataTransferObject.TargetAmount ?? DBNull.Value);
         sqlCommand.Parameters.AddWithValue("@TargetDate", (object?)dataTransferObject.TargetDate ?? DBNull.Value);
 
@@ -100,11 +111,11 @@ public class SavingsRepository : ISavingsRepository
             SavingsType = dataTransferObject.SavingsType,
             AccountName = dataTransferObject.AccountName,
             Balance = dataTransferObject.InitialDeposit,
-            AccruedInterest = 0,
+            AccruedInterest = ZeroAmount,
             AnnualPercentageYield = annualPercentageYield,
             AccountStatus = "Active",
             CreatedAt = DateTime.Now,
-            FundingAccountIdentificationNumber = dataTransferObject.FundingAccountId == 0 ? null : dataTransferObject.FundingAccountId,
+            FundingAccountIdentificationNumber = dataTransferObject.FundingAccountId == NoFundingAccountId ? null : dataTransferObject.FundingAccountId,
             TargetAmount = dataTransferObject.TargetAmount,
             TargetDate = dataTransferObject.TargetDate,
         };
@@ -209,7 +220,7 @@ public class SavingsRepository : ISavingsRepository
             string oldAccountType;
             DateTime? oldAccountMaturityDate;
 
-            // 1. LOCK + FETCH ACCOUNT
+            // First step: lock and fetch source account data.
             using (var selectSourceAccountDataCommand = new SqlCommand(
                        @"
                 SELECT balance, savingsType, maturityDate, accountStatus
@@ -227,7 +238,7 @@ public class SavingsRepository : ISavingsRepository
                 oldAccountMaturityDate = reader["maturityDate"] as DateTime?;
             }
 
-            // 2. TRANSFER TO DESTINATION
+            // Second step: transfer funds to destination.
             using (var transferAmountToDestinationCommand = new SqlCommand(
                        @"
                 UPDATE SavingsAccount 
@@ -242,11 +253,11 @@ public class SavingsRepository : ISavingsRepository
                 await transferAmountToDestinationCommand.ExecuteNonQueryAsync();
             }
 
-            // 3. CLOSE ACCOUNT
+            // Third step: close the source account.
             using (var closeAccountCommand = new SqlCommand(
                        @"
                 UPDATE SavingsAccount
-                SET balance = 0,
+                SET balance = @ClosedBalance,
                     accountStatus = 'Closed',
                     updatedAt = GETUTCDATE()
                 WHERE id = @Id",
@@ -254,21 +265,23 @@ public class SavingsRepository : ISavingsRepository
                        databaseTransaction))
             {
                 closeAccountCommand.Parameters.AddWithValue("@Id", accountIdentificationNumber);
+                closeAccountCommand.Parameters.AddWithValue("@ClosedBalance", ZeroAmount);
                 await closeAccountCommand.ExecuteNonQueryAsync();
             }
 
-            // 4. INSERT CLOSURE TRANSACTION
+            // Fourth step: insert closure transaction.
             using (var insertClosureTransactionCommand = new SqlCommand(
                        @"
                 INSERT INTO SavingsTransaction
                 (accountId, transactionType, amount, balanceAfter, source, description, createdAt)
                 VALUES
-                (@AccountId, 'Closure', @Amount, 0, 'Closure', 'Account closed', GETUTCDATE())",
+                (@AccountId, 'Closure', @Amount, @BalanceAfter, 'Closure', 'Account closed', GETUTCDATE())",
                        databasebConnection,
                        databaseTransaction))
             {
                 insertClosureTransactionCommand.Parameters.AddWithValue("@AccountId", accountIdentificationNumber);
                 insertClosureTransactionCommand.Parameters.AddWithValue("@Amount", transferAmount);
+                insertClosureTransactionCommand.Parameters.AddWithValue("@BalanceAfter", ZeroAmount);
 
                 await insertClosureTransactionCommand.ExecuteNonQueryAsync();
             }
@@ -291,8 +304,8 @@ public class SavingsRepository : ISavingsRepository
             return new ClosureResultDto
             {
                 Success = false,
-                TransferredAmount = 0,
-                PenaltyApplied = 0,
+                TransferredAmount = ZeroAmount,
+                PenaltyApplied = ZeroAmount,
                 Message = exception.Message,
                 ClosedAt = DateTime.UtcNow,
             };
@@ -365,7 +378,7 @@ public class SavingsRepository : ISavingsRepository
                 insertWithdrawalTransactionCommand.Parameters.AddWithValue("@Amount", amount);
                 insertWithdrawalTransactionCommand.Parameters.AddWithValue("@BalanceAfter", newBalance);
 
-                var withdrawalDescription = earlyWithdrawalPenalty > 0
+                var withdrawalDescription = earlyWithdrawalPenalty > NoPenaltyAmount
                     ? $"To: {destinationLabel} | Early withdrawal penalty: {earlyWithdrawalPenalty:C2}"
                     : $"To: {destinationLabel}";
 
@@ -381,7 +394,7 @@ public class SavingsRepository : ISavingsRepository
                 AmountWithdrawn = amount,
                 PenaltyApplied = earlyWithdrawalPenalty,
                 NewBalance = newBalance,
-                Message = earlyWithdrawalPenalty > 0
+                Message = earlyWithdrawalPenalty > NoPenaltyAmount
                     ? $"Withdrawal successful. Early penalty of {earlyWithdrawalPenalty:C2} applied."
                     : "Withdrawal successful.",
                 ProcessedAt = DateTime.UtcNow,
@@ -444,7 +457,7 @@ public class SavingsRepository : ISavingsRepository
         using var databaseConnection = DatabaseConfig.GetDatabaseConnection();
         await databaseConnection.OpenAsync();
 
-        if (autoDeposit.Id == 0)
+        if (autoDeposit.Id == NewAutoDepositId)
         {
             const string insertAutoDepositQuery = @"
                     INSERT INTO AutoDeposit (savingsAccountId, amount, frequency, nextRunDate, isActive)
@@ -486,8 +499,8 @@ public class SavingsRepository : ISavingsRepository
         return Task.FromResult(
             new List<FundingSourceOption>
             {
-                new() { Id = 1, DisplayName = "Checking Account ****1234" },
-                new() { Id = 2, DisplayName = "Checking Account ****5678" },
+                new() { Id = PrimaryFundingSourceId, DisplayName = PrimaryFundingSourceName },
+                new() { Id = SecondaryFundingSourceId, DisplayName = SecondaryFundingSourceName },
             });
     }
 
@@ -496,7 +509,7 @@ public class SavingsRepository : ISavingsRepository
     /// </summary>
     /// <param name="accountId">The account identifier.</param>
     /// <param name="typeFilter">The transaction-type filter value.</param>
-    /// <param name="page">The 1-based page number.</param>
+    /// <param name="page">The one-based page number.</param>
     /// <param name="pageSize">The page size.</param>
     /// <returns>A tuple containing page items and total transaction count.</returns>
     public async Task<(List<SavingsTransaction> Items, int TotalCount)> GetTransactionsPagedAsync(
@@ -538,7 +551,7 @@ public class SavingsRepository : ISavingsRepository
 
         using var paginatedSelectAccountsCommand = new SqlCommand(paginatedSelectAccountsQuery, databaseConnection);
         paginatedSelectAccountsCommand.Parameters.AddWithValue("@AccountId", accountId);
-        paginatedSelectAccountsCommand.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+        paginatedSelectAccountsCommand.Parameters.AddWithValue("@Offset", (page - FirstPageNumber) * pageSize);
         paginatedSelectAccountsCommand.Parameters.AddWithValue("@PageSize", pageSize);
 
         if (baseQuery.Contains("@Type"))

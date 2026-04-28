@@ -7,10 +7,12 @@
 /// </summary>
 public static class CurrentUser
 {
+    private const int DefaultUserId = 1;
+
     /// <summary>
     /// Gets or sets the current user's identifier.
     /// </summary>
-    public static int Id { get; set; } = 1;
+    public static int Id { get; set; } = DefaultUserId;
 
     /// <summary>
     /// Gets or sets the current user's display name.

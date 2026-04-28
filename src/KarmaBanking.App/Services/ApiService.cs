@@ -14,7 +14,9 @@ namespace KarmaBanking.App.Services
     using KarmaBanking.App.Repositories.Interfaces;
     public class ApiService
     {
-        private readonly string baseUrl = "https://localhost:5001";
+        private const int ApiPort = 5001;
+
+        private readonly string baseUrl = $"https://localhost:{ApiPort}";
         private readonly string authToken = string.Empty;
         private readonly ILoanService loanService;
         private readonly IChatRepository chatRepository;

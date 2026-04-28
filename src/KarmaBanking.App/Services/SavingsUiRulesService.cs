@@ -12,14 +12,17 @@ using KarmaBanking.App.Models.Enums;
 
 public class SavingsUiRulesService
 {
+    private const decimal PositiveAmountThreshold = 0m;
+    private const int NoPages = 0;
+
     public bool TryParsePositiveAmount(string text, out decimal amount)
     {
-        if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out amount) && amount > 0)
+        if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out amount) && amount > PositiveAmountThreshold)
         {
             return true;
         }
 
-        amount = 0m;
+        amount = PositiveAmountThreshold;
         return false;
     }
 
@@ -45,9 +48,9 @@ public class SavingsUiRulesService
 
     public int CalculateTotalPages(int totalCount, int pageSize)
     {
-        if (pageSize <= 0)
+        if (pageSize <= NoPages)
         {
-            return 0;
+            return NoPages;
         }
 
         return (int)Math.Ceiling((double)totalCount / pageSize);
@@ -92,7 +95,7 @@ public class SavingsUiRulesService
 
         if (isGoalSavings)
         {
-            if (!targetAmount.HasValue || targetAmount.Value <= 0)
+            if (!targetAmount.HasValue || targetAmount.Value <= PositiveAmountThreshold)
             {
                 errors["TargetAmount"] = "Target amount is required.";
             }

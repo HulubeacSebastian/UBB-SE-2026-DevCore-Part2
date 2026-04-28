@@ -93,7 +93,7 @@ public interface ISavingsRepository
     /// </summary>
     /// <param name="accountId">The account identifier.</param>
     /// <param name="typeFilter">The type filter value.</param>
-    /// <param name="page">The 1-based page number.</param>
+    /// <param name="page">The one-based page number.</param>
     /// <param name="pageSize">The page size.</param>
     /// <returns>A tuple containing page items and total row count.</returns>
     Task<(List<SavingsTransaction> Items, int TotalCount)> GetTransactionsPagedAsync(

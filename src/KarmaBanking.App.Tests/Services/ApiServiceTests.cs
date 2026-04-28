@@ -25,7 +25,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task GetAllLoansAsync_CallsLoanService()
+        public async Task GetAllLoansAsync_WhenCalled_ThenCallsLoanServiceAndReturnsLoansList()
         {
             // Arrange
             var expectedLoansList = new List<Loan> { new Loan { Id = 1 } };
@@ -41,7 +41,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task ApplyForLoanAsync_CallsLoanServiceAndReturnsRejectionReason()
+        public async Task ApplyForLoanAsync_WhenApplicationRejected_ThenReturnsRejectionReason()
         {
             // Arrange
             var loanApplicationRequestInstance = new LoanApplicationRequest
@@ -62,7 +62,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void SubmitFeedback_CallsChatRepository()
+        public void SubmitFeedback_WhenCalled_ThenCallsChatRepository()
         {
             // Act
             this.apiService.SubmitFeedback(1, 5, "Great experience");
@@ -73,7 +73,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task GetAmortizationAsync_CallsLoanService()
+        public async Task GetAmortizationAsync_WhenCalled_ThenCallsLoanServiceAndReturnsAmortizationRows()
         {
             // Arrange
             var expectedAmortizationRows = new List<AmortizationRow> { new AmortizationRow { InstallmentNumber = 1 } };

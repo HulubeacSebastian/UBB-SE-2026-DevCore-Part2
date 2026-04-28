@@ -20,7 +20,7 @@ namespace KarmaBanking.App.Tests.Services
         [Theory]
         [InlineData(100, 1000, 10, true, 0, 900, 9)]
         [InlineData(100, 1000, 10, false, 200, 800, 8)]
-        public void CalculatePaymentPreview_ReturnsExpectedValues(
+        public void CalculatePaymentPreview_WhenGivenVariousPaymentModes_ThenReturnsExpectedValues(
             decimal monthlyInstallmentAmount,
             decimal currentOutstandingBalance,
             int remainingMonthsCount,

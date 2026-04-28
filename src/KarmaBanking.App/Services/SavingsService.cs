@@ -16,6 +16,12 @@ using KarmaBanking.App.Services.Interfaces;
 public class SavingsService : ISavingsService
 {
     private const int MAX_ACTIVE_ACCOUNTS = 5;
+    private const int MIN_USER_ID = 0;
+    private const decimal MIN_POSITIVE_AMOUNT = 0m;
+    private const decimal NO_PENALTY = 0m;
+    private const int MIN_PAGE = 1;
+    private const int MAX_PAGE_SIZE = 100;
+    private const int DEFAULT_PAGE_SIZE = 20;
 
     private const decimal FIXED_DEPOSIT_APY = 0.04m;
     private const decimal GOAL_SAVINGS_APY = 0.03m;
@@ -33,14 +39,14 @@ public class SavingsService : ISavingsService
 
     public async Task<SavingsAccount> CreateAccountAsync(CreateSavingsAccountDto dataTransferObject)
     {
-        // BA-9: max 5 active accounts per user
+        // Business rule: enforce max active accounts per user.
         var activeAccountsList = await this.savingsRepository.GetSavingsAccountsByUserIdAsync(dataTransferObject.UserIdentificationNumber, false);
         if (activeAccountsList.Count >= MAX_ACTIVE_ACCOUNTS)
         {
-            throw new InvalidOperationException("You cannot have more than 5 active savings accounts.");
+            throw new InvalidOperationException($"You cannot have more than {MAX_ACTIVE_ACCOUNTS} active savings accounts.");
         }
 
-        // BA-9: GoalSavings requires a future target date
+        // Business rule: goal savings requires a future target date.
         if (dataTransferObject.SavingsType == "GoalSavings")
         {
             if (!dataTransferObject.TargetDate.HasValue)
@@ -53,7 +59,7 @@ public class SavingsService : ISavingsService
                 throw new ArgumentException("Target date must be in the future.");
             }
 
-            if (!dataTransferObject.TargetAmount.HasValue || dataTransferObject.TargetAmount.Value <= 0)
+            if (!dataTransferObject.TargetAmount.HasValue || dataTransferObject.TargetAmount.Value <= MIN_POSITIVE_AMOUNT)
             {
                 throw new ArgumentException("GoalSavings accounts require a positive target amount.");
             }
@@ -72,7 +78,7 @@ public class SavingsService : ISavingsService
 
     public Task<List<SavingsAccount>> GetAccountsAsync(int userId, bool includesClosed = false)
     {
-        if (userId < 0)
+        if (userId < MIN_USER_ID)
         {
             throw new ArgumentException("User ID must be a positive integer.");
         }
@@ -82,17 +88,17 @@ public class SavingsService : ISavingsService
 
     public async Task<DepositResponseDto> DepositAsync(int accountId, decimal amount, string source, int userId)
     {
-        if (amount <= 0)
+        if (amount <= MIN_POSITIVE_AMOUNT)
         {
             throw new ArgumentException("Deposit amount must be positive.");
         }
 
-        // BA-14: get the account and validate ownership + status
+        // Business rule: validate ownership and status before deposit.
         var userAccountsList = await this.savingsRepository.GetSavingsAccountsByUserIdAsync(userId, true);
         var destinationAccount = userAccountsList.Find(account => account.IdentificationNumber == accountId)
                                  ?? throw new InvalidOperationException("Account not found or does not belong to you.");
 
-        // BA-14: 422 for closed or locked
+        // Business rule: blocked statuses cannot receive deposits.
         if (destinationAccount.AccountStatus == "Closed")
         {
             throw new InvalidOperationException("Cannot deposit into a closed account.");
@@ -126,7 +132,7 @@ public class SavingsService : ISavingsService
             throw new InvalidOperationException("Cannot transfer to a closed account.");
         }
 
-        decimal earlyClosurePenalty = 0;
+        decimal earlyClosurePenalty = NO_PENALTY;
         if (closingAccount.SavingsType == "FixedDeposit" &&
             closingAccount.MaturityDate.HasValue &&
             closingAccount.MaturityDate > DateTime.UtcNow)
@@ -149,7 +155,7 @@ public class SavingsService : ISavingsService
         string destinationLabel,
         int userId)
     {
-        if (amount <= 0)
+        if (amount <= MIN_POSITIVE_AMOUNT)
         {
             throw new ArgumentException("Withdrawal amount must be positive.");
         }
@@ -168,7 +174,7 @@ public class SavingsService : ISavingsService
             throw new InvalidOperationException("Insufficient balance.");
         }
 
-        decimal earlyWithdrawalPenalty = 0;
+        decimal earlyWithdrawalPenalty = NO_PENALTY;
         if (destinationAccount.SavingsType == "FixedDeposit" &&
             destinationAccount.MaturityDate.HasValue &&
             destinationAccount.MaturityDate.Value > DateTime.UtcNow)
@@ -210,14 +216,14 @@ public class SavingsService : ISavingsService
         int page,
         int pageSize)
     {
-        if (page <= 0)
+        if (page < MIN_PAGE)
         {
-            throw new ArgumentException("Page must be >= 1");
+            throw new ArgumentException("Page must be greater than or equal to one.");
         }
 
-        if (pageSize <= 0 || pageSize > 100)
+        if (pageSize <= MIN_USER_ID || pageSize > MAX_PAGE_SIZE)
         {
-            pageSize = 20;
+            pageSize = DEFAULT_PAGE_SIZE;
         }
 
         return await this.savingsRepository.GetTransactionsPagedAsync(

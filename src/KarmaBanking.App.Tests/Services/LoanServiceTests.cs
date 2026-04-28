@@ -26,7 +26,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task ProcessApplicationStatusAsync_WhenUserHasFiveActiveLoans_RejectsApplication()
+        public async Task ProcessApplicationStatusAsync_WhenUserHasFiveActiveLoans_ThenRejectsApplication()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>
@@ -61,7 +61,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task ProcessApplicationStatusAsync_WhenDebtLimitExceeded_RejectsApplication()
+        public async Task ProcessApplicationStatusAsync_WhenDebtLimitExceeded_ThenRejectsApplication()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>
@@ -92,7 +92,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task ProcessApplicationStatusAsync_WhenRulesPass_ApprovesApplication()
+        public async Task ProcessApplicationStatusAsync_WhenAllRulesPass_ThenApprovesApplication()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.GetLoansByUserAsync(1)).ReturnsAsync(new List<Loan>
@@ -120,7 +120,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task PayInstallmentAsync_StandardPayment_UpdatesBalanceAndRemainingMonths()
+        public async Task PayInstallmentAsync_WhenStandardPaymentMade_ThenUpdatesBalanceAndRemainingMonths()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(20)).ReturnsAsync(new Loan
@@ -140,7 +140,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task PayInstallmentAsync_CustomPaymentBelowInstallment_Throws()
+        public async Task PayInstallmentAsync_WhenCustomPaymentBelowInstallment_ThenThrows()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(21)).ReturnsAsync(new Loan
@@ -158,7 +158,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task PayInstallmentAsync_WhenLoanGetsPaidOff_ClosesLoan()
+        public async Task PayInstallmentAsync_WhenLoanGetsPaidOff_ThenClosesLoan()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(22)).ReturnsAsync(new Loan
@@ -178,7 +178,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void CalculatePaymentPreview_WithCustomAmount_ComputesPreviewValues()
+        public void CalculatePaymentPreview_WhenCustomAmountProvided_ThenComputesPreviewValues()
         {
             // Arrange
             var loanInstance = new Loan
@@ -197,7 +197,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void ParseCustomPaymentAmount_InvalidInput_ReturnsNull()
+        public void ParseCustomPaymentAmount_WhenInvalidInput_ThenReturnsNull()
         {
             // Act
             var parsedAmountValue = this.loanService.ParseCustomPaymentAmount("not-a-number");
@@ -207,7 +207,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task SubmitLoanApplicationAsync_WhenApproved_CreatesLoanAndAmortization()
+        public async Task SubmitLoanApplicationAsync_WhenApproved_ThenCreatesLoanAndAmortization()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.CreateLoanApplicationAsync(It.IsAny<LoanApplicationRequest>())).ReturnsAsync(30);
@@ -249,7 +249,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task SubmitLoanApplicationAsync_WhenRejected_DoesNotCreateLoanOrAmortization()
+        public async Task SubmitLoanApplicationAsync_WhenRejected_ThenDoesNotCreateLoanOrAmortization()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.CreateLoanApplicationAsync(It.IsAny<LoanApplicationRequest>())).ReturnsAsync(31);
@@ -279,7 +279,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task PayInstallmentAsync_WhenPaymentExceedsOutstanding_Throws()
+        public async Task PayInstallmentAsync_WhenPaymentExceedsOutstanding_ThenThrows()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(23)).ReturnsAsync(new Loan
@@ -297,7 +297,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task PayInstallmentAsync_WhenLoanAlreadyClosed_Throws()
+        public async Task PayInstallmentAsync_WhenLoanAlreadyClosed_ThenThrows()
         {
             // Arrange
             this.loanRepositoryMock.Setup(repository => repository.GetLoanByIdAsync(24)).ReturnsAsync(new Loan
@@ -314,7 +314,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void NormalizeCustomPaymentAmount_WhenOverBalance_CapsToOutstanding()
+        public void NormalizeCustomPaymentAmount_WhenPaymentExceedsBalance_ThenCapsToOutstanding()
         {
             // Arrange
             var loanInstance = new Loan
@@ -332,7 +332,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void GetRepaymentProgress_WhenPrincipalIsZero_ReturnsZero()
+        public void GetRepaymentProgress_WhenPrincipalIsZero_ThenReturnsZero()
         {
             // Arrange
             var loanInstance = new Loan

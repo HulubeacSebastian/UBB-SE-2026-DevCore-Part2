@@ -8,6 +8,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using KarmaBanking.App.Data;
 using KarmaBanking.App.Services;
 using KarmaBanking.App.Services.Interfaces;
 using KarmaBanking.App.Utils;
@@ -129,8 +130,7 @@ public class CryptoTradingViewModel : INotifyPropertyChanged
     {
         try
         {
-            // Folosim identificatorul hardcodat 1 pentru flow-ul actual al proiectului
-            var userPortfolio = this.investmentService.GetPortfolio(1);
+            var userPortfolio = this.investmentService.GetPortfolio(CurrentUser.Id);
             if (userPortfolio != null)
             {
                 this.CurrentBalance = userPortfolio.TotalValue;
@@ -146,8 +146,8 @@ public class CryptoTradingViewModel : INotifyPropertyChanged
     {
         if (!this.tradeCalculationService.TryParsePositiveQuantity(this.QuantityText, out var quantity))
         {
-            this.EstimatedFee = 0;
-            this.TotalAmount = 0;
+            this.EstimatedFee = decimal.Zero;
+            this.TotalAmount = decimal.Zero;
             return;
         }
 
@@ -182,7 +182,7 @@ public class CryptoTradingViewModel : INotifyPropertyChanged
             var mockPrice = this.tradeCalculationService.GetMockMarketPrice(this.SelectedTicker);
 
             await this.investmentService.ExecuteCryptoTradeAsync(
-                1,
+                CurrentUser.Id,
                 this.SelectedTicker,
                 this.ActionType,
                 quantity,

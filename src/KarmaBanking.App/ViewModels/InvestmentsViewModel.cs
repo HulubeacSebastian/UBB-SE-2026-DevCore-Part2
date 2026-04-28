@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using KarmaBanking.App.Data;
 using KarmaBanking.App.Models;
 using KarmaBanking.App.Repositories;
 using KarmaBanking.App.Repositories.Interfaces;
@@ -73,7 +74,7 @@ public class InvestmentsViewModel : INotifyPropertyChanged
 
     public ICommand SelectFilterCommand { get; }
 
-    public bool IsEmptyStateVisible => !this.IsPortfolioLoading && this.DisplayedHoldings.Count == 0;
+    public bool IsEmptyStateVisible => !this.IsPortfolioLoading && !this.DisplayedHoldings.Any();
 
     public bool IsHoldingsVisible => !this.IsEmptyStateVisible;
 
@@ -128,7 +129,7 @@ public class InvestmentsViewModel : INotifyPropertyChanged
 
         try
         {
-            this.UserPortfolio = this.investmentRepository.GetPortfolio(1);
+            this.UserPortfolio = this.investmentRepository.GetPortfolio(CurrentUser.Id);
             this.RefreshDisplayedHoldings();
 
             // Corrected: StartPolling
@@ -152,7 +153,7 @@ public class InvestmentsViewModel : INotifyPropertyChanged
             return;
         }
 
-        if (this.UserPortfolio?.Holdings == null || this.UserPortfolio.Holdings.Count == 0)
+        if (this.UserPortfolio?.Holdings == null || !this.UserPortfolio.Holdings.Any())
         {
             return;
         }
@@ -161,7 +162,7 @@ public class InvestmentsViewModel : INotifyPropertyChanged
         {
             // Corrected: GetPrice
             var updatedPrice = this.marketDataService.GetPrice(holding.Ticker);
-            if (updatedPrice <= 0)
+            if (updatedPrice <= decimal.Zero)
             {
                 continue;
             }
