@@ -1,4 +1,4 @@
-﻿// <copyright file="CryptoTradeCalculationServiceTests.cs" company="Dev Core">
+// <copyright file="CryptoTradeCalculationServiceTests.cs" company="Dev Core">
 // Copyright (c) Dev Core. All rights reserved.
 // </copyright>
 
@@ -24,19 +24,70 @@ namespace KarmaBanking.App.Tests.Services
             Assert.Equal(10.5m, parsedQuantity);
         }
 
-        [Theory]
-        [InlineData("0")]
-        [InlineData("-5")]
-        [InlineData("abc")]
-        [InlineData("")]
-        [InlineData(null)]
-        public void TryParsePositiveQuantity_WhenInvalidOrNonPositiveQuantity_ThenReturnsFalseAndZero(string quantityTextValue)
+        [Fact]
+        public void TryParsePositiveQuantity_ZeroQuantity_ReturnsFalseAndZero()
         {
             // Arrange
             var cryptoCalculationService = new CryptoTradeCalculationService();
 
             // Act
-            bool isParsedSuccessfully = cryptoCalculationService.TryParsePositiveQuantity(quantityTextValue, out decimal parsedQuantity);
+            bool isParsedSuccessfully = cryptoCalculationService.TryParsePositiveQuantity("0", out decimal parsedQuantity);
+
+            // Assert
+            Assert.False(isParsedSuccessfully);
+            Assert.Equal(0m, parsedQuantity);
+        }
+
+        [Fact]
+        public void TryParsePositiveQuantity_NegativeQuantity_ReturnsFalseAndZero()
+        {
+            // Arrange
+            var cryptoCalculationService = new CryptoTradeCalculationService();
+
+            // Act
+            bool isParsedSuccessfully = cryptoCalculationService.TryParsePositiveQuantity("-5", out decimal parsedQuantity);
+
+            // Assert
+            Assert.False(isParsedSuccessfully);
+            Assert.Equal(0m, parsedQuantity);
+        }
+
+        [Fact]
+        public void TryParsePositiveQuantity_CharactersInsteadOfQuantity_ReturnsFalseAndZero()
+        {
+            // Arrange
+            var cryptoCalculationService = new CryptoTradeCalculationService();
+
+            // Act
+            bool isParsedSuccessfully = cryptoCalculationService.TryParsePositiveQuantity("abc", out decimal parsedQuantity);
+
+            // Assert
+            Assert.False(isParsedSuccessfully);
+            Assert.Equal(0m, parsedQuantity);
+        }
+
+        [Fact]
+        public void TryParsePositiveQuantity_EmptyStringInsteadOfDecimalQuantity_ReturnsFalseAndZero()
+        {
+            // Arrange
+            var cryptoCalculationService = new CryptoTradeCalculationService();
+
+            // Act
+            bool isParsedSuccessfully = cryptoCalculationService.TryParsePositiveQuantity(string.Empty, out decimal parsedQuantity);
+
+            // Assert
+            Assert.False(isParsedSuccessfully);
+            Assert.Equal(0m, parsedQuantity);
+        }
+
+        [Fact]
+        public void TryParsePositiveQuantity_NullQuantity_ReturnsFalseAndZero()
+        {
+            // Arrange
+            var cryptoCalculationService = new CryptoTradeCalculationService();
+
+            // Act
+            bool isParsedSuccessfully = cryptoCalculationService.TryParsePositiveQuantity(null, out decimal parsedQuantity);
 
             // Assert
             Assert.False(isParsedSuccessfully);

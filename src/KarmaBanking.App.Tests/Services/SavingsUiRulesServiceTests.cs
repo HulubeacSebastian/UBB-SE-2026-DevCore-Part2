@@ -2,6 +2,7 @@ namespace KarmaBanking.App.Tests.Services
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using KarmaBanking.App.Models;
     using KarmaBanking.App.Services;
     using Xunit;
@@ -16,15 +17,33 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Theory]
-        [InlineData("150.75", true, 150.75)]
-        [InlineData("0", false, 0)]
-        [InlineData("-50", false, 0)]
-        [InlineData("invalid", false, 0)]
-        [InlineData(null, false, 0)]
-        public void TryParsePositiveAmount_WhenGivenVariousInputs_ThenReturnsExpectedResult(
+        [InlineData("150.75", "150.75")]
+        [InlineData("0.01", "0.01")]
+        public void TryParsePositiveAmount_ValidInput_ReturnsTrueAndParsedValue(
             string amountInputText,
-            bool isExpectedToParseSuccessfully,
-            double expectedParsedAmountValue)
+            string expectedAmountText)
+        {
+            // Arrange
+            decimal expectedParsedAmount = decimal.Parse(expectedAmountText, CultureInfo.InvariantCulture);
+
+            // Act
+            bool actualParsingSuccess = this.savingsUiRulesService.TryParsePositiveAmount(
+                amountInputText,
+                out decimal actualParsedAmount);
+
+            // Assert
+            Assert.True(actualParsingSuccess);
+            Assert.Equal(expectedParsedAmount, actualParsedAmount);
+        }
+
+        [Theory]
+        [InlineData("0")]
+        [InlineData("-50")]
+        [InlineData("invalid")]
+        [InlineData(null)]
+        [InlineData("")]
+        public void TryParsePositiveAmount_InvalidOrNonPositiveInput_ReturnsFalse(
+            string amountInputText)
         {
             // Act
             bool actualParsingSuccess = this.savingsUiRulesService.TryParsePositiveAmount(
@@ -32,8 +51,8 @@ namespace KarmaBanking.App.Tests.Services
                 out decimal actualParsedAmount);
 
             // Assert
-            Assert.Equal(isExpectedToParseSuccessfully, actualParsingSuccess);
-            Assert.Equal((decimal)expectedParsedAmountValue, actualParsedAmount);
+            Assert.False(actualParsingSuccess);
+            Assert.Equal(0m, actualParsedAmount);
         }
 
         [Fact]
@@ -130,18 +149,13 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Theory]
-        [InlineData(-100.0, null, 2)]
-        [InlineData(null, 0, 2)]
-        [InlineData(null, -5, 2)]
-        public void ValidateCreateAccount_WhenInvalidGoalFields_ThenReturnsErrors(
-            double? targetAmountValue,
-            int? daysToAddToTargetDate,
-            int expectedErrorCount)
+        [InlineData("-100.00")]
+        [InlineData(null)]
+        public void ValidateCreateAccount_InvalidTargetAmount_ReturnsTargetAmountError(string invalidTargetAmountStr)
         {
             // Arrange
-            DateTimeOffset? targetDateValue = daysToAddToTargetDate.HasValue
-                ? DateTimeOffset.Now.AddDays(daysToAddToTargetDate.Value)
-                : null;
+            decimal? invalidTargetAmount = invalidTargetAmountStr != null ? decimal.Parse(invalidTargetAmountStr) : null;
+            DateTimeOffset validTargetDate = DateTimeOffset.UtcNow.AddDays(30);
 
             // Act
             var validationErrorDictionary = this.savingsUiRulesService.ValidateCreateAccount(
@@ -150,12 +164,61 @@ namespace KarmaBanking.App.Tests.Services
                 initialDepositText: "100.00",
                 hasFundingSource: true,
                 selectedFrequency: "Weekly",
-                targetAmount: targetAmountValue.HasValue ? (decimal)targetAmountValue.Value : null,
-                targetDate: targetDateValue,
+                targetAmount: invalidTargetAmount,
+                targetDate: validTargetDate,
                 isGoalSavings: true);
 
             // Assert
-            Assert.Equal(expectedErrorCount, validationErrorDictionary.Count);
+            Assert.Single(validationErrorDictionary);
+            Assert.Contains("TargetAmount", validationErrorDictionary.Keys);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-5)]
+        public void ValidateCreateAccount_InvalidTargetDate_ReturnsTargetDateError(int daysToAdd)
+        {
+            // Arrange
+            decimal validTargetAmount = 5000.00m;
+            DateTimeOffset invalidTargetDate = DateTimeOffset.UtcNow.AddDays(daysToAdd);
+
+            // Act
+            var validationErrorDictionary = this.savingsUiRulesService.ValidateCreateAccount(
+                selectedSavingsType: "Goal",
+                accountName: "Vacation",
+                initialDepositText: "100.00",
+                hasFundingSource: true,
+                selectedFrequency: "Weekly",
+                targetAmount: validTargetAmount,
+                targetDate: invalidTargetDate,
+                isGoalSavings: true);
+
+            // Assert
+            Assert.Single(validationErrorDictionary);
+            Assert.Contains("TargetDate", validationErrorDictionary.Keys);
+        }
+
+        [Fact]
+        public void ValidateCreateAccount_MultipleInvalidGoalFields_AccumulatesAllErrors()
+        {
+            // Arrange
+            decimal invalidTargetAmount = -100.00m;
+            DateTimeOffset invalidTargetDate = DateTimeOffset.UtcNow.AddDays(-5);
+
+            // Act
+            var validationErrorDictionary = this.savingsUiRulesService.ValidateCreateAccount(
+                selectedSavingsType: "Goal",
+                accountName: "Vacation",
+                initialDepositText: "100.00",
+                hasFundingSource: true,
+                selectedFrequency: "Weekly",
+                targetAmount: invalidTargetAmount,
+                targetDate: invalidTargetDate,
+                isGoalSavings: true);
+
+            // Assert
+            Assert.Equal(2, validationErrorDictionary.Count);
+
             Assert.Contains("TargetAmount", validationErrorDictionary.Keys);
             Assert.Contains("TargetDate", validationErrorDictionary.Keys);
         }

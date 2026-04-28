@@ -14,13 +14,19 @@ namespace KarmaBanking.App.Tests.Services
         [Fact]
         public void ComputeEstimate_WhenZeroInterest_ThenSplitsPrincipalEvenly()
         {
+            // Arrange
+            var expectedLoadEstimate = new LoanEstimate
+            {
+                IndicativeRate = 0m,
+                MonthlyInstallment = 100m,
+                TotalRepayable = 1200m,
+            };
+
             // Act
             var loanEstimate = AmortizationCalculator.ComputeEstimate(1200m, 0m, 12);
 
             // Assert
-            Assert.Equal(0m, loanEstimate.IndicativeRate);
-            Assert.Equal(100m, loanEstimate.MonthlyInstallment);
-            Assert.Equal(1200m, loanEstimate.TotalRepayable);
+            Assert.Equal(expectedLoadEstimate, loanEstimate);
         }
 
         [Fact]
