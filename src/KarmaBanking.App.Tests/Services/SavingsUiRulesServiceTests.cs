@@ -153,18 +153,13 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Theory]
-        [InlineData(-100.0, null, 2)]
-        [InlineData(null, 0, 2)]
-        [InlineData(null, -5, 2)]
-        public void ValidateCreateAccount_InvalidGoalFields_ReturnsErrors(
-            double? targetAmountValue,
-            int? daysToAddToTargetDate,
-            int expectedErrorCount)
+        [InlineData("-100.00")]
+        [InlineData(null)]
+        public void ValidateCreateAccount_InvalidTargetAmount_ReturnsTargetAmountError(string invalidTargetAmountStr)
         {
             // Arrange
-            DateTimeOffset? targetDateValue = daysToAddToTargetDate.HasValue
-                ? DateTimeOffset.Now.AddDays(daysToAddToTargetDate.Value)
-                : null;
+            decimal? invalidTargetAmount = invalidTargetAmountStr != null ? decimal.Parse(invalidTargetAmountStr) : null;
+            DateTimeOffset validTargetDate = DateTimeOffset.UtcNow.AddDays(30);
 
             // Act
             var validationErrorDictionary = this.savingsUiRulesService.ValidateCreateAccount(
@@ -173,12 +168,61 @@ namespace KarmaBanking.App.Tests.Services
                 initialDepositText: "100.00",
                 hasFundingSource: true,
                 selectedFrequency: "Weekly",
-                targetAmount: targetAmountValue.HasValue ? (decimal)targetAmountValue.Value : null,
-                targetDate: targetDateValue,
+                targetAmount: invalidTargetAmount,
+                targetDate: validTargetDate,
                 isGoalSavings: true);
 
             // Assert
-            Assert.Equal(expectedErrorCount, validationErrorDictionary.Count);
+            Assert.Single(validationErrorDictionary);
+            Assert.Contains("TargetAmount", validationErrorDictionary.Keys);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-5)]
+        public void ValidateCreateAccount_InvalidTargetDate_ReturnsTargetDateError(int daysToAdd)
+        {
+            // Arrange
+            decimal validTargetAmount = 5000.00m;
+            DateTimeOffset invalidTargetDate = DateTimeOffset.UtcNow.AddDays(daysToAdd);
+
+            // Act
+            var validationErrorDictionary = this.savingsUiRulesService.ValidateCreateAccount(
+                selectedSavingsType: "Goal",
+                accountName: "Vacation",
+                initialDepositText: "100.00",
+                hasFundingSource: true,
+                selectedFrequency: "Weekly",
+                targetAmount: validTargetAmount,
+                targetDate: invalidTargetDate,
+                isGoalSavings: true);
+
+            // Assert
+            Assert.Single(validationErrorDictionary);
+            Assert.Contains("TargetDate", validationErrorDictionary.Keys);
+        }
+
+        [Fact]
+        public void ValidateCreateAccount_MultipleInvalidGoalFields_AccumulatesAllErrors()
+        {
+            // Arrange
+            decimal invalidTargetAmount = -100.00m;
+            DateTimeOffset invalidTargetDate = DateTimeOffset.UtcNow.AddDays(-5);
+
+            // Act
+            var validationErrorDictionary = this.savingsUiRulesService.ValidateCreateAccount(
+                selectedSavingsType: "Goal",
+                accountName: "Vacation",
+                initialDepositText: "100.00",
+                hasFundingSource: true,
+                selectedFrequency: "Weekly",
+                targetAmount: invalidTargetAmount,
+                targetDate: invalidTargetDate,
+                isGoalSavings: true);
+
+            // Assert
+            Assert.Equal(2, validationErrorDictionary.Count);
+
             Assert.Contains("TargetAmount", validationErrorDictionary.Keys);
             Assert.Contains("TargetDate", validationErrorDictionary.Keys);
         }
