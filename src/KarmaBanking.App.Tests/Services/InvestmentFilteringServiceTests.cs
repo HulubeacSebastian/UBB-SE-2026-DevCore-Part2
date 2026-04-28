@@ -12,7 +12,7 @@ namespace KarmaBanking.App.Tests.Services
     public class InvestmentFilteringServiceTests
     {
         [Fact]
-        public void FilterHoldingsByAssetType_NullHoldings_ReturnsEmpty()
+        public void FilterHoldingsByAssetType_WhenHoldingsAreNull_ThenReturnsEmpty()
         {
             // Arrange
             var investmentFilteringService = new InvestmentFilteringService();
@@ -28,7 +28,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData("Stock", "Stocks", true)]
         [InlineData("ETF", "Stocks", false)]
         [InlineData("Crypto", "Crypto", true)]
-        public void FilterHoldingsByAssetType_VariousFilters_ReturnsExpectedMatch(
+        public void FilterHoldingsByAssetType_WhenGivenVariousFilters_ThenReturnsExpectedMatch(
             string assetTypeName,
             string filterCategoryName,
             bool shouldMatchAsset)

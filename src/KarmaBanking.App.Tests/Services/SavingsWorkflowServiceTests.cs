@@ -24,7 +24,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData(0.0, true, false, "Please enter a valid amount.")]
         [InlineData(100.0, false, false, "Please select a destination account.")]
         [InlineData(100.0, true, true, "")]
-        public void ValidateWithdrawRequest_ReturnsExpectedTuple(
+        public void ValidateWithdrawRequest_WhenGivenVariousInputs_ThenReturnsExpectedTuple(
             double withdrawalAmountValue,
             bool isDestinationSelected,
             bool isExpectedToBeValid,
@@ -45,7 +45,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildWithdrawResultMessage_NotSuccessful_ReturnsMessage()
+        public void BuildWithdrawResultMessage_WhenWithdrawNotSuccessful_ThenReturnsErrorMessage()
         {
             // Arrange
             var withdrawResponseDataTransferObject = new WithdrawResponseDto
@@ -62,7 +62,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildWithdrawResultMessage_SuccessWithoutPenalty_FormatsProperly()
+        public void BuildWithdrawResultMessage_WhenSuccessWithoutPenalty_ThenFormatsProperly()
         {
             // Arrange
             var withdrawResponseDataTransferObject = new WithdrawResponseDto
@@ -82,7 +82,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildWithdrawResultMessage_SuccessWithPenalty_FormatsProperly()
+        public void BuildWithdrawResultMessage_WhenSuccessWithPenalty_ThenFormatsProperly()
         {
             // Arrange
             var withdrawResponseDataTransferObject = new WithdrawResponseDto
@@ -105,7 +105,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData(false, 1, false, "Please confirm account closure.")]
         [InlineData(true, 0, false, "Please select a destination account.")]
         [InlineData(true, 42, true, "")]
-        public void ValidateCloseConfirmation_ReturnsExpectedTuple(
+        public void ValidateCloseConfirmation_WhenGivenVariousInputs_ThenReturnsExpectedTuple(
             bool isUserConfirmationProvided,
             int destinationIdentificationNumber,
             bool isExpectedToBeValid,
@@ -125,7 +125,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData(1, 5, true)]
         [InlineData(5, 5, false)]
         [InlineData(6, 5, false)]
-        public void CanMoveToNextPage_ReturnsExpectedResult(int currentPageIndex, int totalPageCount, bool isExpectedToMove)
+        public void CanMoveToNextPage_WhenGivenVariousPageIndices_ThenReturnsExpectedResult(int currentPageIndex, int totalPageCount, bool isExpectedToMove)
         {
             // Act
             bool actualCanMoveResult = this.savingsWorkflowService.CanMoveToNextPage(currentPageIndex, totalPageCount);
@@ -138,7 +138,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData(1, false)]
         [InlineData(2, true)]
         [InlineData(5, true)]
-        public void CanMoveToPreviousPage_ReturnsExpectedResult(int currentPageIndex, bool isExpectedToMove)
+        public void CanMoveToPreviousPage_WhenGivenVariousPageIndices_ThenReturnsExpectedResult(int currentPageIndex, bool isExpectedToMove)
         {
             // Act
             bool actualCanMoveResult = this.savingsWorkflowService.CanMoveToPreviousPage(currentPageIndex);

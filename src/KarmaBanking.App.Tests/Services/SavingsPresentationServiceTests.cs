@@ -34,7 +34,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildTotalSavedAmount_CalculatesSumAndFormatsProperly()
+        public void BuildTotalSavedAmount_WhenMultipleAccounts_ThenCalculatesSumAndFormatsProperly()
         {
             // Arrange
             var savingsAccountsList = new List<SavingsAccount>
@@ -53,7 +53,7 @@ namespace KarmaBanking.App.Tests.Services
 
         [Theory]
         [MemberData(nameof(AccountCountCases))]
-        public void BuildNumberOfAccountsText_HandlesPluralization(int totalAccountsCount, string expectedPluralizedText)
+        public void BuildNumberOfAccountsText_WhenGivenVariousAccountCounts_ThenHandlesPluralization(int totalAccountsCount, string expectedPluralizedText)
         {
             // Act
             string actualPluralizedResultText = this.savingsPresentationService.BuildNumberOfAccountsText(totalAccountsCount);

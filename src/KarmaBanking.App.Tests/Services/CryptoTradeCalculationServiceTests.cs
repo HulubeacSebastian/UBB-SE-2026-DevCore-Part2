@@ -10,7 +10,7 @@ namespace KarmaBanking.App.Tests.Services
     public class CryptoTradeCalculationServiceTests
     {
         [Fact]
-        public void TryParsePositiveQuantity_ValidPositiveQuantity_ReturnsTrueAndParsedValue()
+        public void TryParsePositiveQuantity_WhenValidPositiveQuantity_ThenReturnsTrueAndParsedValue()
         {
             // Arrange
             var cryptoCalculationService = new CryptoTradeCalculationService();
@@ -30,7 +30,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData("abc")]
         [InlineData("")]
         [InlineData(null)]
-        public void TryParsePositiveQuantity_InvalidOrNonPositiveQuantity_ReturnsFalseAndZero(string quantityTextValue)
+        public void TryParsePositiveQuantity_WhenInvalidOrNonPositiveQuantity_ThenReturnsFalseAndZero(string quantityTextValue)
         {
             // Arrange
             var cryptoCalculationService = new CryptoTradeCalculationService();
@@ -44,7 +44,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void GetMockMarketPrice_BitcoinTicker_ReturnsExpectedPrice()
+        public void GetMockMarketPrice_WhenGivenBitcoinTicker_ThenReturnsExpectedPrice()
         {
             // Arrange
             var cryptoCalculationService = new CryptoTradeCalculationService();
@@ -57,7 +57,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void CalculateTradePreview_BuyActionAboveMinimumFee_CalculatesCorrectly()
+        public void CalculateTradePreview_WhenBuyActionAboveMinimumFee_ThenCalculatesCorrectly()
         {
             // Arrange
             var cryptoCalculationService = new CryptoTradeCalculationService();
@@ -71,7 +71,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void CanExecuteTrade_BuyWithSufficientFunds_ReturnsTrue()
+        public void CanExecuteTrade_WhenBuyWithSufficientFunds_ThenReturnsTrue()
         {
             // Arrange
             var cryptoCalculationService = new CryptoTradeCalculationService();
@@ -84,7 +84,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void CanExecuteTrade_OtherActionType_ReturnsTrue()
+        public void CanExecuteTrade_WhenActionTypeIsConvert_ThenReturnsTrue()
         {
             // Arrange
             var cryptoCalculationService = new CryptoTradeCalculationService();

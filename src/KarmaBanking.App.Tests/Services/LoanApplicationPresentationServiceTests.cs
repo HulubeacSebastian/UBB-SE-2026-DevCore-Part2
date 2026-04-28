@@ -10,7 +10,7 @@ namespace KarmaBanking.App.Tests.Services
     public class LoanApplicationPresentationServiceTests
     {
         [Fact]
-        public void BuildApplicationOutcome_NullRejectionReason_ReturnsApproved()
+        public void BuildApplicationOutcome_WhenRejectionReasonIsNull_ThenReturnsApproved()
         {
             // Arrange
             var loanApplicationPresentationService = new LoanApplicationPresentationService();
@@ -24,7 +24,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildApplicationOutcome_WithRejectionReason_ReturnsRejectedWithMessage()
+        public void BuildApplicationOutcome_WhenRejectionReasonProvided_ThenReturnsRejectedWithMessage()
         {
             // Arrange
             var loanApplicationPresentationService = new LoanApplicationPresentationService();

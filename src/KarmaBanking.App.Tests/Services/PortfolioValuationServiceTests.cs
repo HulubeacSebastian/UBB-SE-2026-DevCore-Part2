@@ -35,7 +35,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void UpdateHoldingValuation_UpdatesPriceAndCalculatesGainLoss()
+        public void UpdateHoldingValuation_WhenNewMarketPriceProvided_ThenUpdatesPriceAndCalculatesGainLoss()
         {
             // Arrange
             var investmentHoldingInstance = new InvestmentHolding
@@ -54,7 +54,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void UpdatePortfolioTotals_WithPositiveTotalCost_CalculatesTotalsCorrectly()
+        public void UpdatePortfolioTotals_WhenMultipleHoldingsWithPositiveTotalCost_ThenCalculatesTotalsCorrectly()
         {
             // Arrange
             var userPortfolioInstance = new Portfolio

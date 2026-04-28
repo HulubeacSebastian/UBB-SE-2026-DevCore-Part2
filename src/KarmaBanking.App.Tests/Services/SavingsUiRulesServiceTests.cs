@@ -1,7 +1,3 @@
-﻿// <copyright file="SavingsUiRulesServiceTests.cs" company="Dev Core">
-// Copyright (c) Dev Core. All rights reserved.
-// </copyright>
-
 namespace KarmaBanking.App.Tests.Services
 {
     using System;
@@ -25,7 +21,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData("-50", false, 0)]
         [InlineData("invalid", false, 0)]
         [InlineData(null, false, 0)]
-        public void TryParsePositiveAmount_ReturnsExpectedResult(
+        public void TryParsePositiveAmount_WhenGivenVariousInputs_ThenReturnsExpectedResult(
             string amountInputText,
             bool isExpectedToParseSuccessfully,
             double expectedParsedAmountValue)
@@ -41,7 +37,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildDepositPreview_NullAccount_ReturnsEmpty()
+        public void BuildDepositPreview_WhenAccountIsNull_ThenReturnsEmpty()
         {
             // Act
             string actualDepositPreviewMessage = this.savingsUiRulesService.BuildDepositPreview("100", null);
@@ -51,7 +47,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildDepositPreview_InvalidAmount_ReturnsEmpty()
+        public void BuildDepositPreview_WhenAmountIsInvalid_ThenReturnsEmpty()
         {
             // Arrange
             var savingsAccountInstance = new SavingsAccount { Balance = 500m };
@@ -64,7 +60,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void BuildDepositPreview_ValidInput_ReturnsFormattedString()
+        public void BuildDepositPreview_WhenValidInputProvided_ThenReturnsFormattedString()
         {
             // Arrange
             var savingsAccountInstance = new SavingsAccount { Balance = 500m };
@@ -78,7 +74,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void ValidateCreateAccount_AllValid_NonGoal_ReturnsEmptyDictionary()
+        public void ValidateCreateAccount_WhenAllValidNonGoalSavings_ThenReturnsEmptyDictionary()
         {
             // Act
             var validationErrorDictionary = this.savingsUiRulesService.ValidateCreateAccount(
@@ -96,7 +92,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void ValidateCreateAccount_AllValid_Goal_ReturnsEmptyDictionary()
+        public void ValidateCreateAccount_WhenAllValidGoalSavings_ThenReturnsEmptyDictionary()
         {
             // Act
             var validationErrorDictionary = this.savingsUiRulesService.ValidateCreateAccount(
@@ -114,7 +110,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public void ValidateCreateAccount_MissingBaseFields_ReturnsErrors()
+        public void ValidateCreateAccount_WhenMissingBaseFields_ThenReturnsErrors()
         {
             // Act
             var validationErrorDictionary = this.savingsUiRulesService.ValidateCreateAccount(
@@ -137,7 +133,7 @@ namespace KarmaBanking.App.Tests.Services
         [InlineData(-100.0, null, 2)]
         [InlineData(null, 0, 2)]
         [InlineData(null, -5, 2)]
-        public void ValidateCreateAccount_InvalidGoalFields_ReturnsErrors(
+        public void ValidateCreateAccount_WhenInvalidGoalFields_ThenReturnsErrors(
             double? targetAmountValue,
             int? daysToAddToTargetDate,
             int expectedErrorCount)

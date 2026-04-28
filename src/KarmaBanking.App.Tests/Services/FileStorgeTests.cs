@@ -23,14 +23,14 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task UploadFileAsync_ThrowsArgumentException_WhenPathIsNullOrWhitespace()
+        public async Task UploadFileAsync_WhenPathIsNullOrWhitespace_ThenThrowsArgumentException()
         {
             // Act & Assert
             await Assert.ThrowsAsync<ArgumentException>(() => this.fileStorage.UploadFileAsync(string.Empty));
         }
 
         [Fact]
-        public async Task UploadFileAsync_SuccessfullyCopiesFile_WhenFileIsValid()
+        public async Task UploadFileAsync_WhenFileIsValid_ThenSuccessfullyCopiesFile()
         {
             // Arrange
             string validFilePath = Path.Combine(this.testFilesDirectoryPath, "validimage.png");
@@ -46,7 +46,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task DeleteUrl_RemovesFile_WhenFileExists()
+        public async Task DeleteUrl_WhenFileExists_ThenRemovesFile()
         {
             // Arrange
             string fileToDeletePath = Path.Combine(this.testFilesDirectoryPath, "todelete.pdf");

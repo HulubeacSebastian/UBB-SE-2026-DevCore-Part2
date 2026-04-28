@@ -12,7 +12,7 @@ namespace KarmaBanking.App.Tests.Services
     public class DialogServiceTests
     {
         [Fact]
-        public async Task ShowConfirmDialogAsync_NullXamlRoot_ThrowsException()
+        public async Task ShowConfirmDialogAsync_WhenXamlRootIsNull_ThenThrowsException()
         {
             // Arrange
             var dialogService = new DialogService();
@@ -25,7 +25,7 @@ namespace KarmaBanking.App.Tests.Services
         [Theory]
         [InlineData("", "", "", "")]
         [InlineData(null, null, null, null)]
-        public async Task ShowConfirmDialogAsync_NullOrEmptyStrings_ThrowsException(
+        public async Task ShowConfirmDialogAsync_WhenParametersAreNullOrEmpty_ThenThrowsException(
             string titleValue,
             string messageValue,
             string primaryButtonText,
@@ -40,7 +40,7 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Fact]
-        public async Task ShowErrorDialogAsync_NullXamlRoot_ThrowsException()
+        public async Task ShowErrorDialogAsync_WhenXamlRootIsNull_ThenThrowsException()
         {
             // Arrange
             var dialogService = new DialogService();

@@ -12,7 +12,7 @@ namespace KarmaBanking.App.Tests.Services
     public class LoanPresentationServiceTests
     {
         [Fact]
-        public void GetRepaymentProgress_ValidLoan_ReturnsExpectedProgress()
+        public void GetRepaymentProgress_WhenValidLoanProvided_ThenReturnsExpectedProgress()
         {
             // Arrange
             var loanPresentationService = new LoanPresentationService();
