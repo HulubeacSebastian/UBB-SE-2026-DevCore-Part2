@@ -6,6 +6,7 @@ namespace KarmaBanking.App.Tests.Services
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using KarmaBanking.App.Models;
     using KarmaBanking.App.Services;
     using Xunit;
@@ -20,15 +21,33 @@ namespace KarmaBanking.App.Tests.Services
         }
 
         [Theory]
-        [InlineData("150.75", true, 150.75)]
-        [InlineData("0", false, 0)]
-        [InlineData("-50", false, 0)]
-        [InlineData("invalid", false, 0)]
-        [InlineData(null, false, 0)]
-        public void TryParsePositiveAmount_ReturnsExpectedResult(
+        [InlineData("150.75", "150.75")]
+        [InlineData("0.01", "0.01")]
+        public void TryParsePositiveAmount_ValidInput_ReturnsTrueAndParsedValue(
             string amountInputText,
-            bool isExpectedToParseSuccessfully,
-            double expectedParsedAmountValue)
+            string expectedAmountText)
+        {
+            // Arrange
+            decimal expectedParsedAmount = decimal.Parse(expectedAmountText, CultureInfo.InvariantCulture);
+
+            // Act
+            bool actualParsingSuccess = this.savingsUiRulesService.TryParsePositiveAmount(
+                amountInputText,
+                out decimal actualParsedAmount);
+
+            // Assert
+            Assert.True(actualParsingSuccess);
+            Assert.Equal(expectedParsedAmount, actualParsedAmount);
+        }
+
+        [Theory]
+        [InlineData("0")]
+        [InlineData("-50")]
+        [InlineData("invalid")]
+        [InlineData(null)]
+        [InlineData("")]
+        public void TryParsePositiveAmount_InvalidOrNonPositiveInput_ReturnsFalse(
+            string amountInputText)
         {
             // Act
             bool actualParsingSuccess = this.savingsUiRulesService.TryParsePositiveAmount(
@@ -36,8 +55,8 @@ namespace KarmaBanking.App.Tests.Services
                 out decimal actualParsedAmount);
 
             // Assert
-            Assert.Equal(isExpectedToParseSuccessfully, actualParsingSuccess);
-            Assert.Equal((decimal)expectedParsedAmountValue, actualParsedAmount);
+            Assert.False(actualParsingSuccess);
+            Assert.Equal(0m, actualParsedAmount);
         }
 
         [Fact]
