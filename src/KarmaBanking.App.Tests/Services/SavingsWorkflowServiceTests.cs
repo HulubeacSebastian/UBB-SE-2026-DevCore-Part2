@@ -19,29 +19,57 @@ namespace KarmaBanking.App.Tests.Services
             this.savingsWorkflowService = new SavingsWorkflowService();
         }
 
-        [Theory]
-        [InlineData(-50.0, true, false, "Please enter a valid amount.")]
-        [InlineData(0.0, true, false, "Please enter a valid amount.")]
-        [InlineData(100.0, false, false, "Please select a destination account.")]
-        [InlineData(100.0, true, true, "")]
-        public void ValidateWithdrawRequest_ReturnsExpectedTuple(
-            double withdrawalAmountValue,
-            bool isDestinationSelected,
-            bool isExpectedToBeValid,
-            string expectedValidationErrorMessage)
+        [Fact]
+        public void ValidateWithdrawRequest_ValidAmountAndDestination_ReturnsTrueAndEmptyError()
         {
             // Arrange
-            decimal withdrawalAmount = (decimal)withdrawalAmountValue;
-            var fundingSourceOptionInstance = isDestinationSelected ? new FundingSourceOption() : null;
+            decimal validAmount = 100.00m;
+            var destinationAccount = new FundingSourceOption();
 
             // Act
             var (isRequestValid, actualErrorMessage) = this.savingsWorkflowService.ValidateWithdrawRequest(
-                withdrawalAmount,
-                fundingSourceOptionInstance);
+                validAmount,
+                destinationAccount);
 
             // Assert
-            Assert.Equal(isExpectedToBeValid, isRequestValid);
-            Assert.Equal(expectedValidationErrorMessage, actualErrorMessage);
+            Assert.True(isRequestValid);
+            Assert.Empty(actualErrorMessage);
+        }
+
+        [Theory]
+        [InlineData("-50")]
+        [InlineData("0")]
+        public void ValidateWithdrawRequest_InvalidAmount_ReturnsFalseAndAmountError(string invalidAmountStr)
+        {
+            // Arrange
+            decimal invalidAmount = decimal.Parse(invalidAmountStr);
+            var validDestinationAccount = new FundingSourceOption();
+
+            // Act
+            var (isRequestValid, actualErrorMessage) = this.savingsWorkflowService.ValidateWithdrawRequest(
+                invalidAmount,
+                validDestinationAccount);
+
+            // Assert
+            Assert.False(isRequestValid);
+            Assert.Equal("Please enter a valid amount.", actualErrorMessage);
+        }
+
+        [Fact]
+        public void ValidateWithdrawRequest_NullDestination_ReturnsFalseAndDestinationError()
+        {
+            // Arrange
+            decimal validAmount = 100.00m;
+            FundingSourceOption nullDestinationAccount = null;
+
+            // Act
+            var (isRequestValid, actualErrorMessage) = this.savingsWorkflowService.ValidateWithdrawRequest(
+                validAmount,
+                nullDestinationAccount);
+
+            // Assert
+            Assert.False(isRequestValid);
+            Assert.Equal("Please select a destination account.", actualErrorMessage);
         }
 
         [Fact]
@@ -101,50 +129,104 @@ namespace KarmaBanking.App.Tests.Services
             Assert.Equal(expectedResultMessage, actualWithdrawalResultMessage);
         }
 
-        [Theory]
-        [InlineData(false, 1, false, "Please confirm account closure.")]
-        [InlineData(true, 0, false, "Please select a destination account.")]
-        [InlineData(true, 42, true, "")]
-        public void ValidateCloseConfirmation_ReturnsExpectedTuple(
-            bool isUserConfirmationProvided,
-            int destinationIdentificationNumber,
-            bool isExpectedToBeValid,
-            string expectedValidationErrorMessage)
+        [Fact]
+        public void ValidateCloseConfirmation_ValidInputs_ReturnsTrueAndEmptyError()
         {
+            // Arrange
+            bool userConfirmed = true;
+            int validDestinationId = 42;
+
             // Act
             var (isConfirmationValid, actualErrorMessage) = this.savingsWorkflowService.ValidateCloseConfirmation(
-                isUserConfirmationProvided,
-                destinationIdentificationNumber);
+                userConfirmed,
+                validDestinationId);
 
             // Assert
-            Assert.Equal(isExpectedToBeValid, isConfirmationValid);
-            Assert.Equal(expectedValidationErrorMessage, actualErrorMessage);
+            Assert.True(isConfirmationValid);
+            Assert.Empty(actualErrorMessage);
+        }
+
+        [Fact]
+        public void ValidateCloseConfirmation_MissingConfirmation_ReturnsFalseAndConfirmationError()
+        {
+            // Arrange
+            bool userConfirmed = false;
+            int validDestinationId = 42;
+
+            // Act
+            var (isConfirmationValid, actualErrorMessage) = this.savingsWorkflowService.ValidateCloseConfirmation(
+                userConfirmed,
+                validDestinationId);
+
+            // Assert
+            Assert.False(isConfirmationValid);
+            Assert.Equal("Please confirm account closure.", actualErrorMessage);
         }
 
         [Theory]
-        [InlineData(1, 5, true)]
-        [InlineData(5, 5, false)]
-        [InlineData(6, 5, false)]
-        public void CanMoveToNextPage_ReturnsExpectedResult(int currentPageIndex, int totalPageCount, bool isExpectedToMove)
+        [InlineData(0)]
+        public void ValidateCloseConfirmation_InvalidDestination_ReturnsFalseAndDestinationError(int invalidDestinationId)
+        {
+            // Arrange
+            bool userConfirmed = true;
+
+            // Act
+            var (isConfirmationValid, actualErrorMessage) = this.savingsWorkflowService.ValidateCloseConfirmation(
+                userConfirmed,
+                invalidDestinationId);
+
+            // Assert
+            Assert.False(isConfirmationValid);
+            Assert.Equal("Please select a destination account.", actualErrorMessage);
+        }
+
+        [Theory]
+        [InlineData(1, 5)]
+        [InlineData(4, 5)]
+        public void CanMoveToNextPage_NotOnLastPage_ReturnsTrue(int currentPageIndex, int totalPageCount)
         {
             // Act
             bool actualCanMoveResult = this.savingsWorkflowService.CanMoveToNextPage(currentPageIndex, totalPageCount);
 
             // Assert
-            Assert.Equal(isExpectedToMove, actualCanMoveResult);
+            Assert.True(actualCanMoveResult);
         }
 
         [Theory]
-        [InlineData(1, false)]
-        [InlineData(2, true)]
-        [InlineData(5, true)]
-        public void CanMoveToPreviousPage_ReturnsExpectedResult(int currentPageIndex, bool isExpectedToMove)
+        [InlineData(5, 5)]
+        [InlineData(6, 5)]
+        public void CanMoveToNextPage_OnOrPastLastPage_ReturnsFalse(int currentPageIndex, int totalPageCount)
+        {
+            // Act
+            bool actualCanMoveResult = this.savingsWorkflowService.CanMoveToNextPage(currentPageIndex, totalPageCount);
+
+            // Assert
+            Assert.False(actualCanMoveResult);
+        }
+
+        [Theory]
+        [InlineData(2)]
+        [InlineData(5)]
+        public void CanMoveToPreviousPage_PageIsGreaterThanOne_ReturnsTrue(int currentPageIndex)
         {
             // Act
             bool actualCanMoveResult = this.savingsWorkflowService.CanMoveToPreviousPage(currentPageIndex);
 
             // Assert
-            Assert.Equal(isExpectedToMove, actualCanMoveResult);
+            Assert.True(actualCanMoveResult);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void CanMoveToPreviousPage_OnFirstPageOrLower_ReturnsFalse(int currentPageIndex)
+        {
+            // Act
+            bool actualCanMoveResult = this.savingsWorkflowService.CanMoveToPreviousPage(currentPageIndex);
+
+            // Assert
+            Assert.False(actualCanMoveResult);
         }
     }
 }
